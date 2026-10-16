@@ -36,7 +36,7 @@ export function SelectorProveedor({
             <p className="text-xs text-stone-600">{valor.nro_doc ? `${valor.tipo_doc} ${valor.nro_doc}` : "Sin documento"}</p>
           </div>
         </div>
-        <button type="button" onClick={() => onCambio(null)} className="rounded-md p-1.5 text-stone-500 hover:bg-white" aria-label="Quitar proveedor">
+        <button type="button" onClick={() => onCambio(null)} className="rounded-md p-1.5 text-stone-500 hover:bg-superficie" aria-label="Quitar proveedor">
           <X className="size-4" />
         </button>
       </div>
@@ -59,13 +59,13 @@ export function SelectorProveedor({
         <button
           type="button"
           onClick={() => setModal(true)}
-          className="flex shrink-0 items-center gap-1 rounded-lg border border-stone-300 bg-white px-3 text-sm font-medium hover:bg-stone-50"
+          className="flex shrink-0 items-center gap-1 rounded-lg border border-stone-300 bg-superficie px-3 text-sm font-medium hover:bg-stone-50"
         >
           <Plus className="size-4" /> Nuevo
         </button>
       </div>
       {q.trim().length >= 2 && (
-        <ul className="absolute inset-x-0 top-full z-10 mt-1 max-h-64 overflow-y-auto rounded-lg border border-stone-200 bg-white shadow-lg">
+        <ul className="absolute inset-x-0 top-full z-10 mt-1 max-h-64 overflow-y-auto rounded-lg border border-stone-200 bg-superficie shadow-lg">
           {resultados.map((p) => (
             <li key={p.id}>
               <button

@@ -54,7 +54,7 @@ export default async function CajaPage({ searchParams }: { searchParams: Promise
     <Link
       key={v}
       href={`/caja?vista=${v}`}
-      className={cx("whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium", vista === v ? "bg-white shadow-sm" : "text-stone-600 hover:text-stone-900")}
+      className={cx("whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium", vista === v ? "bg-superficie shadow-sm" : "text-stone-600 hover:text-stone-900")}
     >
       {t}
     </Link>

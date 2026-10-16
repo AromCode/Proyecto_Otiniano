@@ -179,6 +179,6 @@ describe("Patrimonio y resultado", () => {
     expect(num(r.p.stock_costo)).toBeCloseTo(num(r.stock.s), 2);
     expect(num(r.p.capital)).toBe(20000);
     // La ganancia acumulada coincide con la suma de utilidades mensuales
-    expect(num(r.p.ganancia_acumulada)).toBeCloseTo(num(r.res.s), 2);
+    expect(num(r.p.ganancia_acumulada).toFixed(2)).toBe(num(r.res.s).toFixed(2));
   });
 });

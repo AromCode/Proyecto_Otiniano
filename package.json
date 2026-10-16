@@ -10,9 +10,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "db:validar": "tsx scripts/validar-migraciones.ts",
-    "db:link": "supabase link",
-    "db:push": "supabase db push",
-    "db:types": "supabase gen types typescript --linked --schema public > src/lib/supabase/database.types.ts"
+    "db:push": "node scripts/supabase.mjs db push",
+    "db:types": "node scripts/supabase.mjs gen types typescript --linked --schema public > src/lib/supabase/database.types.ts",
+    "supabase:conectar": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/conectar-supabase.ps1",
+    "sb": "node scripts/supabase.mjs",
+    "supabase:clave": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/cambiar-clave-bd.ps1"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",

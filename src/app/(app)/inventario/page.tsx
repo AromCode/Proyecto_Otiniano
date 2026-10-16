@@ -2,22 +2,22 @@ import type { Metadata } from "next";
 import { exigir } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
 import { fechaHora, kg, soles } from "@/lib/formato";
-import { Encabezado, Insignia, Kpi, PuntoMetal, Tarjeta, TituloTarjeta } from "@/components/ui/basicos";
+import { Encabezado, Insignia, PuntoMetal, Tarjeta, TituloTarjeta } from "@/components/ui/basicos";
 import { TablaDatos } from "@/components/ui/tabla";
+import { ResumenInventario } from "@/components/resumen-modulo";
 import { AccionesInventario } from "./acciones-inventario";
 
 export const metadata: Metadata = { title: "Inventario" };
 
 export default async function InventarioPage() {
-  const { supabase, empresa, rol } = await exigir("verTodo", "vender");
+  const ctx = await exigir("verTodo", "vender");
+  const { supabase, empresa, rol } = ctx;
   const verCostos = puede(rol, "verTodo");
-  const [{ data: stock }, { data: ajustes }, { data: patrimonio }] = await Promise.all([
+  const [{ data: stock }, { data: ajustes }] = await Promise.all([
     supabase.from("v_stock_metal").select("*").eq("empresa_id", empresa.id).order("orden").order("nombre"),
     supabase.from("v_ajustes").select("*").eq("empresa_id", empresa.id).order("fecha", { ascending: false }).limit(20),
-    supabase.from("v_patrimonio").select("stock_costo, stock_precio_venta, en_transito").eq("empresa_id", empresa.id).maybeSingle(),
   ]);
   const filas = (stock ?? []).filter((s) => s.activo || Number(s.kg) !== 0);
-  const totalKg = filas.reduce((s, f) => s + Number(f.kg), 0);
 
   return (
     <>
@@ -29,14 +29,7 @@ export default async function InventarioPage() {
         )}
       />
 
-      <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi titulo="Kilos en stock" valor={kg(totalKg)} />
-        {verCostos && <Kpi titulo="Valor a costo" valor={soles(patrimonio?.stock_costo)} />}
-        {verCostos && <Kpi titulo="Valor a precio de venta" valor={soles(patrimonio?.stock_precio_venta)} detalle="Con el precio de venta del día" />}
-        {verCostos && Number(patrimonio?.en_transito) > 0 && (
-          <Kpi titulo="En tránsito" valor={soles(patrimonio?.en_transito)} detalle="Ventas pendientes de pesaje" />
-        )}
-      </div>
+      <ResumenInventario ctx={ctx} />
 
       <Tarjeta className="mb-4">
         <TablaDatos

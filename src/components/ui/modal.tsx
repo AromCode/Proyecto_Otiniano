@@ -21,7 +21,7 @@ export function Modal({
       ref={ref}
       onClose={onCerrar}
       onClick={(e) => { if (e.target === ref.current) onCerrar(); }}
-      className={`m-0 mt-auto w-full ${ancho} max-h-[92dvh] rounded-t-2xl bg-white p-0 shadow-xl sm:m-auto sm:rounded-2xl`}
+      className={`m-0 mt-auto w-full ${ancho} max-h-[92dvh] rounded-t-2xl bg-superficie p-0 shadow-xl sm:m-auto sm:rounded-2xl`}
     >
       {abierto && (
         <div className="flex max-h-[92dvh] flex-col">

@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
+import { COOKIE_LETRA, COOKIE_TEMA, clasesHtml, leerLetra, leerTema } from "@/lib/preferencias";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -19,9 +21,11 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const c = await cookies();
+  const clases = clasesHtml(leerTema(c.get(COOKIE_TEMA)?.value), leerLetra(c.get(COOKIE_LETRA)?.value));
   return (
-    <html lang="es-PE">
+    <html lang="es-PE" className={clases || undefined}>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>{children}</body>
     </html>
   );

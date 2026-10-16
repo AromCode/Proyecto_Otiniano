@@ -101,7 +101,7 @@ export function ConfirmarVenta({
             </Select>
           </Campo>
           <Campo etiqueta="Comprobante (opcional)">
-            <label className="flex h-[42px] cursor-pointer items-center gap-2 rounded-lg border border-dashed border-stone-300 bg-white px-3 text-sm text-stone-600">
+            <label className="flex h-[42px] cursor-pointer items-center gap-2 rounded-lg border border-dashed border-stone-300 bg-superficie px-3 text-sm text-stone-600">
               <FileUp className="size-4 shrink-0" />
               <span className="truncate">{comprobante ? comprobante.name : "Adjuntar"}</span>
               <input type="file" accept="image/*,application/pdf" className="sr-only" onChange={(e) => setComprobante(e.target.files?.[0] ?? null)} />

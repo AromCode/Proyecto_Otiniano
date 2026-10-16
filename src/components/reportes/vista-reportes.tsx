@@ -1,0 +1,160 @@
+import Link from "next/link";
+import { Download, FileText } from "lucide-react";
+import { exigir } from "@/lib/contexto";
+import { REPORTES, filtrosDesde, totales, type Col } from "@/lib/reportes";
+import { fechaHora, kg, numero, porcentaje, soles } from "@/lib/formato";
+import { Aviso, Encabezado, Tarjeta } from "@/components/ui/basicos";
+import { claseBoton, claseInput, cx } from "@/components/ui/clases";
+
+function celda(c: Col, v: unknown) {
+  if (v === null || v === undefined || v === "") return "—";
+  switch (c.tipo) {
+    case "soles": return soles(v as string);
+    case "precio": return `S/ ${Number(v).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`;
+    case "kg": return kg(v as string);
+    case "num": return numero(v as string);
+    case "pct": return porcentaje(v as string);
+    case "fecha": return fechaHora(v as string);
+    default: return String(v);
+  }
+}
+
+export type ParamsReporte = { r?: string; desde?: string; hasta?: string; agrupar?: string; metal?: string; caja?: string };
+
+/** Vista de reportes reutilizable: cada módulo muestra solo los suyos (ids) en su propia ruta (base). */
+export async function VistaReportes({
+  sp, base, ids, titulo = "Reportes", descripcion = "Todos los montos salen de la base de datos; Excel y PDF muestran lo mismo que la pantalla.",
+}: { sp: ParamsReporte; base: string; ids?: string[]; titulo?: string; descripcion?: string }) {
+  const ctx = await exigir("verReportes");
+  const lista = ids ? ids.map((id) => REPORTES.find((r) => r.id === id)!).filter(Boolean) : REPORTES;
+  const def = lista.find((r) => r.id === sp.r) ?? lista[0];
+  const f = filtrosDesde(sp);
+
+  const [datos, metales, cajas] = await Promise.all([
+    def.obtener(ctx, f).catch((e: Error) => ({ columnas: [], filas: [], nota: undefined, error: e.message })),
+    def.usaMetal ? ctx.supabase.from("metales").select("id, nombre").eq("empresa_id", ctx.empresa.id).order("orden").order("nombre") : null,
+    def.usaCaja ? ctx.supabase.from("cajas").select("id, nombre").eq("empresa_id", ctx.empresa.id).order("orden") : null,
+  ]);
+  const t = totales(datos);
+  const qs = new URLSearchParams(Object.entries({ ...f, r: def.id }).filter(([, v]) => v) as [string, string][]);
+
+  return (
+    <>
+      <Encabezado titulo={titulo} descripcion={descripcion} />
+
+      <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1">
+        {lista.length > 1 && lista.map((r) => (
+          <Link
+            key={r.id}
+            href={`${base}?r=${r.id}&desde=${f.desde}&hasta=${f.hasta}`}
+            className={cx(
+              "whitespace-nowrap rounded-full border px-3 py-1.5 text-sm font-medium",
+              r.id === def.id ? "border-marca-600 bg-marca-50 text-marca-700" : "border-stone-200 bg-superficie text-stone-700 hover:bg-stone-50",
+            )}
+          >
+            {r.titulo}
+          </Link>
+        ))}
+      </div>
+
+      <Tarjeta>
+        <div className="border-b border-stone-100 p-4">
+          <h2 className="font-semibold">{def.titulo}</h2>
+          <p className="text-sm text-stone-500">{def.descripcion}</p>
+          <form method="get" className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-end">
+            <input type="hidden" name="r" value={def.id} />
+            {def.id !== "patrimonio" && (
+              <>
+                <label className="block sm:w-40">
+                  <span className="mb-1 block text-xs font-medium text-stone-600">Desde</span>
+                  <input type="date" name="desde" defaultValue={f.desde} className={claseInput} />
+                </label>
+                <label className="block sm:w-40">
+                  <span className="mb-1 block text-xs font-medium text-stone-600">Hasta</span>
+                  <input type="date" name="hasta" defaultValue={f.hasta} className={claseInput} />
+                </label>
+              </>
+            )}
+            {def.agrupaciones && (
+              <label className="block sm:w-44">
+                <span className="mb-1 block text-xs font-medium text-stone-600">Agrupar</span>
+                <select name="agrupar" defaultValue={f.agrupar ?? def.agrupaciones[0].valor} className={claseInput}>
+                  {def.agrupaciones.map((a) => <option key={a.valor} value={a.valor}>{a.texto}</option>)}
+                </select>
+              </label>
+            )}
+            {metales && (
+              <label className="block sm:w-44">
+                <span className="mb-1 block text-xs font-medium text-stone-600">Metal</span>
+                <select name="metal" defaultValue={f.metal ?? ""} className={claseInput} required>
+                  <option value="">Elija…</option>
+                  {(metales.data ?? []).map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                </select>
+              </label>
+            )}
+            {cajas && (
+              <label className="block sm:w-44">
+                <span className="mb-1 block text-xs font-medium text-stone-600">Caja</span>
+                <select name="caja" defaultValue={f.caja ?? ""} className={claseInput}>
+                  <option value="">Todas</option>
+                  {(cajas.data ?? []).map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                </select>
+              </label>
+            )}
+            <button className={cx(claseBoton("secundario"), "h-[42px]")}>Ver</button>
+            <div className="col-span-2 flex gap-2 sm:ml-auto">
+              <a href={`/reportes/exportar/${def.id}?${qs}&formato=xlsx`} className={cx(claseBoton("secundario"), "h-[42px] flex-1 sm:flex-none")}>
+                <Download className="size-4" /> Excel
+              </a>
+              <a href={`/reportes/exportar/${def.id}?${qs}&formato=pdf`} target="_blank" className={cx(claseBoton("secundario"), "h-[42px] flex-1 sm:flex-none")}>
+                <FileText className="size-4" /> PDF
+              </a>
+            </div>
+          </form>
+        </div>
+
+        {"error" in datos && datos.error && <div className="p-4"><Aviso tono="rojo">{datos.error}</Aviso></div>}
+        {datos.nota && <p className="border-b border-stone-100 px-4 py-2 text-xs text-stone-500">{datos.nota}</p>}
+
+        {datos.filas.length === 0 ? (
+          <p className="px-4 py-10 text-center text-sm text-stone-500">Sin datos para el periodo elegido.</p>
+        ) : (
+          // Los reportes son tablas anchas: el desplazamiento horizontal queda DENTRO de la tarjeta, nunca en la página
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-max text-sm">
+              <thead>
+                <tr className="border-b border-stone-200 bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
+                  {datos.columnas.map((c) => (
+                    <th key={c.clave} className={cx("px-3 py-2.5 font-medium", c.tipo === "texto" || c.tipo === "fecha" ? "text-left" : "text-right")}>{c.titulo}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-100">
+                {datos.filas.map((r, i) => (
+                  <tr key={i} className={cx("hover:bg-stone-50", Boolean(r._fuerte) && "bg-stone-50 font-semibold")}>
+                    {datos.columnas.map((c) => (
+                      <td key={c.clave} className={cx("px-3 py-2", c.tipo === "texto" || c.tipo === "fecha" ? "text-left" : "cifra text-right")}>
+                        {celda(c, r[c.clave])}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+              {t && (
+                <tfoot className="border-t-2 border-stone-200 bg-stone-50 font-semibold">
+                  <tr>
+                    {datos.columnas.map((c, i) => (
+                      <td key={c.clave} className={cx("px-3 py-2.5", c.tipo === "texto" || c.tipo === "fecha" ? "text-left" : "cifra text-right")}>
+                        {i === 0 ? "Total" : c.clave in t ? celda(c, t[c.clave]) : ""}
+                      </td>
+                    ))}
+                  </tr>
+                </tfoot>
+              )}
+            </table>
+          </div>
+        )}
+      </Tarjeta>
+    </>
+  );
+}

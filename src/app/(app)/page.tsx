@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Scale, Truck } from "lucide-react";
 import { obtenerContexto } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
@@ -8,6 +7,7 @@ import { kg, nombrePeriodo, soles } from "@/lib/formato";
 import { Aviso, Kpi, Tarjeta, TituloTarjeta } from "@/components/ui/basicos";
 import { BotonLink } from "@/components/ui/boton";
 import { GraficoStock, GraficoUtilidad } from "@/components/graficos";
+import { InicioOperativo } from "./inicio-operativo";
 
 export const metadata: Metadata = { title: "Inicio" };
 
@@ -19,9 +19,10 @@ interface Dashboard {
 }
 
 export default async function Inicio() {
-  const { supabase, empresa, rol, nombre } = await obtenerContexto();
-  // El balancero entra directo a comprar
-  if (!puede(rol, "verTodo") && !puede(rol, "caja")) redirect("/comprar");
+  const ctx = await obtenerContexto();
+  const { supabase, empresa, rol, nombre } = ctx;
+  // Cajero y balancero: inicio de trabajo diario (botones grandes); dueño y socios: el resumen de gestión
+  if (!puede(rol, "verTodo")) return <InicioOperativo ctx={ctx} />;
 
   const [{ data: d }, { data: meses }, { data: stock }] = await Promise.all([
     supabase.rpc("dashboard", { p_empresa: empresa.id }),

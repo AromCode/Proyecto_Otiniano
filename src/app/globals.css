@@ -4,7 +4,10 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
 
+/* Colores propios como variables (no "inline") para que el modo oscuro pueda redefinirlos */
+@theme {
   --color-marca-50: #fdf5ef;
   --color-marca-100: #fae6d6;
   --color-marca-200: #f3c8a6;
@@ -12,10 +15,158 @@
   --color-marca-600: #a85219;
   --color-marca-700: #8a4216;
   --color-marca-800: #6e3514;
+  /* Superficie de tarjetas, menús e inputs (bg-superficie) */
+  --color-superficie: #ffffff;
+  --color-fondo: var(--color-stone-100);
 }
 
 :root {
   color-scheme: light;
+}
+
+/* -----------------------------------------------------------------------------
+   Modo oscuro: se invierten las escalas de color (stone y tintes), así todos los
+   componentes funcionan sin clases dark:. "oscuro" lo fuerza, "claro" lo evita y
+   sin clase sigue al sistema. Solo en pantalla: al imprimir siempre es claro.
+   -------------------------------------------------------------------------- */
+@media screen {
+  :root.oscuro {
+    color-scheme: dark;
+    --color-superficie: #1f1c1a;
+    --color-fondo: #121010;
+    --color-stone-50: #292523;
+    --color-stone-100: #302b28;
+    --color-stone-200: #3d3734;
+    --color-stone-300: #57504b;
+    --color-stone-400: #857d77;
+    --color-stone-500: #a8a29e;
+    --color-stone-600: #c4beb9;
+    --color-stone-700: #d6d3d1;
+    --color-stone-800: #e7e5e4;
+    --color-stone-900: #f5f5f4;
+    --color-stone-950: #fafaf9;
+
+    --color-marca-50: #3a2416;
+    --color-marca-100: #4a2c19;
+    --color-marca-200: #6e3e1e;
+    --color-marca-700: #f0a46b;
+    --color-marca-800: #f6c39c;
+
+    --color-emerald-50: #10291f;
+    --color-emerald-100: #133626;
+    --color-emerald-200: #1d4d38;
+    --color-emerald-700: #6ee7b7;
+    --color-emerald-800: #a7f3d0;
+
+    --color-red-50: #3a1516;
+    --color-red-100: #4a1a1b;
+    --color-red-200: #6b2426;
+    --color-red-700: #fca5a5;
+    --color-red-800: #fecaca;
+
+    --color-amber-50: #36260c;
+    --color-amber-100: #45300d;
+    --color-amber-200: #66460f;
+    --color-amber-300: #8a5f12;
+    --color-amber-400: #b07a16;
+    --color-amber-600: #fbbf24;
+    --color-amber-700: #fcd34d;
+    --color-amber-800: #fde68a;
+    --color-amber-900: #fef3c7;
+
+    --color-sky-50: #0d2533;
+    --color-sky-100: #10303f;
+    --color-sky-700: #7dd3fc;
+
+    --color-teal-50: #0c2724;
+    --color-teal-100: #0f3430;
+    --color-teal-700: #5eead4;
+
+    --color-indigo-50: #1c1d3d;
+    --color-indigo-100: #23254d;
+    --color-indigo-700: #a5b4fc;
+
+    --color-fuchsia-50: #2e1530;
+    --color-fuchsia-100: #3b1a3e;
+    --color-fuchsia-700: #f0abfc;
+
+    --color-violet-50: #251a3d;
+    --color-violet-100: #2e204d;
+    --color-violet-700: #c4b5fd;
+  }
+}
+
+/* Mismo bloque cuando el sistema está en oscuro y el usuario no eligió "claro" */
+@media screen and (prefers-color-scheme: dark) {
+  :root:not(.claro):not(.oscuro) {
+    color-scheme: dark;
+    --color-superficie: #1f1c1a;
+    --color-fondo: #121010;
+    --color-stone-50: #292523;
+    --color-stone-100: #302b28;
+    --color-stone-200: #3d3734;
+    --color-stone-300: #57504b;
+    --color-stone-400: #857d77;
+    --color-stone-500: #a8a29e;
+    --color-stone-600: #c4beb9;
+    --color-stone-700: #d6d3d1;
+    --color-stone-800: #e7e5e4;
+    --color-stone-900: #f5f5f4;
+    --color-stone-950: #fafaf9;
+
+    --color-marca-50: #3a2416;
+    --color-marca-100: #4a2c19;
+    --color-marca-200: #6e3e1e;
+    --color-marca-700: #f0a46b;
+    --color-marca-800: #f6c39c;
+
+    --color-emerald-50: #10291f;
+    --color-emerald-100: #133626;
+    --color-emerald-200: #1d4d38;
+    --color-emerald-700: #6ee7b7;
+    --color-emerald-800: #a7f3d0;
+
+    --color-red-50: #3a1516;
+    --color-red-100: #4a1a1b;
+    --color-red-200: #6b2426;
+    --color-red-700: #fca5a5;
+    --color-red-800: #fecaca;
+
+    --color-amber-50: #36260c;
+    --color-amber-100: #45300d;
+    --color-amber-200: #66460f;
+    --color-amber-300: #8a5f12;
+    --color-amber-400: #b07a16;
+    --color-amber-600: #fbbf24;
+    --color-amber-700: #fcd34d;
+    --color-amber-800: #fde68a;
+    --color-amber-900: #fef3c7;
+
+    --color-sky-50: #0d2533;
+    --color-sky-100: #10303f;
+    --color-sky-700: #7dd3fc;
+
+    --color-teal-50: #0c2724;
+    --color-teal-100: #0f3430;
+    --color-teal-700: #5eead4;
+
+    --color-indigo-50: #1c1d3d;
+    --color-indigo-100: #23254d;
+    --color-indigo-700: #a5b4fc;
+
+    --color-fuchsia-50: #2e1530;
+    --color-fuchsia-100: #3b1a3e;
+    --color-fuchsia-700: #f0abfc;
+
+    --color-violet-50: #251a3d;
+    --color-violet-100: #2e204d;
+    --color-violet-700: #c4b5fd;
+  }
+}
+
+/* Letra grande (preferencia por dispositivo): todo está en rem, así que escala completo */
+:root.letra-grande {
+  font-size: 112.5%;
 }
 
 html {
@@ -23,7 +174,7 @@ html {
 }
 
 body {
-  background: var(--color-stone-100);
+  background: var(--color-fondo);
   color: var(--color-stone-900);
   overflow-x: hidden;
 }
@@ -42,7 +193,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 dialog::backdrop {
-  background: rgb(28 25 23 / 0.5);
+  background: rgb(0 0 0 / 0.55);
 }
 
 @media print {

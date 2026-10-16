@@ -23,7 +23,7 @@ export async function guardarSocio(_: unknown, fd: FormData): Promise<Resultado>
     : await supabase.from("socios").insert({ ...datos, empresa_id: empresa.id }, { count: "exact" });
   if (error) return fallo(error);
   if (!count) return fallo("Solo el dueño puede gestionar socios.");
-  revalidatePath("/socios");
+  revalidatePath("/", "layout");
   return ok(null);
 }
 

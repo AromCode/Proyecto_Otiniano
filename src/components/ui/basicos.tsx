@@ -1,7 +1,7 @@
 import { cx } from "./clases";
 
 export function Tarjeta({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <section className={cx("rounded-xl border border-stone-200 bg-white shadow-sm", className)}>{children}</section>;
+  return <section className={cx("rounded-xl border border-stone-200 bg-superficie shadow-sm", className)}>{children}</section>;
 }
 
 export function TituloTarjeta({ children, accion }: { children: React.ReactNode; accion?: React.ReactNode }) {
@@ -64,7 +64,7 @@ export function Kpi({
   return (
     <Tarjeta className="p-4">
       <p className="text-xs font-medium uppercase tracking-wide text-stone-500">{titulo}</p>
-      <p className={cx("cifra mt-1 text-2xl font-semibold",
+      <p className={cx("cifra mt-1 text-[clamp(1.05rem,5.2vw,1.5rem)] font-semibold",
         tono === "positivo" && "text-emerald-700", tono === "negativo" && "text-red-700")}>{valor}</p>
       {detalle && <p className="mt-0.5 text-xs text-stone-500">{detalle}</p>}
     </Tarjeta>

@@ -38,7 +38,7 @@ export default async function VentaDetalle({ params }: { params: Promise<{ id: s
         descripcion={`Salida ${fechaHora(v.fecha)}${v.fecha_confirmacion ? ` · Confirmada ${fechaHora(v.fecha_confirmacion)}` : ""}`}
         acciones={
           <>
-            <a href={`/ventas/${v.id}/ticket`} target="_blank" className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-white px-4 text-sm font-medium hover:bg-stone-50">
+            <a href={`/ventas/${v.id}/ticket`} target="_blank" className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50">
               <FileText className="size-4" /> Nota de salida
             </a>
             {puede(rol, "anular") && v.estado !== "anulada" && (

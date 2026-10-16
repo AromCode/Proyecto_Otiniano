@@ -7,6 +7,7 @@ import { Encabezado, Insignia, Tarjeta, type Tono } from "@/components/ui/basico
 import { BotonLink } from "@/components/ui/boton";
 import { TablaDatos } from "@/components/ui/tabla";
 import { Filtros, rangoLima } from "@/components/filtros";
+import { ResumenVentas } from "@/components/resumen-modulo";
 
 export const metadata: Metadata = { title: "Ventas" };
 
@@ -20,7 +21,8 @@ type Params = { desde?: string; hasta?: string; estado?: string; comprador?: str
 
 export default async function VentasPage({ searchParams }: { searchParams: Promise<Params> }) {
   const sp = await searchParams;
-  const { supabase, empresa, rol } = await exigir("verTodo", "vender");
+  const ctx = await exigir("verTodo", "vender");
+  const { supabase, empresa, rol } = ctx;
   const { desde, hasta } = rangoLima(sp.desde, sp.hasta);
 
   let q = supabase.from("v_ventas").select("*").eq("empresa_id", empresa.id).order("fecha", { ascending: false }).limit(200);
@@ -44,6 +46,7 @@ export default async function VentasPage({ searchParams }: { searchParams: Promi
         descripcion="Salida de nuestra balanza → confirmación del pesaje del comprador"
         acciones={puede(rol, "vender") && <BotonLink href="/vender"><Plus className="size-4" /> Nueva venta</BotonLink>}
       />
+      <ResumenVentas ctx={ctx} />
       <Filtros
         valores={sp}
         selects={[

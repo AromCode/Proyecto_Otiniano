@@ -7,6 +7,7 @@ import { Encabezado, Insignia, Tarjeta } from "@/components/ui/basicos";
 import { BotonLink } from "@/components/ui/boton";
 import { TablaDatos } from "@/components/ui/tabla";
 import { Filtros, rangoLima } from "@/components/filtros";
+import { ResumenCompras } from "@/components/resumen-modulo";
 
 export const metadata: Metadata = { title: "Compras" };
 
@@ -14,7 +15,8 @@ type Params = { desde?: string; hasta?: string; estado?: string; metal?: string;
 
 export default async function ComprasPage({ searchParams }: { searchParams: Promise<Params> }) {
   const sp = await searchParams;
-  const { supabase, empresa, rol, userId } = await obtenerContexto();
+  const ctx = await obtenerContexto();
+  const { supabase, empresa, rol, userId } = ctx;
   const { desde, hasta } = rangoLima(sp.desde, sp.hasta);
 
   let q = supabase.from("v_compras").select("*").eq("empresa_id", empresa.id)
@@ -46,6 +48,7 @@ export default async function ComprasPage({ searchParams }: { searchParams: Prom
         descripcion={`${vigentes.length} compras · ${kg(totalKg)} · ${soles(totalSoles)}`}
         acciones={puede(rol, "comprar") && <BotonLink href="/comprar"><Plus className="size-4" /> Nueva compra</BotonLink>}
       />
+      {rol !== "balancero" && <ResumenCompras ctx={ctx} />}
       <Filtros
         valores={sp}
         busqueda={{ nombre: "q", placeholder: "N°, DNI o nombre" }}

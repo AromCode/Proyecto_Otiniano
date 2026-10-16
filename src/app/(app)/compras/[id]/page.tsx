@@ -39,7 +39,7 @@ export default async function CompraDetalle({ params }: { params: Promise<{ id: 
         descripcion={fechaHora(c.fecha)}
         acciones={
           <>
-            <a href={`/compras/${c.id}/ticket`} target="_blank" className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-white px-4 text-sm font-medium hover:bg-stone-50">
+            <a href={`/compras/${c.id}/ticket`} target="_blank" className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50">
               <FileText className="size-4" /> Ticket
             </a>
             {puede(rol, "anular") && c.estado === "registrada" && (

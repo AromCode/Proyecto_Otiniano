@@ -79,8 +79,9 @@ begin
     raise exception 'Stock insuficiente de %: hay % kg y se intenta sacar % kg.', v_nombre, s.kg, p_kg
       using errcode = 'P0001';
   end if;
+  -- Costo al céntimo en cada salida: así caja + stock y el estado de resultados cuadran exacto.
   -- Si sale todo, sale todo el costo (evita residuos de redondeo)
-  v_costo := case when s.kg = p_kg then s.costo_total else round(s.costo_total * p_kg / s.kg, 4) end;
+  v_costo := case when s.kg = p_kg then s.costo_total else round(s.costo_total * p_kg / s.kg, 2) end;
   update stock_metal
      set kg = kg - p_kg, costo_total = costo_total - v_costo, actualizado = now()
    where metal_id = p_metal;
@@ -407,7 +408,7 @@ begin
     if v_recibido < 0 or v_precio < 0 then
       raise exception 'Peso recibido y precio de % no pueden ser negativos.', it.metal_nombre;
     end if;
-    v_vendido := round(it.costo_total * v_recibido / it.peso_salida_kg, 4);
+    v_vendido := round(it.costo_total * v_recibido / it.peso_salida_kg, 2);
 
     update venta_items
        set peso_recibido_kg = v_recibido,
@@ -508,8 +509,8 @@ begin
     v_costo := -_stock_salida(p_empresa, p_metal, -v_kg, v_fecha, 'ajuste', 'ajustes_inventario', v_id);
   else
     s := _stock_lock(p_empresa, p_metal);
-    v_costo := case when s.kg > 0 then round(s.costo_total * v_kg / s.kg, 4)
-                    else round(v_metal.precio_compra * v_kg, 4) end;
+    v_costo := case when s.kg > 0 then round(s.costo_total * v_kg / s.kg, 2)
+                    else round(v_metal.precio_compra * v_kg, 2) end;
     perform _stock_entrada(p_empresa, p_metal, v_kg, v_costo, v_fecha, 'ajuste', 'ajustes_inventario', v_id);
   end if;
 

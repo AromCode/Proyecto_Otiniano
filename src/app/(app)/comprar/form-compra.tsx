@@ -202,7 +202,7 @@ export function FormCompra({
                   onClick={() => elegirMedio(m)}
                   className={cx(
                     "rounded-lg border px-1 py-2 text-xs font-medium sm:text-sm",
-                    medio === m ? "border-marca-600 bg-marca-50 text-marca-700" : "border-stone-200 bg-white text-stone-700",
+                    medio === m ? "border-marca-600 bg-marca-50 text-marca-700" : "border-stone-200 bg-superficie text-stone-700",
                   )}
                 >
                   {ETIQUETA_MEDIO[m]}
@@ -217,7 +217,7 @@ export function FormCompra({
               </Select>
             </Campo>
             <Campo etiqueta="Foto del ticket de balanza (opcional)">
-              <label className="flex h-[42px] cursor-pointer items-center gap-2 rounded-lg border border-dashed border-stone-300 bg-white px-3 text-sm text-stone-600">
+              <label className="flex h-[42px] cursor-pointer items-center gap-2 rounded-lg border border-dashed border-stone-300 bg-superficie px-3 text-sm text-stone-600">
                 <Camera className="size-4 shrink-0" />
                 <span className="truncate">{foto ? foto.name : "Tomar o elegir foto"}</span>
                 <input
@@ -243,7 +243,7 @@ export function FormCompra({
 
       {/* Total fijo abajo, siempre visible */}
       <div className="sticky bottom-20 z-10 md:bottom-4">
-        <div className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3 shadow-lg">
+        <div className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-superficie p-3 shadow-lg">
           <div className="min-w-0 flex-1">
             <p className="text-xs text-stone-500">{gramosAKg(totalKg)} kg · {lineas.length} línea(s)</p>
             <p className="cifra text-2xl font-bold">S/ {centimosASoles(totalCent)}</p>
@@ -282,10 +282,10 @@ function CompraHecha({ compra, onNueva }: { compra: { id: string; numero: number
       <p className="cifra mt-1 text-3xl font-bold">{soles(compra.total)}</p>
       <p className="mt-1 text-sm text-stone-500">Se descontó de caja y se sumó al stock.</p>
       <div className="mt-6 grid grid-cols-2 gap-2">
-        <a href={urlTicket} target="_blank" className="flex h-12 items-center justify-center gap-2 rounded-lg border border-stone-300 bg-white font-medium">
+        <a href={urlTicket} target="_blank" className="flex h-12 items-center justify-center gap-2 rounded-lg border border-stone-300 bg-superficie font-medium">
           <FileText className="size-4" /> Ticket
         </a>
-        <button onClick={compartir} className="flex h-12 items-center justify-center gap-2 rounded-lg border border-stone-300 bg-white font-medium">
+        <button onClick={compartir} className="flex h-12 items-center justify-center gap-2 rounded-lg border border-stone-300 bg-superficie font-medium">
           <Share2 className="size-4" /> Compartir
         </button>
       </div>

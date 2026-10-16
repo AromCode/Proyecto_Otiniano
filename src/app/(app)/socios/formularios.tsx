@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { HandCoins, Lock, Plus } from "lucide-react";
+import { HandCoins, Lock, Pencil, Plus } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { Boton } from "@/components/ui/boton";
 import { Campo, Input, InputNumero, Select } from "@/components/ui/campos";
@@ -10,18 +10,53 @@ import { Aviso } from "@/components/ui/basicos";
 import { hoyLima, nombrePeriodo } from "@/lib/formato";
 import { cerrarMes, guardarSocio, registrarAporteRetiro } from "./acciones";
 
+interface SocioEditable { id: string; nombre: string; dni: string | null; porcentaje: number | string; activo: boolean }
+
+function CamposSocio({ inicial }: { inicial?: SocioEditable }) {
+  return (
+    <>
+      {inicial && <input type="hidden" name="id" value={inicial.id} />}
+      <Campo etiqueta="Nombre"><Input name="nombre" required defaultValue={inicial?.nombre} /></Campo>
+      <div className="grid grid-cols-2 gap-3">
+        <Campo etiqueta="DNI"><Input name="dni" inputMode="numeric" maxLength={8} defaultValue={inicial?.dni ?? ""} /></Campo>
+        <Campo etiqueta="Participación %" ayuda="Para repartir la utilidad">
+          <InputNumero name="porcentaje" required defaultValue={inicial ? String(inicial.porcentaje) : undefined} />
+        </Campo>
+      </div>
+      {inicial && (
+        <Campo etiqueta="Estado">
+          <Select name="activo" defaultValue={inicial.activo ? "on" : "off"}>
+            <option value="on">Activo</option>
+            <option value="off">Inactivo (ya no participa del reparto)</option>
+          </Select>
+        </Campo>
+      )}
+    </>
+  );
+}
+
 export function NuevoSocio() {
   const [abierto, setAbierto] = useState(false);
   return (
     <>
-      <Boton variante="secundario" onClick={() => setAbierto(true)}><Plus className="size-4" /> Socio</Boton>
+      <Boton onClick={() => setAbierto(true)}><Plus className="size-4" /> Nuevo socio</Boton>
       <Modal abierto={abierto} onCerrar={() => setAbierto(false)} titulo="Nuevo socio">
         <FormularioAccion accion={guardarSocio} onExito={() => setAbierto(false)} textoBoton="Crear socio">
-          <Campo etiqueta="Nombre"><Input name="nombre" required /></Campo>
-          <div className="grid grid-cols-2 gap-3">
-            <Campo etiqueta="DNI"><Input name="dni" inputMode="numeric" maxLength={8} /></Campo>
-            <Campo etiqueta="Participación %" ayuda="Para repartir la utilidad"><InputNumero name="porcentaje" required /></Campo>
-          </div>
+          <CamposSocio />
+        </FormularioAccion>
+      </Modal>
+    </>
+  );
+}
+
+export function EditarSocio({ socio }: { socio: SocioEditable }) {
+  const [abierto, setAbierto] = useState(false);
+  return (
+    <>
+      <Boton variante="secundario" onClick={() => setAbierto(true)}><Pencil className="size-4" /> Editar</Boton>
+      <Modal abierto={abierto} onCerrar={() => setAbierto(false)} titulo="Editar socio">
+        <FormularioAccion accion={guardarSocio} onExito={() => setAbierto(false)} textoBoton="Guardar cambios">
+          <CamposSocio inicial={socio} />
         </FormularioAccion>
       </Modal>
     </>
