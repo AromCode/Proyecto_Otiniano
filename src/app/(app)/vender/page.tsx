@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { exigir } from "@/lib/contexto";
+import { puede } from "@/lib/permisos";
 import { Aviso } from "@/components/ui/basicos";
 import { BotonLink } from "@/components/ui/boton";
 import type { Caja, Comprador } from "@/lib/tipos";
@@ -8,13 +9,20 @@ import { FormVenta, type MetalConStock } from "./form-venta";
 export const metadata: Metadata = { title: "Vender" };
 
 export default async function VenderPage() {
-  const { supabase, empresa } = await exigir("vender");
-  const [{ data: stock }, { data: compradores }, { data: cajas }] = await Promise.all([
+  const { supabase, empresa, rol } = await exigir("vender");
+  const [{ data: stock }, { data: compradores }, { data: cajas }, { data: precios }] = await Promise.all([
     supabase.from("v_stock_metal").select("metal_id, nombre, color, kg, costo_promedio, precio_venta")
       .eq("empresa_id", empresa.id).eq("activo", true).gt("kg", 0).order("orden").order("nombre"),
     supabase.from("compradores").select("*").eq("empresa_id", empresa.id).eq("activo", true).order("razon_social"),
     supabase.from("cajas").select("*").eq("empresa_id", empresa.id).eq("activo", true).order("orden"),
+    supabase.rpc("precios_promedio", { p_empresa: empresa.id }),
   ]);
+  const verCostos = puede(rol, "verTodo");
+  const ventaProm = new Map((precios ?? []).map((p: { metal_id: string; venta_promedio: number | null }) => [p.metal_id, p.venta_promedio]));
+  // El costo solo viaja al navegador si el rol puede verlo
+  const metales: MetalConStock[] = (stock ?? []).map((s) => ({
+    ...s, costo_promedio: verCostos ? s.costo_promedio : null, venta_promedio: ventaProm.get(s.metal_id) != null ? Number(ventaProm.get(s.metal_id)) : null,
+  })) as MetalConStock[];
 
   if (!compradores?.length) {
     return (
@@ -35,7 +43,8 @@ export default async function VenderPage() {
   return (
     <FormVenta
       empresaId={empresa.id}
-      metales={stock as MetalConStock[]}
+      metales={metales}
+      verCostos={verCostos}
       compradores={compradores as Comprador[]}
       cajas={(cajas ?? []) as Caja[]}
     />

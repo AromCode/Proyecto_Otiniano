@@ -27,7 +27,7 @@ export function BotonAnular({
         <Ban className="size-4" /> {etiqueta}
       </Boton>
       <Modal abierto={abierto} onCerrar={() => setAbierto(false)} titulo={titulo}>
-        <FormularioAccion accion={accion} textoBoton={textoConfirmar} variante="peligro" onExito={() => setAbierto(false)}>
+        <FormularioAccion accion={accion} textoBoton={textoConfirmar} variante="peligro" mensajeExito="Anulación registrada. El registro queda en el historial con su motivo." onExito={() => setAbierto(false)}>
           <input type="hidden" name="id" value={id} />
           {explicacion && <Aviso>{explicacion}</Aviso>}
           <Campo etiqueta="Motivo">

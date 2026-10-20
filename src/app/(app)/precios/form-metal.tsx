@@ -15,7 +15,7 @@ export function FormMetal({ metal, onListo }: { metal: Metal | null; onListo: ()
   const [color, setColor] = useState(metal?.color ?? COLORES[0]);
   return (
     <div className="space-y-4">
-      <FormularioAccion accion={guardarMetal} onExito={onListo} textoBoton={metal ? "Guardar cambios" : "Crear metal"}>
+      <FormularioAccion accion={guardarMetal} mensajeExito={metal ? "Metal actualizado." : "Metal creado."} onExito={onListo} textoBoton={metal ? "Guardar cambios" : "Crear metal"}>
         {metal && <input type="hidden" name="id" value={metal.id} />}
         <input type="hidden" name="color" value={color} />
         <Campo etiqueta="Nombre" ayuda="Si hay variantes con precio distinto, cree un metal por variante (ej.: Cobre brillante, Cobre quemado).">

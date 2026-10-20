@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { exigir } from "@/lib/contexto";
+import { exigir, olvidarMembresias } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
 import { normalizar } from "@/lib/montos";
 import { crearClienteAdmin } from "@/lib/supabase/admin";
@@ -15,6 +15,8 @@ export async function guardarEmpresa(_: unknown, fd: FormData): Promise<Resultad
   if (ruc && !/^\d{11}$/.test(ruc)) return fallo("El RUC debe tener 11 dígitos.");
   const monto = texto(fd, "monto_doc_obligatorio");
   const roles = ROLES.filter((r) => r === "dueno" || fd.get(`precio_${r}`) === "on");
+  const dias = Number(texto(fd, "dias_seleccion") ?? 2);
+  if (!Number.isInteger(dias) || dias < 0 || dias > 60) return fallo("Los días para seleccionar deben estar entre 0 y 60.");
   const { error } = await supabase.from("empresas").update({
     razon_social: texto(fd, "razon_social"),
     ruc,
@@ -22,8 +24,10 @@ export async function guardarEmpresa(_: unknown, fd: FormData): Promise<Resultad
     telefono: texto(fd, "telefono"),
     monto_doc_obligatorio: monto ? normalizar(monto) || null : null,
     roles_editan_precio: roles,
+    dias_seleccion: dias,
   }).eq("id", empresa.id);
   if (error) return fallo(error);
+  olvidarMembresias();
   revalidatePath("/", "layout");
   return ok(null);
 }
@@ -58,6 +62,7 @@ export async function invitarUsuario(_: unknown, fd: FormData): Promise<Resultad
     p_empresa: empresa.id, p_user: userId, p_rol: rol, p_nombre: nombre, p_email: email,
   });
   if (e2) return fallo(e2);
+  olvidarMembresias();
   revalidatePath("/configuracion");
   return ok(null);
 }
@@ -67,6 +72,7 @@ export async function actualizarMiembro(userId: string, cambios: { rol?: Rol; ac
   if (userId === yo) return fallo("No puede cambiar su propio rol ni desactivarse.");
   const { error } = await supabase.from("miembros").update(cambios).eq("empresa_id", empresa.id).eq("user_id", userId);
   if (error) return fallo(error);
+  olvidarMembresias();
   revalidatePath("/configuracion");
   return ok(null);
 }

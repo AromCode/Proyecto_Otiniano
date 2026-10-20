@@ -5,6 +5,7 @@ import { REPORTES, filtrosDesde, totales, type Col } from "@/lib/reportes";
 import { fechaHora, kg, numero, porcentaje, soles } from "@/lib/formato";
 import { Aviso, Encabezado, Tarjeta } from "@/components/ui/basicos";
 import { claseBoton, claseInput, cx } from "@/components/ui/clases";
+import { cabeTabla } from "@/components/ui/tabla";
 
 function celda(c: Col, v: unknown) {
   if (v === null || v === undefined || v === "") return "—";
@@ -17,6 +18,27 @@ function celda(c: Col, v: unknown) {
     case "fecha": return fechaHora(v as string);
     default: return String(v);
   }
+}
+
+const esNumero = (c: Col) => c.tipo !== "texto" && c.tipo !== "fecha";
+const alinear = (c: Col) => (esNumero(c) ? "text-right" : "text-left");
+
+/** Una fila del reporte como tarjeta: la primera columna de título, el resto en rejilla */
+function FilaTarjeta({ columnas, fila, fuerte, titulo }: { columnas: Col[]; fila: Record<string, unknown>; fuerte?: boolean; titulo?: string }) {
+  const [primera, ...resto] = columnas;
+  return (
+    <>
+      <p className={cx("text-sm", fuerte ? "font-semibold" : "font-medium")}>{titulo ?? celda(primera, fila[primera.clave])}</p>
+      <dl className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 text-sm @md:grid-cols-3 @2xl:grid-cols-4">
+        {resto.filter((c) => c.clave in fila).map((c) => (
+          <div key={c.clave} className="min-w-0">
+            <dt className="truncate text-xs text-stone-500">{c.titulo}</dt>
+            <dd className={cx("cifra truncate", fuerte && "font-semibold")}>{celda(c, fila[c.clave])}</dd>
+          </div>
+        ))}
+      </dl>
+    </>
+  );
 }
 
 export type ParamsReporte = { r?: string; desde?: string; hasta?: string; agrupar?: string; metal?: string; caja?: string };
@@ -36,13 +58,15 @@ export async function VistaReportes({
     def.usaCaja ? ctx.supabase.from("cajas").select("id, nombre").eq("empresa_id", ctx.empresa.id).order("orden") : null,
   ]);
   const t = totales(datos);
+  // Letra compacta: entra un par de columnas más que en una tabla normal del mismo ancho
+  const cabe = cabeTabla(datos.columnas.length - 2);
   const qs = new URLSearchParams(Object.entries({ ...f, r: def.id }).filter(([, v]) => v) as [string, string][]);
 
   return (
     <>
       <Encabezado titulo={titulo} descripcion={descripcion} />
 
-      <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1">
+      <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
         {lista.length > 1 && lista.map((r) => (
           <Link
             key={r.id}
@@ -119,39 +143,55 @@ export async function VistaReportes({
         {datos.filas.length === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-stone-500">Sin datos para el periodo elegido.</p>
         ) : (
-          // Los reportes son tablas anchas: el desplazamiento horizontal queda DENTRO de la tarjeta, nunca en la página
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-max text-sm">
-              <thead>
-                <tr className="border-b border-stone-200 bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
-                  {datos.columnas.map((c) => (
-                    <th key={c.clave} className={cx("px-3 py-2.5 font-medium", c.tipo === "texto" || c.tipo === "fecha" ? "text-left" : "text-right")}>{c.titulo}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100">
-                {datos.filas.map((r, i) => (
-                  <tr key={i} className={cx("hover:bg-stone-50", Boolean(r._fuerte) && "bg-stone-50 font-semibold")}>
+          // Tarjeta ancha: tabla (letra compacta hasta que sobra espacio). Angosta (celular, laptop con el menú
+          // abierto): cada fila como tarjeta, así nunca hay que desplazar de costado. Clases completas para Tailwind.
+          <div className="@container">
+            <div className={cx("overflow-x-auto", cabe.tabla)}>
+              <table className="w-full text-xs @5xl:text-sm">
+                <thead>
+                  <tr className="border-b border-stone-200 bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
                     {datos.columnas.map((c) => (
-                      <td key={c.clave} className={cx("px-3 py-2", c.tipo === "texto" || c.tipo === "fecha" ? "text-left" : "cifra text-right")}>
-                        {celda(c, r[c.clave])}
-                      </td>
+                      <th key={c.clave} className={cx("px-2 py-2.5 font-medium first:pl-4 last:pr-4 @5xl:px-3", alinear(c))}>{c.titulo}</th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {datos.filas.map((r, i) => (
+                    <tr key={i} className={cx("hover:bg-stone-50", Boolean(r._fuerte) && "bg-stone-50 font-semibold")}>
+                      {datos.columnas.map((c) => (
+                        <td key={c.clave} className={cx("px-2 py-2 first:pl-4 last:pr-4 @5xl:px-3", alinear(c), esNumero(c) && "cifra")}>
+                          {celda(c, r[c.clave])}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+                {t && (
+                  <tfoot className="border-t-2 border-stone-200 bg-stone-50 font-semibold">
+                    <tr>
+                      {datos.columnas.map((c, i) => (
+                        <td key={c.clave} className={cx("px-2 py-2.5 first:pl-4 last:pr-4 @5xl:px-3", alinear(c), esNumero(c) && "cifra")}>
+                          {i === 0 ? "Total" : c.clave in t ? celda(c, t[c.clave]) : ""}
+                        </td>
+                      ))}
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
+
+            <ul className={cx("divide-y divide-stone-100", cabe.tarjetas)}>
+              {datos.filas.map((r, i) => (
+                <li key={i} className={cx("px-4 py-3", Boolean(r._fuerte) && "bg-stone-50")}>
+                  <FilaTarjeta columnas={datos.columnas} fila={r} fuerte={Boolean(r._fuerte)} />
+                </li>
+              ))}
               {t && (
-                <tfoot className="border-t-2 border-stone-200 bg-stone-50 font-semibold">
-                  <tr>
-                    {datos.columnas.map((c, i) => (
-                      <td key={c.clave} className={cx("px-3 py-2.5", c.tipo === "texto" || c.tipo === "fecha" ? "text-left" : "cifra text-right")}>
-                        {i === 0 ? "Total" : c.clave in t ? celda(c, t[c.clave]) : ""}
-                      </td>
-                    ))}
-                  </tr>
-                </tfoot>
+                <li className="border-t-2 border-stone-200 bg-stone-50 px-4 py-3">
+                  <FilaTarjeta columnas={datos.columnas} fila={t} titulo="Total" fuerte />
+                </li>
               )}
-            </table>
+            </ul>
           </div>
         )}
       </Tarjeta>

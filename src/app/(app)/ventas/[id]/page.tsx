@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileText } from "lucide-react";
+import { ArrowLeft, FileText, Printer } from "lucide-react";
 import { exigir } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
 import { urlArchivo } from "@/lib/archivos-servidor";
@@ -29,7 +29,7 @@ export default async function VentaDetalle({ params }: { params: Promise<{ id: s
   const pendiente = v.estado === "pendiente";
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-6xl">
       <Link href="/ventas" className="mb-3 inline-flex items-center gap-1 text-sm text-stone-600 hover:text-stone-900">
         <ArrowLeft className="size-4" /> Ventas
       </Link>
@@ -39,7 +39,10 @@ export default async function VentaDetalle({ params }: { params: Promise<{ id: s
         acciones={
           <>
             <a href={`/ventas/${v.id}/ticket`} target="_blank" className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50">
-              <FileText className="size-4" /> Nota de salida
+              <FileText className="size-4" /> {v.estado === "pendiente" ? "Nota de salida" : "Comprobante PDF"}
+            </a>
+            <a href={`/ventas/${v.id}/ticket?formato=80mm`} target="_blank" title="Para la impresora térmica de 80 mm" className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50">
+              <Printer className="size-4" /> 80 mm
             </a>
             {puede(rol, "anular") && v.estado !== "anulada" && (
               <BotonAnular id={v.id} accion={anularVenta} titulo={`Anular venta N° ${v.numero}`}
@@ -62,14 +65,14 @@ export default async function VentaDetalle({ params }: { params: Promise<{ id: s
         </div>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Tarjeta className="lg:col-span-2">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <Tarjeta className="min-w-0">
           <TituloTarjeta>Metales</TituloTarjeta>
           <TablaDatos
             filas={items ?? []}
             clave={(i) => i.id}
             columnas={[
-              { titulo: "Metal", principal: true, celda: (i) => <span className="flex items-center gap-2"><PuntoMetal color={i.metal_color} />{i.metal_nombre}</span> },
+              { titulo: "Metal", principal: true, celda: (i) => <Link href={`/inventario/${i.metal_id}`} className="flex items-center gap-2 hover:underline"><PuntoMetal color={i.metal_color} />{i.metal_nombre}</Link> },
               { titulo: "Salida", alinear: "der", celda: (i) => <span className="cifra">{kg(i.peso_salida_kg)}</span> },
               { titulo: "Recibido", alinear: "der", celda: (i) => i.peso_recibido_kg === null ? "—" : <span className="cifra">{kg(i.peso_recibido_kg)}</span> },
               { titulo: "Merma", alinear: "der", celda: (i) => i.merma_kg === null ? "—" : <span className="cifra text-amber-700">{kg(i.merma_kg)}</span> },

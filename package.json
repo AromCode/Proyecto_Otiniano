@@ -14,7 +14,8 @@
     "db:types": "node scripts/supabase.mjs gen types typescript --linked --schema public > src/lib/supabase/database.types.ts",
     "supabase:conectar": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/conectar-supabase.ps1",
     "sb": "node scripts/supabase.mjs",
-    "supabase:clave": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/cambiar-clave-bd.ps1"
+    "supabase:clave": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/cambiar-clave-bd.ps1",
+    "guia": "tsx --tsconfig scripts/guia-cliente/tsconfig.json scripts/guia-cliente/generar.tsx"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",
@@ -26,6 +27,7 @@
     "next": "15.5.28",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "recharts": "3.2.1",
     "server-only": "^0.0.1",
     "zod": "^4.6.7"
   },

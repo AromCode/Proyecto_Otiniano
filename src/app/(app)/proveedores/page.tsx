@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { obtenerContexto } from "@/lib/contexto";
+import { puede } from "@/lib/permisos";
+import { RankingTerceros } from "@/components/ranking-terceros";
 import { fecha, kg, soles } from "@/lib/formato";
 import { Encabezado, Insignia, Tarjeta } from "@/components/ui/basicos";
 import { TablaDatos } from "@/components/ui/tabla";
@@ -8,9 +10,10 @@ import { NuevoProveedor } from "./nuevo-proveedor";
 
 export const metadata: Metadata = { title: "Proveedores" };
 
-export default async function ProveedoresPage({ searchParams }: { searchParams: Promise<{ q?: string; estado?: string }> }) {
+export default async function ProveedoresPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
-  const { supabase, empresa } = await obtenerContexto();
+  const ctx = await obtenerContexto();
+  const { supabase, empresa, rol } = ctx;
   let q = supabase.from("v_proveedores_resumen").select("*").eq("empresa_id", empresa.id)
     .order("importe_total", { ascending: false }).limit(300);
   if (sp.estado === "inactivo") q = q.eq("activo", false);
@@ -24,9 +27,11 @@ export default async function ProveedoresPage({ searchParams }: { searchParams: 
   return (
     <>
       <Encabezado titulo="Proveedores" descripcion="Personas y empresas que nos venden metal" acciones={<NuevoProveedor />} />
+      {puede(rol, "verTodo") && <RankingTerceros ctx={ctx} tipo="proveedores" sp={sp} ruta="/proveedores" />}
       <Filtros
         valores={sp}
         desdeHasta={false}
+        ocultos={Object.fromEntries(Object.entries(sp).filter((e): e is [string, string] => !!e[1] && ["rp", "rdesde", "rhasta", "rmetal"].includes(e[0])))}
         busqueda={{ nombre: "q", placeholder: "DNI, RUC o nombre" }}
         selects={[{ nombre: "estado", etiqueta: "Estado", opciones: [{ valor: "inactivo", texto: "Inactivos" }, { valor: "todos", texto: "Activos e inactivos" }] }]}
       />

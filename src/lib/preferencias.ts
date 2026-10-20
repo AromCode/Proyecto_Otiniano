@@ -12,3 +12,7 @@ export const leerLetra = (v: string | undefined): Letra => (v === "grande" ? "gr
 export function clasesHtml(tema: Tema, letra: Letra): string {
   return [tema !== "auto" ? tema : "", letra === "grande" ? "letra-grande" : ""].filter(Boolean).join(" ");
 }
+
+/** Barra lateral de escritorio contraída (solo iconos) */
+export const COOKIE_MENU = "menu";
+export const leerMenuCompacto = (v: string | undefined): boolean => v === "compacto";

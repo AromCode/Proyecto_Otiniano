@@ -8,7 +8,6 @@ import type { MedioPago, Resultado } from "@/lib/tipos";
 export interface LineaCompra {
   metal_id: string;
   peso_bruto_kg: string;
-  descuento_kg: string;
   precio_kg: string;
 }
 
@@ -20,9 +19,13 @@ export interface DatosCompra {
   items: LineaCompra[];
   notas: string | null;
   foto_ticket_url: string | null;
+  /** Descontar del pago el saldo a favor del proveedor (descuentos de selección) */
+  aplicar_saldo: boolean;
 }
 
-export async function registrarCompra(d: DatosCompra): Promise<Resultado<{ id: string; numero: number; total: number }>> {
+export type CompraRegistrada = { id: string; numero: number; total: number; saldo_aplicado: number };
+
+export async function registrarCompra(d: DatosCompra): Promise<Resultado<CompraRegistrada>> {
   const { supabase, empresa } = await obtenerContexto();
   const { data, error } = await supabase.rpc("registrar_compra", {
     p_empresa: empresa.id,
@@ -33,10 +36,18 @@ export async function registrarCompra(d: DatosCompra): Promise<Resultado<{ id: s
     p_notas: d.notas,
     p_foto_ticket_url: d.foto_ticket_url,
     p_clave: d.clave,
+    p_aplicar_saldo: d.aplicar_saldo,
   });
   if (error) return fallo(error);
   revalidatePath("/", "layout");
-  return ok(data as { id: string; numero: number; total: number });
+  return ok(data as CompraRegistrada);
+}
+
+/** Saldo a favor del proveedor (lo que nos debe por descuentos de selección) */
+export async function saldoAFavor(proveedorId: string): Promise<number> {
+  const { supabase } = await obtenerContexto();
+  const { data } = await supabase.from("v_saldo_proveedor").select("saldo").eq("proveedor_id", proveedorId).maybeSingle();
+  return Number(data?.saldo ?? 0);
 }
 
 export async function anularCompra(_: unknown, fd: FormData): Promise<Resultado> {

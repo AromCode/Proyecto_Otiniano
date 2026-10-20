@@ -66,7 +66,7 @@ export function Usuarios({ miembros, yo }: { miembros: Miembro[]; yo: string }) 
         ))}
       </ul>
       <Modal abierto={abierto} onCerrar={() => setAbierto(false)} titulo="Nuevo usuario">
-        <FormularioAccion accion={invitarUsuario} onExito={() => setAbierto(false)} textoBoton="Crear usuario">
+        <FormularioAccion accion={invitarUsuario} onExito={() => setAbierto(false)} textoBoton="Crear usuario" mensajeExito="Usuario creado. Ya puede ingresar con su correo y contraseña.">
           <Campo etiqueta="Nombre"><Input name="nombre" required /></Campo>
           <Campo etiqueta="Correo"><Input name="email" type="email" required /></Campo>
           <Campo etiqueta="Contraseña inicial" ayuda="Mínimo 6 caracteres. Entréguela al usuario; si el correo ya tiene cuenta, conserva la suya.">
@@ -108,7 +108,7 @@ export function Cajas({ cajas }: { cajas: CajaFila[] }) {
         ))}
       </ul>
       <Modal abierto={editando !== null} onCerrar={() => setEditando(null)} titulo={actual ? "Editar caja" : "Nueva caja"}>
-        <FormularioAccion accion={guardarCaja} onExito={() => setEditando(null)} textoBoton="Guardar">
+        <FormularioAccion accion={guardarCaja} onExito={() => setEditando(null)} textoBoton="Guardar" mensajeExito="Caja guardada.">
           {actual && <input type="hidden" name="id" value={actual.id} />}
           <Campo etiqueta="Nombre"><Input name="nombre" defaultValue={actual?.nombre ?? ""} required /></Campo>
           <div className="grid grid-cols-2 gap-3">
@@ -145,7 +145,7 @@ export function Categorias({ categorias }: { categorias: { id: string; nombre: s
         ))}
       </div>
       <div className="border-t border-stone-100 p-4">
-        <FormularioAccion accion={guardarCategoria} textoBoton="Agregar" className="flex items-end gap-2">
+        <FormularioAccion accion={guardarCategoria} textoBoton="Agregar" mensajeExito="Categoría agregada." className="flex items-end gap-2">
           <Campo etiqueta="Nueva categoría" className="flex-1"><Input name="nombre" required /></Campo>
         </FormularioAccion>
       </div>

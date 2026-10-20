@@ -30,7 +30,7 @@ export function AccionesCaja({
       <Boton variante="secundario" onClick={() => { setResultadoArqueo(null); setAbierto("arqueo"); }}><Calculator className="size-4" /> Arqueo</Boton>
 
       <Modal abierto={abierto === "gasto"} onCerrar={cerrar} titulo="Registrar gasto">
-        <FormularioAccion accion={registrarGasto} textoBoton="Registrar gasto" onExito={cerrar}>
+        <FormularioAccion accion={registrarGasto} textoBoton="Registrar gasto" mensajeExito="Gasto registrado." onExito={cerrar}>
           <div className="grid grid-cols-2 gap-3">
             <Campo etiqueta="Monto S/"><InputNumero name="monto" required /></Campo>
             <Campo etiqueta="Categoría">
@@ -60,7 +60,7 @@ export function AccionesCaja({
       </Modal>
 
       <Modal abierto={abierto === "traspaso"} onCerrar={cerrar} titulo="Traspaso entre cajas">
-        <FormularioAccion accion={registrarTraspaso} textoBoton="Registrar traspaso" onExito={cerrar}>
+        <FormularioAccion accion={registrarTraspaso} textoBoton="Registrar traspaso" mensajeExito="Traspaso registrado." onExito={cerrar}>
           <Campo etiqueta="Desde"><Select name="origen" required>{opcionesCaja}</Select></Campo>
           <Campo etiqueta="Hacia"><Select name="destino" required defaultValue={cajas[1]?.id}>{opcionesCaja}</Select></Campo>
           <Campo etiqueta="Monto S/"><InputNumero name="monto" required /></Campo>
@@ -82,6 +82,7 @@ export function AccionesCaja({
           <FormularioAccion
             accion={registrarArqueo}
             textoBoton="Registrar arqueo"
+            mensajeExito="Arqueo registrado."
             reiniciar={false}
             onExito={(d) => setResultadoArqueo(d as { diferencia: number; saldo_sistema: number })}
           >

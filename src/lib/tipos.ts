@@ -13,6 +13,8 @@ export interface Empresa {
   logo_url: string | null;
   monto_doc_obligatorio: string | null;
   roles_editan_precio: Rol[];
+  /** Días que una compra puede esperar su selección en almacén antes de verse «retrasada» */
+  dias_seleccion: number;
 }
 
 export interface Metal {

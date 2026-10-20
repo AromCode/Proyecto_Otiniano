@@ -1,7 +1,8 @@
 import { cx } from "./clases";
 
 export function Tarjeta({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <section className={cx("rounded-xl border border-stone-200 bg-superficie shadow-sm", className)}>{children}</section>;
+  // min-w-0: dentro de grids, un texto largo o una tabla no estiran la tarjeta (ni la página)
+  return <section className={cx("min-w-0 rounded-xl border border-stone-200 bg-superficie shadow-sm", className)}>{children}</section>;
 }
 
 export function TituloTarjeta({ children, accion }: { children: React.ReactNode; accion?: React.ReactNode }) {
@@ -85,7 +86,7 @@ export function Dato({ etiqueta, children }: { etiqueta: string; children: React
   return (
     <div className="min-w-0">
       <dt className="text-xs text-stone-500">{etiqueta}</dt>
-      <dd className="mt-0.5 break-words text-sm font-medium text-stone-900">{children}</dd>
+      <dd className="mt-0.5 text-sm font-medium text-stone-900 [overflow-wrap:anywhere]">{children}</dd>
     </div>
   );
 }

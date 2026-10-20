@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { IndicadorNavegacion } from "@/components/shell/indicador-navegacion";
 import { claseBoton, type Tamano, type Variante } from "./clases";
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & { variante?: Variante; tamano?: Tamano };
@@ -13,6 +14,7 @@ export function BotonLink({
   return (
     <Link href={href} className={claseBoton(variante, tamano, className)}>
       {children}
+      <IndicadorNavegacion />
     </Link>
   );
 }

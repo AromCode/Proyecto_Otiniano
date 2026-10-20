@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { exigir } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
 import { fecha, fechaHora, nombrePeriodo, periodoActual, porcentaje, soles } from "@/lib/formato";
-import { Aviso, Encabezado, Insignia, Kpi, Tarjeta, TituloTarjeta } from "@/components/ui/basicos";
+import { Aviso, Encabezado, Insignia, Tarjeta, TituloTarjeta } from "@/components/ui/basicos";
+import { PanelModulo } from "@/components/panel-modulo";
 import { TablaDatos } from "@/components/ui/tabla";
 import { BotonAnular } from "@/components/boton-anular";
 import Link from "next/link";
@@ -36,6 +37,9 @@ export default async function CapitalPage({ searchParams }: { searchParams: Prom
   const sumaPct = (socios ?? []).filter((s) => s.activo).reduce((s, x) => s + Number(x.porcentaje), 0);
   const utilidadDe = (id: string) => utilidad?.find((u) => u.socio_id === id);
   const cerrados = new Set((cierres ?? []).filter((c) => c.estado === "cerrado").map((c) => c.periodo));
+  const capital = Number(patrimonio?.capital ?? 0);
+  const ganancia = Number(patrimonio?.ganancia_acumulada ?? 0);
+  const utilidadMes = Number(utilidad?.[0]?.utilidad_empresa ?? 0);
 
   return (
     <>
@@ -47,16 +51,23 @@ export default async function CapitalPage({ searchParams }: { searchParams: Prom
         )}
       />
 
-      <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi titulo="Capital aportado" valor={soles(patrimonio?.capital)} detalle={`${soles(patrimonio?.aportes)} aportes − ${soles(patrimonio?.retiros)} retiros`} />
-        <Kpi titulo="Lo que tenemos" valor={soles(patrimonio?.activos)} detalle="Caja + stock a costo + en tránsito" />
-        <Kpi
-          titulo="Ganancia acumulada"
-          valor={soles(patrimonio?.ganancia_acumulada)}
-          tono={Number(patrimonio?.ganancia_acumulada) >= 0 ? "positivo" : "negativo"}
-        />
-        <Kpi titulo={`Utilidad ${nombrePeriodo(periodo)}`} valor={soles(utilidad?.[0]?.utilidad_empresa ?? 0)} />
-      </div>
+      <PanelModulo
+        tono="sky"
+        etiqueta="Capital · hoy"
+        insignia={capital > 0 ? `${ganancia >= 0 ? "▲" : "▼"} ${porcentaje(Math.abs((ganancia / capital) * 100))} sobre el capital` : undefined}
+        principal={{
+          titulo: "Capital aportado", valor: soles(capital),
+          detalle: `${soles(patrimonio?.aportes)} aportes − ${soles(patrimonio?.retiros)} retiros`,
+        }}
+        celdas={[
+          { titulo: "Lo que tenemos", valor: soles(patrimonio?.activos), detalle: "Caja + stock a costo + en tránsito" },
+          { titulo: "Ganancia acumulada", valor: soles(ganancia), negativo: ganancia < 0, detalle: "Desde el inicio del negocio" },
+          {
+            titulo: `Utilidad ${nombrePeriodo(periodo)}`, valor: soles(utilidadMes), negativo: utilidadMes < 0,
+            detalle: cerrados.has(periodo) ? "Mes cerrado" : "Mes abierto",
+          },
+        ]}
+      />
 
       {Math.abs(sumaPct - 100) > 0.001 && (socios?.length ?? 0) > 0 && (
         <div className="mb-4"><Aviso>Los porcentajes de los socios activos suman {porcentaje(sumaPct)}; deberían sumar 100 %.</Aviso></div>

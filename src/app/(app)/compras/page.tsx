@@ -8,6 +8,7 @@ import { BotonLink } from "@/components/ui/boton";
 import { TablaDatos } from "@/components/ui/tabla";
 import { Filtros, rangoLima } from "@/components/filtros";
 import { ResumenCompras } from "@/components/resumen-modulo";
+import { TituloSeccion } from "@/components/panel-modulo";
 
 export const metadata: Metadata = { title: "Compras" };
 
@@ -40,15 +41,20 @@ export default async function ComprasPage({ searchParams }: { searchParams: Prom
   const vigentes = filas.filter((c) => c.estado === "registrada");
   const totalSoles = vigentes.reduce((s, c) => s + Number(c.total), 0);
   const totalKg = vigentes.reduce((s, c) => s + Number(c.kg_total), 0);
+  const precioProm = totalKg > 0 ? totalSoles / totalKg : null;
 
   return (
     <>
       <Encabezado
         titulo="Compras"
-        descripcion={`${vigentes.length} compras · ${kg(totalKg)} · ${soles(totalSoles)}`}
+        descripcion="Material que entra: lo que pagamos a cada proveedor"
         acciones={puede(rol, "comprar") && <BotonLink href="/comprar"><Plus className="size-4" /> Nueva compra</BotonLink>}
       />
       {rol !== "balancero" && <ResumenCompras ctx={ctx} />}
+      <TituloSeccion
+        titulo="Historial de compras"
+        detalle={`${vigentes.length} compras · ${kg(totalKg)} · ${soles(totalSoles)}${precioProm ? ` · promedio ${soles(precioProm)}/kg` : ""}`}
+      />
       <Filtros
         valores={sp}
         busqueda={{ nombre: "q", placeholder: "N°, DNI o nombre" }}
@@ -69,6 +75,7 @@ export default async function ComprasPage({ searchParams }: { searchParams: Prom
             { titulo: "Proveedor", celda: (c) => c.proveedor_nombre ?? <span className="text-stone-400">Sin documento</span> },
             { titulo: "Metales", celda: (c) => c.metales },
             { titulo: "Kg", celda: (c) => <span className="cifra">{kg(c.kg_total)}</span>, alinear: "der" },
+            { titulo: "S/ por kg", alinear: "der", ocultarMovil: true, celda: (c) => <span className="cifra text-stone-600">{c.precio_promedio ? soles(c.precio_promedio) : "—"}</span> },
             {
               titulo: "Total", alinear: "der", principal: true,
               celda: (c) => (
@@ -79,7 +86,11 @@ export default async function ComprasPage({ searchParams }: { searchParams: Prom
             },
             {
               titulo: "Estado",
-              celda: (c) => c.estado === "anulada" ? <Insignia tono="rojo">Anulada</Insignia> : <Insignia tono="verde">Registrada</Insignia>,
+              celda: (c) => c.estado === "anulada" ? <Insignia tono="rojo">Anulada</Insignia>
+                : c.retrasada ? <Insignia tono="rojo">Selección retrasada</Insignia>
+                : c.por_seleccionar ? <Insignia tono="ambar">Por seleccionar</Insignia>
+                : Number(c.seleccion_kg) > 0 ? <Insignia tono="azul">Con descuento</Insignia>
+                : <Insignia tono="verde">Seleccionada</Insignia>,
             },
           ]}
         />

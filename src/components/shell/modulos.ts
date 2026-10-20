@@ -1,6 +1,6 @@
 import {
   ArrowDownToLine, ArrowUpFromLine, BarChart3, Boxes, Building2, ClipboardList, Contact, Handshake, Home, Landmark,
-  PiggyBank, PlusCircle, Search, Settings, Tag, Users, Wallet,
+  PackageCheck, PiggyBank, PlusCircle, Search, Settings, Tag, Users, Wallet,
 } from "lucide-react";
 import { puede, type Accion } from "@/lib/permisos";
 import type { Rol } from "@/lib/tipos";
@@ -66,13 +66,13 @@ export const MODULOS: Modulo[] = [
       { href: "/contactos", texto: "Buscar", icono: Search },
       { href: "/proveedores", texto: "Proveedores", icono: Users },
       { href: "/compradores", texto: "Clientes", icono: Building2, permiso: ["vender", "verTodo"] },
-      { href: "/socios", texto: "Socios", icono: Handshake, permiso: ["verTodo"] },
     ],
   },
   {
     id: "inventario", texto: "Inventario", icono: Boxes, tono: "violet",
     items: [
       { href: "/inventario", texto: "Stock", icono: Boxes, permiso: ["verTodo", "vender"] },
+      { href: "/despacho", texto: "Despacho", icono: PackageCheck, permiso: ["comprar", "verTodo"] },
       { href: "/precios", texto: "Precios del día", icono: Tag },
       { href: "/inventario/reportes", texto: "Reportes", icono: BarChart3, permiso: ["verReportes"] },
     ],
@@ -89,6 +89,8 @@ export const MODULOS: Modulo[] = [
     id: "gestion", texto: "Gestión", icono: Settings, tono: "stone",
     items: [
       { href: "/reportes", texto: "Todos los reportes", icono: BarChart3, permiso: ["verReportes"] },
+      // Socios: información de la sociedad (participación y capital), no un contacto del día a día
+      { href: "/socios", texto: "Socios", icono: Handshake, permiso: ["verTodo"] },
       { href: "/configuracion", texto: "Configuración", icono: Settings, permiso: ["configurar"] },
     ],
   },

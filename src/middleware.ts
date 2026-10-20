@@ -21,7 +21,10 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  // getClaims verifica el JWT localmente (claves asimétricas, JWKS en caché): sin viaje a Supabase Auth.
+  // Si el token venció, lo refresca con el refresh token y actualiza las cookies.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims.sub ? data.claims : null;
   const ruta = request.nextUrl.pathname;
   const esPublica = PUBLICAS.some((p) => ruta.startsWith(p));
 
@@ -41,5 +44,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon|apple-icon|.*\.(?:svg|png|jpg|webp)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|sw.js|iconos/|icon|apple-icon|.*\.(?:svg|png|jpg|webp)$).*)"],
 };

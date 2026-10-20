@@ -24,7 +24,7 @@ export function Modal({
       className={`m-0 mt-auto w-full ${ancho} max-h-[92dvh] rounded-t-2xl bg-superficie p-0 shadow-xl sm:m-auto sm:rounded-2xl`}
     >
       {abierto && (
-        <div className="flex max-h-[92dvh] flex-col">
+        <div className="flex max-h-[92dvh] flex-col text-left font-normal">
           <div className="flex items-center justify-between border-b border-stone-100 px-4 py-3">
             <h2 className="font-semibold">{titulo}</h2>
             <button type="button" onClick={onCerrar} className="rounded-md p-1 text-stone-500 hover:bg-stone-100" aria-label="Cerrar">

@@ -65,7 +65,7 @@ export default async function ProveedorDetalle({
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-stone-100">
               <div className="h-full rounded-full" style={{ width: `${(Number(m.importe) / maxImporte) * 100}%`, background: m.color ?? "#a8a29e" }} />
             </div>
-            <p className="cifra mt-1 text-xs text-stone-500">
+            <p className="mt-1 text-xs tabular-nums text-stone-500">
               {kg(m.kg)} · {m.n_compras} compras · promedio {soles(m.precio_promedio)}/kg
             </p>
           </li>

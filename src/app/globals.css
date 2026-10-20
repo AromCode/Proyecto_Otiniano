@@ -196,6 +196,86 @@ dialog::backdrop {
   background: rgb(0 0 0 / 0.55);
 }
 
+/* -----------------------------------------------------------------------------
+   Animaciones de interfaz: avisos, pantallas de ingreso/salida y carga entre secciones
+   -------------------------------------------------------------------------- */
+@keyframes entrar {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes salir {
+  to { opacity: 0; transform: translateY(-6px) scale(0.98); }
+}
+@keyframes aparecer {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes subir {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes trazar {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes llenar {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes avanzar {
+  0% { transform: scaleX(0); }
+  30% { transform: scaleX(0.45); }
+  100% { transform: scaleX(0.9); }
+}
+@keyframes sacudir {
+  0%, 100% { transform: none; }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.animar-entrada { animation: entrar 0.22s ease-out both; }
+.animar-salida { animation: salir 0.2s ease-in both; }
+.animar-aparecer { animation: aparecer 0.25s ease-out both; }
+.animar-subir { animation: subir 0.4s ease-out both; }
+.animar-sacudir { animation: sacudir 0.4s ease-in-out; }
+
+/* Check que se dibuja (pantalla de bienvenida) */
+.check-trazo {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: trazar 0.45s 0.15s ease-out forwards;
+}
+.circulo-trazo {
+  stroke-dasharray: 160;
+  stroke-dashoffset: 160;
+  animation: trazar 0.5s ease-out forwards;
+}
+
+/* Barra que se llena en un tiempo dado (--duracion) */
+.barra-llenar {
+  transform-origin: left;
+  animation: llenar var(--duracion, 1.5s) linear both;
+}
+
+/* Barra fina arriba mientras se abre otra sección (solo si tarda más de un instante) */
+.barra-navegacion {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 90;
+  height: 3px;
+  background: var(--color-marca-500);
+  transform-origin: left;
+  animation: avanzar 2.5s 0.12s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animar-entrada, .animar-salida, .animar-aparecer, .animar-subir, .animar-sacudir,
+  .check-trazo, .circulo-trazo {
+    animation-duration: 0.01s;
+    animation-delay: 0s;
+  }
+}
+
 @media print {
   .no-imprimir {
     display: none !important;

@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   const filtro = process.env.DEV_LOGIN_EMPRESA ?? "Demo";
   const { data: emp } = await supabase.from("empresas").select("id").ilike("razon_social", `%${filtro}%`).limit(1).maybeSingle();
 
-  const respuesta = NextResponse.redirect(new URL("/", request.url), { status: 303 });
+  const respuesta = NextResponse.redirect(new URL("/bienvenida", request.url), { status: 303 });
   if (emp) {
     respuesta.cookies.set(COOKIE_EMPRESA, emp.id, { path: "/", httpOnly: true, sameSite: "lax", maxAge: 60 * 60 * 24 * 365 });
   }

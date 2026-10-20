@@ -7,7 +7,7 @@ import { Campo, Input, InputNumero, Select, Textarea } from "@/components/ui/cam
 import { Aviso, PuntoMetal, Tarjeta } from "@/components/ui/basicos";
 import { Boton } from "@/components/ui/boton";
 import { aCentimos, aGramos, centimosASoles, gramosAKg, importeCentimos, normalizar } from "@/lib/montos";
-import { ETIQUETA_MEDIO, kg } from "@/lib/formato";
+import { ETIQUETA_MEDIO, kg, soles } from "@/lib/formato";
 import { subirArchivo } from "@/lib/archivos";
 import type { Caja, Comprador, MedioPago } from "@/lib/tipos";
 import { registrarVenta } from "../ventas/acciones";
@@ -19,6 +19,8 @@ export interface MetalConStock {
   kg: string;
   costo_promedio: string | null;
   precio_venta: string;
+  /** Precio promedio al que se vendió en los últimos 90 días */
+  venta_promedio: number | null;
 }
 
 interface Linea {
@@ -30,8 +32,8 @@ interface Linea {
 }
 
 export function FormVenta({
-  empresaId, metales, compradores, cajas,
-}: { empresaId: string; metales: MetalConStock[]; compradores: Comprador[]; cajas: Caja[] }) {
+  empresaId, metales, compradores, cajas, verCostos,
+}: { empresaId: string; metales: MetalConStock[]; compradores: Comprador[]; cajas: Caja[]; verCostos: boolean }) {
   const router = useRouter();
   const [clave] = useState(() => crypto.randomUUID());
   const [compradorId, setCompradorId] = useState(compradores[0]?.id ?? "");
@@ -59,6 +61,8 @@ export function FormVenta({
 
   const totalSalida = lineas.reduce((s, l) => s + aGramos(l.salida), 0);
   const totalImporte = lineas.reduce((s, l) => s + importeCentimos(aGramos(l.recibido), aCentimos(l.precio)), 0);
+  const totalRecibido = lineas.reduce((s, l) => s + aGramos(l.recibido), 0);
+  const ventaPromCent = totalRecibido > 0 ? Math.round((totalImporte * 1000) / totalRecibido) : 0;
 
   async function guardar() {
     setError(null);
@@ -70,6 +74,9 @@ export function FormVenta({
       if (aGramos(l.salida) > aGramos(m.kg)) return setError(`No hay suficiente ${m.nombre}: stock ${kg(m.kg)}.`);
       if (confirmarYa && (!normalizar(l.recibido) || !normalizar(l.precio))) {
         return setError(`Ingrese el peso recibido y el precio de ${m.nombre}.`);
+      }
+      if (confirmarYa && aGramos(l.recibido) > Math.round(aGramos(l.salida) * 1.02)) {
+        return setError(`El peso recibido de ${m.nombre} es mayor a lo que salió. Revise el dato.`);
       }
     }
     setGuardando(true);
@@ -145,6 +152,8 @@ export function FormVenta({
           {lineas.map((l) => {
             const m = metal(l.metal_id);
             const merma = aGramos(l.salida) - aGramos(l.recibido);
+            const costo = m.costo_promedio ? aCentimos(String(m.costo_promedio)) : 0;
+            const margen = importeCentimos(aGramos(l.recibido), aCentimos(l.precio)) - importeCentimos(aGramos(l.recibido), costo);
             return (
               <div key={l.uid} className="rounded-xl border border-stone-200 p-3">
                 <div className="mb-2 flex items-center justify-between">
@@ -175,6 +184,14 @@ export function FormVenta({
                     </>
                   )}
                 </div>
+                <p className="mt-2 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-stone-500">
+                  {verCostos && m.costo_promedio && <span>Costo promedio: <b className="cifra font-medium text-stone-700">{soles(m.costo_promedio)}/kg</b></span>}
+                  {m.venta_promedio != null && <span>Venta promedio (90 días): <b className="cifra font-medium text-stone-700">{soles(m.venta_promedio)}/kg</b></span>}
+                  <span>Precio del día: <b className="cifra font-medium text-stone-700">{soles(m.precio_venta)}/kg</b></span>
+                  {verCostos && confirmarYa && aGramos(l.recibido) > 0 && costo > 0 && (
+                    <span className={margen < 0 ? "font-medium text-red-700" : "font-medium text-emerald-700"}>Margen estimado S/ {centimosASoles(margen)}</span>
+                  )}
+                </p>
               </div>
             );
           })}
@@ -207,7 +224,7 @@ export function FormVenta({
       <div className="sticky bottom-20 z-10 md:bottom-4">
         <div className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-superficie p-3 shadow-lg">
           <div className="min-w-0 flex-1">
-            <p className="text-xs text-stone-500">Salida {gramosAKg(totalSalida)} kg</p>
+            <p className="truncate text-xs text-stone-500">Salida {gramosAKg(totalSalida)} kg{confirmarYa && ventaPromCent > 0 && <> · venta prom. S/ {centimosASoles(ventaPromCent)}/kg</>}</p>
             <p className="cifra text-xl font-bold">{confirmarYa ? `S/ ${centimosASoles(totalImporte)}` : "Pendiente de pesaje"}</p>
           </div>
           <Boton tamano="lg" onClick={guardar} disabled={guardando || lineas.length === 0}>

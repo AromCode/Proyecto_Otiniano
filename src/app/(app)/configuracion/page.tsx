@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Handshake } from "lucide-react";
 import { exigir } from "@/lib/contexto";
 import { Encabezado, Tarjeta, TituloTarjeta } from "@/components/ui/basicos";
 import { Campo, Input, InputNumero } from "@/components/ui/campos";
@@ -12,11 +13,14 @@ export const metadata: Metadata = { title: "Configuración" };
 
 export default async function ConfiguracionPage() {
   const { supabase, empresa, userId } = await exigir("configurar");
-  const [{ data: miembros }, { data: cajas }, { data: categorias }] = await Promise.all([
+  const [{ data: miembros }, { data: cajas }, { data: categorias }, { data: uso }] = await Promise.all([
     supabase.from("miembros").select("user_id, rol, nombre, email, activo").eq("empresa_id", empresa.id).order("creado_en"),
     supabase.from("cajas").select("*").eq("empresa_id", empresa.id).order("orden"),
     supabase.from("categorias_gasto").select("*").eq("empresa_id", empresa.id).order("nombre"),
+    supabase.rpc("uso_consultas_doc", { p_empresa: empresa.id }),
   ]);
+  const consultas = (uso ?? {}) as { total?: number; empresa?: number; hoy?: number; guardados?: number };
+  const usadas = Number(consultas.total ?? 0);
 
   return (
     <>
@@ -25,13 +29,16 @@ export default async function ConfiguracionPage() {
         <Tarjeta>
           <TituloTarjeta>Empresa</TituloTarjeta>
           <div className="p-4">
-            <FormularioAccion accion={guardarEmpresa} reiniciar={false} textoBoton="Guardar datos">
+            <FormularioAccion accion={guardarEmpresa} reiniciar={false} textoBoton="Guardar datos" mensajeExito="Datos de la empresa guardados.">
               <Campo etiqueta="Razón social"><Input name="razon_social" defaultValue={empresa.razon_social} required /></Campo>
               <div className="grid grid-cols-2 gap-3">
                 <Campo etiqueta="RUC"><Input name="ruc" inputMode="numeric" maxLength={11} defaultValue={empresa.ruc ?? ""} /></Campo>
                 <Campo etiqueta="Teléfono"><Input name="telefono" defaultValue={empresa.telefono ?? ""} /></Campo>
               </div>
               <Campo etiqueta="Dirección"><Input name="direccion" defaultValue={empresa.direccion ?? ""} /></Campo>
+              <Campo etiqueta="Días para seleccionar una compra en almacén" ayuda="Pasado este plazo, la compra aparece como «retrasada» en Despacho. Por confirmar con el cliente.">
+                <InputNumero name="dias_seleccion" defaultValue={String(empresa.dias_seleccion ?? 2)} inputMode="numeric" />
+              </Campo>
               <Campo etiqueta="Exigir DNI/RUC desde (S/)" ayuda="Vacío = nunca obligatorio. Por confirmar con el cliente.">
                 <InputNumero name="monto_doc_obligatorio" defaultValue={empresa.monto_doc_obligatorio ?? ""} />
               </Campo>
@@ -56,6 +63,33 @@ export default async function ConfiguracionPage() {
           </div>
         </Tarjeta>
 
+        <div className="space-y-4">
+          <Tarjeta>
+            <TituloTarjeta accion={<Link href="/socios" className="text-xs font-medium text-marca-700">Abrir</Link>}>Socios del negocio</TituloTarjeta>
+            <p className="flex items-start gap-3 p-4 text-sm text-stone-600">
+              <Handshake className="mt-0.5 size-5 shrink-0 text-stone-400" />
+              <span>Participación de cada socio, aportes, retiros y utilidad que le corresponde. Es información de la sociedad: solo la edita el dueño.</span>
+            </p>
+          </Tarjeta>
+          <Tarjeta>
+            <TituloTarjeta>Consultas DNI / RUC (RENIEC y SUNAT)</TituloTarjeta>
+            <div className="space-y-3 p-4 text-sm">
+              <div>
+                <div className="mb-1 flex items-baseline justify-between">
+                  <span className="text-stone-600">Consultas usadas</span>
+                  <span className="cifra font-semibold">{usadas} <span className="font-normal text-stone-500">de 100 gratis</span></span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-stone-100">
+                  <div className={usadas >= 90 ? "h-full bg-red-500" : usadas >= 70 ? "h-full bg-amber-500" : "h-full bg-emerald-500"} style={{ width: `${Math.min(100, usadas)}%` }} />
+                </div>
+              </div>
+              <p className="text-stone-500">
+                Hoy: {Number(consultas.hoy ?? 0)} · Documentos guardados: {Number(consultas.guardados ?? 0)}. Solo se gasta una consulta al registrar un
+                proveedor o cliente nuevo; si el documento ya se consultó o ya está registrado, se reutiliza sin costo.
+              </p>
+            </div>
+          </Tarjeta>
+        </div>
         <Usuarios miembros={miembros ?? []} yo={userId} />
         <Cajas cajas={cajas ?? []} />
         <Categorias categorias={categorias ?? []} />

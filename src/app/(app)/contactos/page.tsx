@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Building2, ChevronRight, Handshake, Search, Users } from "lucide-react";
+import { Building2, ChevronRight, Search, Users } from "lucide-react";
 import { obtenerContexto } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
 import { soles } from "@/lib/formato";
@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Contactos" };
 
 interface Resultado {
   id: string;
-  tipo: "proveedor" | "cliente" | "socio";
+  tipo: "proveedor" | "cliente";
   nombre: string;
   documento: string | null;
   detalle: string;
@@ -22,20 +22,18 @@ interface Resultado {
 const TIPOS = {
   proveedor: { texto: "Proveedor", href: "/proveedores", icono: Users },
   cliente: { texto: "Cliente", href: "/compradores", icono: Building2 },
-  socio: { texto: "Socio", href: "/socios", icono: Handshake },
 } as const;
 
-/** Buscador único: un DNI, RUC o nombre y aparece donde esté (proveedor, cliente o socio). */
+/** Buscador único: un DNI, RUC o nombre y aparece donde esté (proveedor o cliente). Los socios están en Gestión. */
 export default async function ContactosPage({ searchParams }: { searchParams: Promise<{ q?: string; inactivos?: string }> }) {
   const sp = await searchParams;
   const { supabase, empresa, rol } = await obtenerContexto();
   const verClientes = puede(rol, "vender") || puede(rol, "verTodo");
-  const verSocios = puede(rol, "verTodo");
   const t = (sp.q ?? "").trim().replace(/[%,()]/g, "");
   const conInactivos = sp.inactivos === "1";
   const esNumero = /^\d+$/.test(t);
 
-  const cuenta = (tabla: "proveedores" | "compradores" | "socios") =>
+  const cuenta = (tabla: "proveedores" | "compradores") =>
     supabase.from(tabla).select("id", { count: "exact", head: true }).eq("empresa_id", empresa.id).eq("activo", true);
 
   const buscar = async (): Promise<Resultado[]> => {
@@ -50,11 +48,7 @@ export default async function ContactosPage({ searchParams }: { searchParams: Pr
     qc = esNumero ? qc.like("ruc", `${t}%`) : qc.or(`razon_social.ilike.%${t}%,contacto.ilike.%${t}%`);
     if (!conInactivos) qc = qc.eq("activo", true);
 
-    let qs = supabase.from("socios").select("id, nombre, dni, porcentaje, activo").eq("empresa_id", empresa.id).limit(30);
-    qs = esNumero ? qs.like("dni", `${t}%`) : qs.ilike("nombre", `%${t}%`);
-    if (!conInactivos) qs = qs.eq("activo", true);
-
-    const [p, c, s] = await Promise.all([qp, verClientes ? qc : null, verSocios ? qs : null]);
+    const [p, c] = await Promise.all([qp, verClientes ? qc : null]);
     return [
       ...(p.data ?? []).map((x): Resultado => ({
         id: x.id, tipo: "proveedor", nombre: x.nombre, activo: x.activo,
@@ -66,28 +60,22 @@ export default async function ContactosPage({ searchParams }: { searchParams: Pr
         documento: x.ruc ? `RUC ${x.ruc}` : null,
         detalle: `Le vendimos ${soles(x.importe_total)}${x.contacto ? ` · ${x.contacto}` : ""}`,
       })),
-      ...(s?.data ?? []).map((x): Resultado => ({
-        id: x.id, tipo: "socio", nombre: x.nombre, activo: x.activo,
-        documento: x.dni ? `DNI ${x.dni}` : null,
-        detalle: `Participación ${Number(x.porcentaje)} %`,
-      })),
     ];
   };
 
-  const [resultados, nProv, nCli, nSoc] = await Promise.all([
-    buscar(), cuenta("proveedores"), verClientes ? cuenta("compradores") : null, verSocios ? cuenta("socios") : null,
+  const [resultados, nProv, nCli] = await Promise.all([
+    buscar(), cuenta("proveedores"), verClientes ? cuenta("compradores") : null,
   ]);
 
   const tarjetas = [
     { tipo: "proveedor" as const, n: nProv.count ?? 0, texto: "Proveedores activos", ayuda: "Nos venden metal" },
     ...(nCli ? [{ tipo: "cliente" as const, n: nCli.count ?? 0, texto: "Clientes activos", ayuda: "Les vendemos" }] : []),
-    ...(nSoc ? [{ tipo: "socio" as const, n: nSoc.count ?? 0, texto: "Socios activos", ayuda: "Dueños del negocio" }] : []),
   ];
   const t2 = TONOS.fuchsia;
 
   return (
     <>
-      <Encabezado titulo="Contactos" descripcion="Proveedores, clientes y socios en un solo lugar" />
+      <Encabezado titulo="Contactos" descripcion="Proveedores y clientes en un solo lugar" />
 
       <form method="get" className="mb-4">
         <div className="flex gap-2">
@@ -148,7 +136,7 @@ export default async function ContactosPage({ searchParams }: { searchParams: Pr
           </ul>
         </Tarjeta>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           {tarjetas.map((x) => {
             const tipo = TIPOS[x.tipo];
             return (

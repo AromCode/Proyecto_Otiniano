@@ -5,11 +5,11 @@ import { Moon, MonitorSmartphone, Sun, Type } from "lucide-react";
 import { COOKIE_LETRA, COOKIE_TEMA, type Letra, type Tema } from "@/lib/preferencias";
 import { cx } from "@/components/ui/clases";
 
-function guardar(nombre: string, valor: string) {
+export function guardar(nombre: string, valor: string) {
   document.cookie = `${nombre}=${valor}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
 }
 
-function aplicarTema(t: Tema) {
+export function aplicarTema(t: Tema) {
   const html = document.documentElement;
   html.classList.remove("claro", "oscuro");
   if (t !== "auto") html.classList.add(t);
@@ -75,32 +75,55 @@ export function PanelPreferencias({ tema: temaInicial, letra: letraInicial }: { 
   );
 }
 
-/** Botones rápidos para el pie del menú */
-export function AccesosPreferencias({ tema: temaInicial, letra: letraInicial }: { tema: Tema; letra: Letra }) {
+/** Estado de tema y letra compartido por los botones de la barra superior y el menú de usuario */
+export function usePreferencias(temaInicial: Tema, letraInicial: Letra) {
   const [tema, setTema] = useState(temaInicial);
   const [letra, setLetra] = useState(letraInicial);
   const siguiente: Record<Tema, Tema> = { auto: "claro", claro: "oscuro", oscuro: "auto" };
-  const Icono = TEMAS.find((t) => t.valor === tema)!.icono;
-  const boton = "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-medium text-stone-600 hover:bg-stone-100";
+  return {
+    tema,
+    letra,
+    cambiarTema: () => { const t = siguiente[tema]; setTema(t); aplicarTema(t); },
+    cambiarLetra: () => { const l = letra === "grande" ? "normal" : "grande"; setLetra(l); aplicarLetra(l); },
+  };
+}
+export type Preferencias = ReturnType<typeof usePreferencias>;
+
+const claseIcono = "relative flex size-9 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 hover:text-stone-900";
+
+/** Botón de tema (claro → oscuro → automático) para la barra superior */
+export function BotonTema({ p, conTexto }: { p: Preferencias; conTexto?: boolean }) {
+  const t = TEMAS.find((x) => x.valor === p.tema)!;
   return (
-    <div className="mb-2 flex gap-1">
-      <button
-        type="button"
-        className={boton}
-        title="Cambiar tema"
-        onClick={() => { const t = siguiente[tema]; setTema(t); aplicarTema(t); }}
-      >
-        <Icono className="size-4" /> {TEMAS.find((t) => t.valor === tema)!.texto}
-      </button>
-      <button
-        type="button"
-        className={cx(boton, letra === "grande" && "bg-stone-100 text-stone-900")}
-        title="Letra grande"
-        aria-pressed={letra === "grande"}
-        onClick={() => { const l = letra === "grande" ? "normal" : "grande"; setLetra(l); aplicarLetra(l); }}
-      >
-        <Type className="size-4" /> Letra {letra === "grande" ? "grande" : "normal"}
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={p.cambiarTema}
+      title={`Tema: ${t.texto.toLowerCase()} (cambiar)`}
+      aria-label={`Tema ${t.texto.toLowerCase()}. Cambiar tema`}
+      className={conTexto ? "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-stone-700 hover:bg-stone-100" : claseIcono}
+    >
+      <t.icono className="size-[18px] shrink-0" />
+      {conTexto && <>Tema: {t.texto.toLowerCase()}</>}
+    </button>
+  );
+}
+
+/** Botón de letra grande (activa/desactiva) para la barra superior */
+export function BotonLetra({ p, conTexto }: { p: Preferencias; conTexto?: boolean }) {
+  const grande = p.letra === "grande";
+  return (
+    <button
+      type="button"
+      onClick={p.cambiarLetra}
+      aria-pressed={grande}
+      title={grande ? "Letra grande activada (volver a normal)" : "Usar letra grande"}
+      aria-label="Letra grande"
+      className={conTexto
+        ? "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-stone-700 hover:bg-stone-100"
+        : cx(claseIcono, grande && "bg-marca-50 text-marca-700 hover:bg-marca-50 hover:text-marca-700")}
+    >
+      <Type className="size-[18px] shrink-0" />
+      {conTexto ? <>Letra {grande ? "grande" : "normal"}</> : <span aria-hidden className="absolute right-1 top-1 text-[9px] font-bold leading-none">+</span>}
+    </button>
   );
 }
