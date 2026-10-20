@@ -42,5 +42,5 @@ export const ETIQUETA_MEDIO: Record<string, string> = {
 };
 export const ETIQUETA_ORIGEN: Record<string, string> = {
   compra: "Compra", venta: "Venta", gasto: "Gasto", aporte: "Aporte", retiro: "Retiro",
-  traspaso: "Traspaso", ajuste: "Ajuste", saldo_inicial: "Saldo inicial",
+  traspaso: "Traspaso", ajuste: "Ajuste", saldo_inicial: "Saldo inicial", devolucion: "Devolución",
 };

@@ -324,3 +324,49 @@ describe("Patrimonio y resultado", () => {
     expect(sumaMeses.toFixed(2)).toBe(num(r.rango.d.utilidad).toFixed(2));
   });
 });
+
+describe("Caja · apertura y cierre (turnos)", () => {
+  type Resumen = { numero: number; saldo_apertura: string; ingresos: string; egresos: string; esperado: string;
+    saldo_sistema: string; contado_cierre: string; diferencia_cierre: string; otros: string; ajustado: boolean;
+    detalle: { origen: string; tipo: string; cantidad: number; monto: string }[] };
+  const abrir = (user: string, contado: string) => como(db, user, (tx) =>
+    uno<{ r: { id: string; numero: number; saldo_apertura: string; diferencia: string } }>(tx,
+      `select abrir_caja($1, $2, $3) as r`, [empA, caja, contado])).then((x) => x.r);
+  const cerrar = (user: string, turno: string, contado: string, ajustar = false) => como(db, user, (tx) =>
+    uno<{ r: Resumen }>(tx, `select cerrar_caja($1, $2, null, $3) as r`, [turno, contado, ajustar])).then((x) => x.r);
+
+  it("abre, resume lo del turno y cierra con la diferencia contra lo contado", async () => {
+    const inicio = await saldoCaja();
+    const t = await abrir(CAJERO_A, String(inicio));
+    expect(num(t.saldo_apertura)).toBe(inicio);
+    expect(num(t.diferencia)).toBe(0);
+    await expect(abrir(CAJERO_A, "0")).rejects.toThrow(/ya está abierta/);
+
+    await comprar(cobre, "1", "0", "30");
+    const parcial = await como(db, CAJERO_A, (tx) => uno<{ r: Resumen }>(tx, `select resumen_turno($1) as r`, [t.id])).then((x) => x.r);
+    expect(num(parcial.egresos)).toBe(30);
+    expect(num(parcial.esperado)).toBe(inicio - 30);
+    expect(parcial.detalle).toEqual([expect.objectContaining({ origen: "compra", tipo: "egreso", cantidad: 1 })]);
+
+    await expect(cerrar(CAJERO_A, t.id, "0", true)).rejects.toThrow(/Solo el dueño/);
+    const r = await cerrar(CAJERO_A, t.id, String(inicio - 35));
+    expect(num(r.saldo_sistema)).toBe(inicio - 30);
+    expect(num(r.otros)).toBe(0);
+    expect(num(r.diferencia_cierre)).toBe(-5);
+    expect(await saldoCaja()).toBe(inicio - 30); // sin ajuste la caja no cambia
+    await expect(cerrar(CAJERO_A, t.id, "0")).rejects.toThrow(/ya está cerrado/);
+
+    // Empresa B no ve los turnos de A
+    const ajenos = await como(db, DUENO_B, (tx) => tx.query(`select id from turnos_caja`));
+    expect(ajenos.rows).toHaveLength(0);
+  });
+
+  it("el dueño puede cerrar ajustando la caja a lo contado", async () => {
+    const inicio = await saldoCaja();
+    const t = await abrir(DUENO_A, String(inicio));
+    const r = await cerrar(DUENO_A, t.id, String(inicio + 2), true);
+    expect(num(r.diferencia_cierre)).toBe(2);
+    expect(r.ajustado).toBe(true);
+    expect(await saldoCaja()).toBe(inicio + 2);
+  });
+});

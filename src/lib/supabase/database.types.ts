@@ -1742,6 +1742,95 @@ export type Database = {
           },
         ]
       }
+      turnos_caja: {
+        Row: {
+          abierto_en: string
+          abierto_por: string | null
+          ajustado: boolean
+          caja_id: string
+          cerrado_en: string | null
+          cerrado_por: string | null
+          contado_apertura: number
+          contado_cierre: number | null
+          diferencia_apertura: number | null
+          diferencia_cierre: number | null
+          empresa_id: string
+          id: string
+          nota_apertura: string | null
+          nota_cierre: string | null
+          numero: number
+          saldo_apertura: number
+          saldo_cierre: number | null
+        }
+        Insert: {
+          abierto_en?: string
+          abierto_por?: string | null
+          ajustado?: boolean
+          caja_id: string
+          cerrado_en?: string | null
+          cerrado_por?: string | null
+          contado_apertura: number
+          contado_cierre?: number | null
+          diferencia_apertura?: number | null
+          diferencia_cierre?: number | null
+          empresa_id: string
+          id?: string
+          nota_apertura?: string | null
+          nota_cierre?: string | null
+          numero: number
+          saldo_apertura: number
+          saldo_cierre?: number | null
+        }
+        Update: {
+          abierto_en?: string
+          abierto_por?: string | null
+          ajustado?: boolean
+          caja_id?: string
+          cerrado_en?: string | null
+          cerrado_por?: string | null
+          contado_apertura?: number
+          contado_cierre?: number | null
+          diferencia_apertura?: number | null
+          diferencia_cierre?: number | null
+          empresa_id?: string
+          id?: string
+          nota_apertura?: string | null
+          nota_cierre?: string | null
+          numero?: number
+          saldo_apertura?: number
+          saldo_cierre?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "turnos_caja_caja_id_fkey"
+            columns: ["caja_id"]
+            isOneToOne: false
+            referencedRelation: "cajas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "turnos_caja_caja_id_fkey"
+            columns: ["caja_id"]
+            isOneToOne: false
+            referencedRelation: "v_saldo_caja"
+            referencedColumns: ["caja_id"]
+          },
+          {
+            foreignKeyName: "turnos_caja_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "turnos_caja_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "v_patrimonio"
+            referencedColumns: ["empresa_id"]
+          },
+        ]
+      }
       venta_items: {
         Row: {
           costo_kg: number
@@ -2843,6 +2932,61 @@ export type Database = {
           },
         ]
       }
+      v_turnos_caja: {
+        Row: {
+          abierto_en: string | null
+          abierto_por: string | null
+          abierto_por_nombre: string | null
+          ajustado: boolean | null
+          caja_id: string | null
+          caja_nombre: string | null
+          caja_tipo: Database["public"]["Enums"]["tipo_caja"] | null
+          cerrado_en: string | null
+          cerrado_por: string | null
+          cerrado_por_nombre: string | null
+          contado_apertura: number | null
+          contado_cierre: number | null
+          diferencia_apertura: number | null
+          diferencia_cierre: number | null
+          empresa_id: string | null
+          id: string | null
+          nota_apertura: string | null
+          nota_cierre: string | null
+          numero: number | null
+          saldo_apertura: number | null
+          saldo_cierre: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "turnos_caja_caja_id_fkey"
+            columns: ["caja_id"]
+            isOneToOne: false
+            referencedRelation: "cajas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "turnos_caja_caja_id_fkey"
+            columns: ["caja_id"]
+            isOneToOne: false
+            referencedRelation: "v_saldo_caja"
+            referencedColumns: ["caja_id"]
+          },
+          {
+            foreignKeyName: "turnos_caja_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "turnos_caja_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "v_patrimonio"
+            referencedColumns: ["empresa_id"]
+          },
+        ]
+      }
       v_utilidad_socio: {
         Row: {
           empresa_id: string | null
@@ -3119,6 +3263,15 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      abrir_caja: {
+        Args: {
+          p_caja: string
+          p_contado: number
+          p_empresa: string
+          p_nota?: string
+        }
+        Returns: Json
+      }
       actualizar_compra_adjuntos: {
         Args: { p_compra: string; p_foto_ticket_url: string; p_notas: string }
         Returns: undefined
@@ -3179,6 +3332,15 @@ export type Database = {
       anular_venta: {
         Args: { p_motivo: string; p_venta: string }
         Returns: undefined
+      }
+      cerrar_caja: {
+        Args: {
+          p_ajustar?: boolean
+          p_contado: number
+          p_nota?: string
+          p_turno: string
+        }
+        Returns: Json
       }
       cerrar_mes: {
         Args: { p_empresa: string; p_periodo: string }
@@ -3430,6 +3592,7 @@ export type Database = {
         Args: { p_desde: string; p_hasta: string; p_metal: string }
         Returns: Json
       }
+      resumen_turno: { Args: { p_turno: string }; Returns: Json }
       resumen_ventas: { Args: { p_empresa: string }; Returns: Json }
       rpt_compras: {
         Args: {

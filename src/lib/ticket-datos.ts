@@ -6,7 +6,7 @@ import type { DatosTicket } from "./pdf/ticket";
 
 // Datos del ticket de 80 mm: los usan el PDF (ticket/route.tsx) y la página de impresión directa (/imprimir).
 
-async function logoDataUri(ctx: Contexto) {
+export async function logoDataUri(ctx: Contexto) {
   const logo = await cargarLogo(ctx.supabase, ctx.empresa.logo_url);
   return logo ? `data:image/${logo.ext};base64,${logo.buffer.toString("base64")}` : null;
 }

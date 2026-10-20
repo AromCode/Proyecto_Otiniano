@@ -3,7 +3,7 @@
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
 import { normalizar } from "@/lib/montos";
-import type { Resultado } from "@/lib/tipos";
+import type { Resultado, ResumenTurno } from "@/lib/tipos";
 
 function monto(fd: FormData, campo = "monto") {
   return normalizar(texto(fd, campo) ?? "");
@@ -57,4 +57,27 @@ export async function registrarArqueo(_: unknown, fd: FormData): Promise<Resulta
   });
   if (error) return fallo(error);
   return ok(data as { diferencia: number; saldo_sistema: number });
+}
+
+export async function abrirCaja(_: unknown, fd: FormData): Promise<Resultado<{ numero: number; diferencia: number }>> {
+  const { supabase, empresa } = await obtenerContexto();
+  const m = monto(fd, "contado");
+  if (!m) return fallo("Ingrese el efectivo con que empieza la caja (puede ser 0).");
+  const { data, error } = await supabase.rpc("abrir_caja", {
+    p_empresa: empresa.id, p_caja: texto(fd, "caja_id")!, p_contado: Number(m), p_nota: texto(fd, "nota") ?? undefined,
+  });
+  if (error) return fallo(error);
+  return ok(data as { numero: number; diferencia: number });
+}
+
+export async function cerrarCaja(_: unknown, fd: FormData): Promise<Resultado<ResumenTurno>> {
+  const { supabase } = await obtenerContexto();
+  const m = monto(fd, "contado");
+  if (!m) return fallo("Ingrese el efectivo contado al cierre (puede ser 0).");
+  const { data, error } = await supabase.rpc("cerrar_caja", {
+    p_turno: texto(fd, "turno_id")!, p_contado: Number(m), p_nota: texto(fd, "nota") ?? undefined,
+    p_ajustar: fd.get("ajustar") === "on",
+  });
+  if (error) return fallo(error);
+  return ok(data as unknown as ResumenTurno);
 }

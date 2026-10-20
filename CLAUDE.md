@@ -22,6 +22,8 @@ UI y textos en **español (Perú)**. Lo marcado **[CONFIRMAR]** en la propuesta 
 - Modo oscuro = variables de color redefinidas en `globals.css` (sin clases `dark:`). Usar `bg-superficie`,
   nunca `bg-white`; colores de módulo vía `TONOS`. Si se usa un color nuevo con tinte, agregarlo al bloque oscuro.
 - Resúmenes de módulo (`resumen_compras/ventas/inventario`) y fichas por metal salen de la BD (`src/components/resumen-modulo.tsx`).
+- Apertura/cierre de caja = `turnos_caja` (`abrir_caja`, `cerrar_caja`, `resumen_turno`): no bloquean operaciones;
+  el ticket de cierre (`/imprimir/cierre/[id]`) y los de compra/venta son HTML de 80 mm (`components/ticket`), no PDF.
 - Responsive real: `TablaDatos` (tabla en escritorio, tarjetas en celular); sin scroll horizontal de página.
 - Server actions sin `revalidatePath` (re-arma la página dentro de la respuesta y el botón queda colgado):
   el cliente llama `router.refresh()` tras el éxito (`FormularioAccion` ya lo hace). Descargas de Excel con `EnlaceDescarga`.

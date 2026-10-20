@@ -9,7 +9,7 @@ import { MENSAJE_IMPRESO } from "./auto-imprimir";
  * Imprime el ticket de 80 mm sin salir de la página: lo carga en un iframe oculto que abre el diálogo de
  * impresión por sí solo. En celular/tablet (el iframe no imprime bien) se abre en una pestaña.
  */
-export function BotonImprimir80({ href, className }: { href: string; className?: string }) {
+export function BotonImprimir80({ href, className, texto = "80 mm" }: { href: string; className?: string; texto?: string }) {
   const [cargando, setCargando] = useState(false);
   const marco = useRef<HTMLIFrameElement | null>(null);
   const espera = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -56,7 +56,7 @@ export function BotonImprimir80({ href, className }: { href: string; className?:
   return (
     <a href={href} target="_blank" onClick={imprimir} aria-busy={cargando} title="Imprimir en la térmica de 80 mm" className={className}>
       {cargando ? <Loader2 className="size-4 animate-spin" /> : <Printer className="size-4" />}
-      {cargando ? "Preparando…" : "80 mm"}
+      {cargando ? "Preparando…" : texto}
     </a>
   );
 }

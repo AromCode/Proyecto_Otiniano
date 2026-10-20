@@ -56,4 +56,31 @@ export interface Comprador {
   activo: boolean;
 }
 
-export type Resultado<T = unknown> = { ok: true; data: T } | { ok: false; error: string };
+/** Resumen de un turno de caja (apertura → cierre), calculado por resumen_turno() en la BD */
+export interface ResumenTurno {
+  id: string;
+  numero: number;
+  caja: string;
+  caja_id: string;
+  abierto_en: string;
+  abierto_por: string | null;
+  cerrado_en: string | null;
+  cerrado_por: string | null;
+  saldo_apertura: number;
+  contado_apertura: number;
+  diferencia_apertura: number;
+  ingresos: number;
+  egresos: number;
+  esperado: number;
+  otros: number;
+  saldo_sistema: number;
+  contado_cierre: number | null;
+  diferencia_cierre: number | null;
+  ajustado: boolean;
+  nota_apertura: string | null;
+  nota_cierre: string | null;
+  anulados: number;
+  detalle: { origen: string; tipo: "ingreso" | "egreso"; cantidad: number; monto: number }[];
+}
+
+export type Resultado<T = unknown> ={ ok: true; data: T } | { ok: false; error: string };
