@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Building2 } from "lucide-react";
+import { marcarPestana } from "@/lib/sesion-pestana";
 
 const DURACION_MS = 1600;
 
@@ -12,6 +13,8 @@ export function PantallaBienvenida({ saludo, nombre, empresa, rol, destino }: {
   const router = useRouter();
 
   useEffect(() => {
+    // Esta pestaña ya pasó por el login: el sistema no la devolverá al login al recargar
+    marcarPestana();
     // Mientras se muestra el mensaje se va cargando el sistema; replace: «atrás» no vuelve aquí
     router.prefetch(destino);
     const t = setTimeout(() => router.replace(destino), DURACION_MS);
