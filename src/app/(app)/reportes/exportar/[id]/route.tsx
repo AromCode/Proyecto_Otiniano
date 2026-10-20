@@ -74,7 +74,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   }
 
   const libro = new ExcelJS.Workbook();
-  libro.creator = "Sistema Metales";
+  libro.creator = "Sistema Otiniano";
   const hoja = libro.addWorksheet(def.titulo.slice(0, 31));
   hoja.addRow([ctx.empresa.razon_social]).font = { bold: true, size: 12 };
   hoja.addRow([def.titulo]).font = { bold: true, size: 14 };
