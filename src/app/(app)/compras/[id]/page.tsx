@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileText, ImageIcon, PackageCheck, Printer } from "lucide-react";
+import { ArrowLeft, FileText, ImageIcon, PackageCheck } from "lucide-react";
+import { BotonImprimir80 } from "@/components/ticket/boton-imprimir-80";
 import { obtenerContexto } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
 import { urlArchivo } from "@/lib/archivos-servidor";
@@ -46,9 +47,7 @@ export default async function CompraDetalle({ params }: { params: Promise<{ id: 
             <a href={`/compras/${c.id}/ticket`} target="_blank" className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50">
               <FileText className="size-4" /> Ticket PDF
             </a>
-            <a href={`/compras/${c.id}/ticket?formato=80mm`} target="_blank" title="Para la impresora térmica de 80 mm" className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50">
-              <Printer className="size-4" /> 80 mm
-            </a>
+            <BotonImprimir80 href={`/imprimir/compra/${c.id}`} className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50" />
             {puede(rol, "anular") && c.estado === "registrada" && (
               <BotonAnular
                 id={c.id}

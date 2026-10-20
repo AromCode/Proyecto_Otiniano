@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Camera, CheckCircle2, FileText, PackageCheck, Plus, Printer, Share2, Trash2, Wallet } from "lucide-react";
+import { Camera, CheckCircle2, FileText, PackageCheck, Plus, Share2, Trash2, Wallet } from "lucide-react";
+import { BotonImprimir80 } from "@/components/ticket/boton-imprimir-80";
 import { SelectorProveedor } from "@/components/selector-proveedor";
 import { Campo, InputNumero, Select, Textarea } from "@/components/ui/campos";
 import { Aviso, PuntoMetal, Tarjeta } from "@/components/ui/basicos";
@@ -329,9 +330,7 @@ function CompraHecha({ compra, onNueva }: { compra: CompraRegistrada; onNueva: (
       <p className="mt-1 text-sm text-stone-500">Se descontó de caja y se sumó al stock. Queda pendiente de selección en Despacho.</p>
       {/* 80 mm para la impresora térmica del mostrador; PDF y Compartir: el A4 con la marca */}
       <div className="mt-6 grid grid-cols-3 gap-2">
-        <a href={`${urlTicket}?formato=80mm`} target="_blank" className="flex h-12 items-center justify-center gap-2 rounded-lg border border-stone-300 bg-superficie font-medium">
-          <Printer className="size-4" /> 80 mm
-        </a>
+        <BotonImprimir80 href={`/imprimir/compra/${compra.id}`} className="flex h-12 items-center justify-center gap-2 rounded-lg border border-stone-300 bg-superficie font-medium" />
         <a href={urlTicket} target="_blank" className="flex h-12 items-center justify-center gap-2 rounded-lg border border-stone-300 bg-superficie font-medium">
           <FileText className="size-4" /> PDF
         </a>

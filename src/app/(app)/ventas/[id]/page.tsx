@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileText, Printer } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
+import { BotonImprimir80 } from "@/components/ticket/boton-imprimir-80";
 import { exigir } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
 import { urlArchivo } from "@/lib/archivos-servidor";
@@ -41,9 +42,7 @@ export default async function VentaDetalle({ params }: { params: Promise<{ id: s
             <a href={`/ventas/${v.id}/ticket`} target="_blank" className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50">
               <FileText className="size-4" /> {v.estado === "pendiente" ? "Nota de salida" : "Comprobante PDF"}
             </a>
-            <a href={`/ventas/${v.id}/ticket?formato=80mm`} target="_blank" title="Para la impresora térmica de 80 mm" className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50">
-              <Printer className="size-4" /> 80 mm
-            </a>
+            <BotonImprimir80 href={`/imprimir/venta/${v.id}`} className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50" />
             {puede(rol, "anular") && v.estado !== "anulada" && (
               <BotonAnular id={v.id} accion={anularVenta} titulo={`Anular venta N° ${v.numero}`}
                 explicacion="Los kilos vuelven al stock con su costo y, si estaba cobrada, se revierte el ingreso de caja." />
