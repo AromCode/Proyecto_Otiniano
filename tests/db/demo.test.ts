@@ -18,6 +18,8 @@ describe("Scripts de Supabase", () => {
       p: await uno<Record<string, string>>(tx, `select p.* from v_patrimonio p join empresas e on e.id = p.empresa_id where e.razon_social like 'Metales Demo%'`),
       res: await uno<{ s: string }>(tx, `select sum(r.utilidad) s from v_resultado_mes r join empresas e on e.id = r.empresa_id where e.razon_social like 'Metales Demo%'`),
       dash: await uno<{ d: Record<string, unknown> }>(tx, `select dashboard(id) d from empresas where razon_social like 'Metales Demo%'`),
+      rango: await uno<{ d: Record<string, string> }>(tx, `select dashboard_rango(id, date '2000-01-01', date '2100-12-31') d from empresas where razon_social like 'Metales Demo%'`),
+      mesRango: await uno<{ d: Record<string, string> }>(tx, `select dashboard_rango(id, date_trunc('month', (now() at time zone 'America/Lima')::date)::date, (now() at time zone 'America/Lima')::date) d from empresas where razon_social like 'Metales Demo%'`),
       rc: await uno<{ d: Record<string, string> }>(tx, `select resumen_compras(id) d from empresas where razon_social like 'Metales Demo%'`),
       rv: await uno<{ d: Record<string, string> }>(tx, `select resumen_ventas(id) d from empresas where razon_social like 'Metales Demo%'`),
       ri: await uno<{ d: Record<string, string> }>(tx, `select resumen_inventario(id) d from empresas where razon_social like 'Metales Demo%'`),
@@ -41,6 +43,11 @@ describe("Scripts de Supabase", () => {
     // Ganancia acumulada (patrimonio − capital) = suma de utilidades del estado de resultados
     expect(Number(r.p.ganancia_acumulada).toFixed(2)).toBe(Number(r.res.s).toFixed(2));
     expect(r.dash.d).toHaveProperty("caja");
+    // Dashboard filtrado: todo el historial = suma de utilidades; el mes en curso = utilidad del mes
+    expect(Number(r.rango.d.utilidad).toFixed(2)).toBe(Number(r.res.s).toFixed(2));
+    expect(Number(r.mesRango.d.utilidad).toFixed(2)).toBe(Number(r.dash.d.utilidad_mes).toFixed(2));
+    expect(Number(r.rango.d.compras_n)).toBe(12);
+    expect(r.rango.d.por_metal.length).toBeGreaterThan(0);
     // Resúmenes de módulo: cuadran con el patrimonio y con las ventas cargadas
     expect(Number(r.rc.d.mes_n)).toBe(12);
     expect(Number(r.rv.d.mes_n)).toBe(1);

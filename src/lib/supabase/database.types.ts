@@ -436,6 +436,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "compra_items_compra_id_fkey"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "v_lotes"
+            referencedColumns: ["compra_id"]
+          },
+          {
             foreignKeyName: "compra_items_empresa_id_fkey"
             columns: ["empresa_id"]
             isOneToOne: false
@@ -537,6 +544,7 @@ export type Database = {
           notas: string | null
           numero: number
           proveedor_id: string | null
+          saldo_aplicado: number
           total: number
         }
         Insert: {
@@ -556,6 +564,7 @@ export type Database = {
           notas?: string | null
           numero: number
           proveedor_id?: string | null
+          saldo_aplicado?: number
           total?: number
         }
         Update: {
@@ -575,6 +584,7 @@ export type Database = {
           notas?: string | null
           numero?: number
           proveedor_id?: string | null
+          saldo_aplicado?: number
           total?: number
         }
         Relationships: [
@@ -620,6 +630,13 @@ export type Database = {
             referencedRelation: "v_proveedores_resumen"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "compras_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_saldo_proveedor"
+            referencedColumns: ["proveedor_id"]
+          },
         ]
       }
       correlativos: {
@@ -655,10 +672,109 @@ export type Database = {
           },
         ]
       }
+      devoluciones_proveedor: {
+        Row: {
+          anulado_en: string | null
+          anulado_por: string | null
+          caja_id: string
+          creado_en: string
+          creado_por: string | null
+          empresa_id: string
+          estado: Database["public"]["Enums"]["estado_doc"]
+          fecha: string
+          id: string
+          monto: number
+          motivo_anulacion: string | null
+          nota: string | null
+          proveedor_id: string
+        }
+        Insert: {
+          anulado_en?: string | null
+          anulado_por?: string | null
+          caja_id: string
+          creado_en?: string
+          creado_por?: string | null
+          empresa_id: string
+          estado?: Database["public"]["Enums"]["estado_doc"]
+          fecha?: string
+          id?: string
+          monto: number
+          motivo_anulacion?: string | null
+          nota?: string | null
+          proveedor_id: string
+        }
+        Update: {
+          anulado_en?: string | null
+          anulado_por?: string | null
+          caja_id?: string
+          creado_en?: string
+          creado_por?: string | null
+          empresa_id?: string
+          estado?: Database["public"]["Enums"]["estado_doc"]
+          fecha?: string
+          id?: string
+          monto?: number
+          motivo_anulacion?: string | null
+          nota?: string | null
+          proveedor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devoluciones_proveedor_caja_id_fkey"
+            columns: ["caja_id"]
+            isOneToOne: false
+            referencedRelation: "cajas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devoluciones_proveedor_caja_id_fkey"
+            columns: ["caja_id"]
+            isOneToOne: false
+            referencedRelation: "v_saldo_caja"
+            referencedColumns: ["caja_id"]
+          },
+          {
+            foreignKeyName: "devoluciones_proveedor_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devoluciones_proveedor_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "v_patrimonio"
+            referencedColumns: ["empresa_id"]
+          },
+          {
+            foreignKeyName: "devoluciones_proveedor_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "proveedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devoluciones_proveedor_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_proveedores_resumen"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devoluciones_proveedor_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_saldo_proveedor"
+            referencedColumns: ["proveedor_id"]
+          },
+        ]
+      }
       empresas: {
         Row: {
           activo: boolean
           creado_en: string
+          dias_seleccion: number
           direccion: string | null
           id: string
           logo_url: string | null
@@ -672,6 +788,7 @@ export type Database = {
         Insert: {
           activo?: boolean
           creado_en?: string
+          dias_seleccion?: number
           direccion?: string | null
           id?: string
           logo_url?: string | null
@@ -685,6 +802,7 @@ export type Database = {
         Update: {
           activo?: boolean
           creado_en?: string
+          dias_seleccion?: number
           direccion?: string | null
           id?: string
           logo_url?: string | null
@@ -1034,6 +1152,60 @@ export type Database = {
           },
         ]
       }
+      padron_documentos: {
+        Row: {
+          consultado_en: string
+          consultas: number
+          creado_por: string | null
+          datos: Json | null
+          direccion: string | null
+          empresa_id: string | null
+          encontrado: boolean
+          nombre: string | null
+          nro_doc: string
+          tipo_doc: Database["public"]["Enums"]["tipo_doc"]
+        }
+        Insert: {
+          consultado_en?: string
+          consultas?: number
+          creado_por?: string | null
+          datos?: Json | null
+          direccion?: string | null
+          empresa_id?: string | null
+          encontrado: boolean
+          nombre?: string | null
+          nro_doc: string
+          tipo_doc: Database["public"]["Enums"]["tipo_doc"]
+        }
+        Update: {
+          consultado_en?: string
+          consultas?: number
+          creado_por?: string | null
+          datos?: Json | null
+          direccion?: string | null
+          empresa_id?: string | null
+          encontrado?: boolean
+          nombre?: string | null
+          nro_doc?: string
+          tipo_doc?: Database["public"]["Enums"]["tipo_doc"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "padron_documentos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "padron_documentos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "v_patrimonio"
+            referencedColumns: ["empresa_id"]
+          },
+        ]
+      }
       precios_metal: {
         Row: {
           creado_por: string | null
@@ -1150,6 +1322,231 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_patrimonio"
             referencedColumns: ["empresa_id"]
+          },
+        ]
+      }
+      seleccion_items: {
+        Row: {
+          compra_item_id: string
+          empresa_id: string
+          id: string
+          importe: number | null
+          kg: number
+          metal_id: string
+          precio_kg: number
+          seleccion_id: string
+        }
+        Insert: {
+          compra_item_id: string
+          empresa_id: string
+          id?: string
+          importe?: number | null
+          kg: number
+          metal_id: string
+          precio_kg: number
+          seleccion_id: string
+        }
+        Update: {
+          compra_item_id?: string
+          empresa_id?: string
+          id?: string
+          importe?: number | null
+          kg?: number
+          metal_id?: string
+          precio_kg?: number
+          seleccion_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seleccion_items_compra_item_id_fkey"
+            columns: ["compra_item_id"]
+            isOneToOne: false
+            referencedRelation: "compra_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seleccion_items_compra_item_id_fkey"
+            columns: ["compra_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_compra_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seleccion_items_compra_item_id_fkey"
+            columns: ["compra_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_lotes"
+            referencedColumns: ["compra_item_id"]
+          },
+          {
+            foreignKeyName: "seleccion_items_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seleccion_items_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "v_patrimonio"
+            referencedColumns: ["empresa_id"]
+          },
+          {
+            foreignKeyName: "seleccion_items_metal_id_fkey"
+            columns: ["metal_id"]
+            isOneToOne: false
+            referencedRelation: "metales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seleccion_items_metal_id_fkey"
+            columns: ["metal_id"]
+            isOneToOne: false
+            referencedRelation: "v_stock_metal"
+            referencedColumns: ["metal_id"]
+          },
+          {
+            foreignKeyName: "seleccion_items_seleccion_id_fkey"
+            columns: ["seleccion_id"]
+            isOneToOne: false
+            referencedRelation: "selecciones_compra"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seleccion_items_seleccion_id_fkey"
+            columns: ["seleccion_id"]
+            isOneToOne: false
+            referencedRelation: "v_compras"
+            referencedColumns: ["seleccion_id"]
+          },
+          {
+            foreignKeyName: "seleccion_items_seleccion_id_fkey"
+            columns: ["seleccion_id"]
+            isOneToOne: false
+            referencedRelation: "v_lotes"
+            referencedColumns: ["seleccion_id"]
+          },
+          {
+            foreignKeyName: "seleccion_items_seleccion_id_fkey"
+            columns: ["seleccion_id"]
+            isOneToOne: false
+            referencedRelation: "v_selecciones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      selecciones_compra: {
+        Row: {
+          anulado_en: string | null
+          anulado_por: string | null
+          cobrar: boolean
+          compra_id: string
+          creado_en: string
+          creado_por: string | null
+          empresa_id: string
+          estado: Database["public"]["Enums"]["estado_doc"]
+          fecha: string
+          id: string
+          importe: number
+          kg: number
+          motivo: string | null
+          motivo_anulacion: string | null
+          numero: number
+          proveedor_id: string | null
+        }
+        Insert: {
+          anulado_en?: string | null
+          anulado_por?: string | null
+          cobrar: boolean
+          compra_id: string
+          creado_en?: string
+          creado_por?: string | null
+          empresa_id: string
+          estado?: Database["public"]["Enums"]["estado_doc"]
+          fecha?: string
+          id?: string
+          importe?: number
+          kg?: number
+          motivo?: string | null
+          motivo_anulacion?: string | null
+          numero: number
+          proveedor_id?: string | null
+        }
+        Update: {
+          anulado_en?: string | null
+          anulado_por?: string | null
+          cobrar?: boolean
+          compra_id?: string
+          creado_en?: string
+          creado_por?: string | null
+          empresa_id?: string
+          estado?: Database["public"]["Enums"]["estado_doc"]
+          fecha?: string
+          id?: string
+          importe?: number
+          kg?: number
+          motivo?: string | null
+          motivo_anulacion?: string | null
+          numero?: number
+          proveedor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "selecciones_compra_compra_id_fkey"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "compras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_compra_id_fkey"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "v_compras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_compra_id_fkey"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "v_lotes"
+            referencedColumns: ["compra_id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "v_patrimonio"
+            referencedColumns: ["empresa_id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "proveedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_proveedores_resumen"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_saldo_proveedor"
+            referencedColumns: ["proveedor_id"]
           },
         ]
       }
@@ -1781,6 +2178,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "compra_items_compra_id_fkey"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "v_lotes"
+            referencedColumns: ["compra_id"]
+          },
+          {
             foreignKeyName: "compra_items_empresa_id_fkey"
             columns: ["empresa_id"]
             isOneToOne: false
@@ -1821,6 +2225,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_proveedores_resumen"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compras_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_saldo_proveedor"
+            referencedColumns: ["proveedor_id"]
           },
         ]
       }
@@ -1880,10 +2291,18 @@ export type Database = {
           notas: string | null
           numero: number | null
           periodo: string | null
+          por_seleccionar: boolean | null
+          precio_promedio: number | null
           proveedor_id: string | null
           proveedor_nombre: string | null
           proveedor_nro_doc: string | null
           proveedor_tipo_doc: Database["public"]["Enums"]["tipo_doc"] | null
+          retrasada: boolean | null
+          saldo_aplicado: number | null
+          seleccion_id: string | null
+          seleccion_importe: number | null
+          seleccion_kg: number | null
+          seleccion_numero: number | null
           total: number | null
         }
         Relationships: [
@@ -1928,6 +2347,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_proveedores_resumen"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compras_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_saldo_proveedor"
+            referencedColumns: ["proveedor_id"]
           },
         ]
       }
@@ -2039,6 +2465,85 @@ export type Database = {
           },
         ]
       }
+      v_lotes: {
+        Row: {
+          compra_id: string | null
+          compra_item_id: string | null
+          dias: number | null
+          empresa_id: string | null
+          fecha: string | null
+          fecha_seleccion: string | null
+          importe: number | null
+          kg_descuento: number | null
+          kg_en_stock: number | null
+          kg_ingresado: number | null
+          mas_nuevo: number | null
+          metal_color: string | null
+          metal_id: string | null
+          metal_nombre: string | null
+          numero: number | null
+          peso_bruto_kg: number | null
+          peso_neto_kg: number | null
+          por_seleccionar: boolean | null
+          precio_kg: number | null
+          proveedor_id: string | null
+          proveedor_nombre: string | null
+          retrasado: boolean | null
+          seleccion_id: string | null
+          seleccion_numero: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compra_items_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compra_items_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "v_patrimonio"
+            referencedColumns: ["empresa_id"]
+          },
+          {
+            foreignKeyName: "compra_items_metal_id_fkey"
+            columns: ["metal_id"]
+            isOneToOne: false
+            referencedRelation: "metales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compra_items_metal_id_fkey"
+            columns: ["metal_id"]
+            isOneToOne: false
+            referencedRelation: "v_stock_metal"
+            referencedColumns: ["metal_id"]
+          },
+          {
+            foreignKeyName: "compras_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "proveedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compras_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_proveedores_resumen"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compras_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_saldo_proveedor"
+            referencedColumns: ["proveedor_id"]
+          },
+        ]
+      }
       v_movimientos_caja: {
         Row: {
           anulado: boolean | null
@@ -2098,6 +2603,7 @@ export type Database = {
           empresa_id: string | null
           en_transito: number | null
           ganancia_acumulada: number | null
+          por_cobrar: number | null
           retiros: number | null
           stock_costo: number | null
           stock_precio_venta: number | null
@@ -2187,6 +2693,119 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_patrimonio"
             referencedColumns: ["empresa_id"]
+          },
+        ]
+      }
+      v_saldo_proveedor: {
+        Row: {
+          aplicado: number | null
+          descontado: number | null
+          devuelto: number | null
+          empresa_id: string | null
+          nombre: string | null
+          nro_doc: string | null
+          proveedor_id: string | null
+          saldo: number | null
+          telefono: string | null
+          tipo_doc: Database["public"]["Enums"]["tipo_doc"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proveedores_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proveedores_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "v_patrimonio"
+            referencedColumns: ["empresa_id"]
+          },
+        ]
+      }
+      v_selecciones: {
+        Row: {
+          anulado_en: string | null
+          anulado_por: string | null
+          cobrar: boolean | null
+          compra_fecha: string | null
+          compra_id: string | null
+          compra_numero: number | null
+          compra_total: number | null
+          creado_en: string | null
+          creado_por: string | null
+          detalle: string | null
+          empresa_id: string | null
+          estado: Database["public"]["Enums"]["estado_doc"] | null
+          fecha: string | null
+          id: string | null
+          importe: number | null
+          kg: number | null
+          motivo: string | null
+          motivo_anulacion: string | null
+          numero: number | null
+          proveedor_id: string | null
+          proveedor_nombre: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "selecciones_compra_compra_id_fkey"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "compras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_compra_id_fkey"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "v_compras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_compra_id_fkey"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "v_lotes"
+            referencedColumns: ["compra_id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "v_patrimonio"
+            referencedColumns: ["empresa_id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "proveedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_proveedores_resumen"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "selecciones_compra_proveedor_id_fkey"
+            columns: ["proveedor_id"]
+            isOneToOne: false
+            referencedRelation: "v_saldo_proveedor"
+            referencedColumns: ["proveedor_id"]
           },
         ]
       }
@@ -2355,6 +2974,7 @@ export type Database = {
           notas: string | null
           numero: number | null
           periodo: string | null
+          precio_promedio: number | null
           total: number | null
         }
         Relationships: [
@@ -2425,6 +3045,7 @@ export type Database = {
         }
         Returns: string
       }
+      _saldo_proveedor: { Args: { p_proveedor: string }; Returns: number }
       _stock_entrada: {
         Args: {
           p_costo: number
@@ -2465,6 +3086,19 @@ export type Database = {
           p_tipo: Database["public"]["Enums"]["tipo_kardex"]
         }
         Returns: number
+      }
+      _stock_salida_costo: {
+        Args: {
+          p_costo: number
+          p_empresa: string
+          p_fecha: string
+          p_kg: number
+          p_metal: string
+          p_origen_id: string
+          p_origen_tabla: string
+          p_tipo: Database["public"]["Enums"]["tipo_kardex"]
+        }
+        Returns: undefined
       }
       _texto: { Args: { p: string }; Returns: string }
       _validar_caja: {
@@ -2526,8 +3160,16 @@ export type Database = {
         Args: { p_compra: string; p_motivo: string }
         Returns: undefined
       }
+      anular_devolucion_proveedor: {
+        Args: { p_id: string; p_motivo: string }
+        Returns: undefined
+      }
       anular_gasto: {
         Args: { p_gasto: string; p_motivo: string }
+        Returns: undefined
+      }
+      anular_seleccion: {
+        Args: { p_motivo: string; p_seleccion: string }
         Returns: undefined
       }
       anular_traspaso: {
@@ -2567,6 +3209,14 @@ export type Database = {
         Returns: Json
       }
       dashboard: { Args: { p_empresa: string }; Returns: Json }
+      dashboard_rango: {
+        Args: { p_desde: string; p_empresa: string; p_hasta: string }
+        Returns: Json
+      }
+      dashboard_serie: {
+        Args: { p_desde: string; p_empresa: string; p_hasta: string }
+        Returns: Json
+      }
       es_miembro: { Args: { p_empresa: string }; Returns: boolean }
       es_miembro_ruta: { Args: { p_nombre: string }; Returns: boolean }
       exigir_rol: {
@@ -2589,6 +3239,15 @@ export type Database = {
         Returns: boolean
       }
       periodo_de: { Args: { p: string }; Returns: string }
+      precios_promedio: {
+        Args: { p_dias?: number; p_empresa: string }
+        Returns: {
+          compra_promedio: number
+          costo_promedio: number
+          metal_id: string
+          venta_promedio: number
+        }[]
+      }
       proveedor_por_metal: {
         Args: { p_proveedor: string }
         Returns: {
@@ -2599,6 +3258,40 @@ export type Database = {
           metal_id: string
           n_compras: number
           precio_promedio: number
+        }[]
+      }
+      ranking_clientes: {
+        Args: {
+          p_desde: string
+          p_empresa: string
+          p_hasta: string
+          p_metal?: string
+        }
+        Returns: {
+          comprador_id: string
+          documento: string
+          importe: number
+          kg: number
+          n_ventas: number
+          nombre: string
+          ultima: string
+        }[]
+      }
+      ranking_proveedores: {
+        Args: {
+          p_desde: string
+          p_empresa: string
+          p_hasta: string
+          p_metal?: string
+        }
+        Returns: {
+          documento: string
+          importe: number
+          kg: number
+          n_compras: number
+          nombre: string
+          proveedor_id: string
+          ultima: string
         }[]
       }
       reabrir_mes: {
@@ -2651,6 +3344,7 @@ export type Database = {
       }
       registrar_compra: {
         Args: {
+          p_aplicar_saldo?: boolean
           p_caja: string
           p_clave?: string
           p_empresa: string
@@ -2672,6 +3366,16 @@ export type Database = {
         }
         Returns: string
       }
+      registrar_devolucion_proveedor: {
+        Args: {
+          p_caja: string
+          p_empresa: string
+          p_monto: number
+          p_nota?: string
+          p_proveedor: string
+        }
+        Returns: string
+      }
       registrar_gasto: {
         Args: {
           p_caja: string
@@ -2683,6 +3387,15 @@ export type Database = {
           p_monto: number
         }
         Returns: string
+      }
+      registrar_seleccion: {
+        Args: {
+          p_cobrar?: boolean
+          p_compra: string
+          p_items?: Json
+          p_motivo?: string
+        }
+        Returns: Json
       }
       registrar_traspaso: {
         Args: {
@@ -2713,6 +3426,10 @@ export type Database = {
       }
       resumen_compras: { Args: { p_empresa: string }; Returns: Json }
       resumen_inventario: { Args: { p_empresa: string }; Returns: Json }
+      resumen_metal: {
+        Args: { p_desde: string; p_hasta: string; p_metal: string }
+        Returns: Json
+      }
       resumen_ventas: { Args: { p_empresa: string }; Returns: Json }
       rpt_compras: {
         Args: {
@@ -2817,6 +3534,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      uso_consultas_doc: { Args: { p_empresa: string }; Returns: Json }
     }
     Enums: {
       estado_cierre: "cerrado" | "reabierto"
@@ -2831,12 +3549,13 @@ export type Database = {
         | "retiro"
         | "traspaso"
         | "ajuste"
+        | "devolucion"
       rol_miembro: "dueno" | "socio" | "cajero" | "balancero"
       tipo_ajuste: "conteo" | "merma" | "reclasificacion" | "otro"
       tipo_aporte: "aporte" | "retiro"
       tipo_caja: "efectivo" | "banco" | "billetera"
       tipo_doc: "DNI" | "RUC" | "CE" | "SIN_DOC"
-      tipo_kardex: "compra" | "venta" | "ajuste"
+      tipo_kardex: "compra" | "venta" | "ajuste" | "descuento"
       tipo_mov_caja: "ingreso" | "egreso"
     }
     CompositeTypes: {
@@ -2977,13 +3696,14 @@ export const Constants = {
         "retiro",
         "traspaso",
         "ajuste",
+        "devolucion",
       ],
       rol_miembro: ["dueno", "socio", "cajero", "balancero"],
       tipo_ajuste: ["conteo", "merma", "reclasificacion", "otro"],
       tipo_aporte: ["aporte", "retiro"],
       tipo_caja: ["efectivo", "banco", "billetera"],
       tipo_doc: ["DNI", "RUC", "CE", "SIN_DOC"],
-      tipo_kardex: ["compra", "venta", "ajuste"],
+      tipo_kardex: ["compra", "venta", "ajuste", "descuento"],
       tipo_mov_caja: ["ingreso", "egreso"],
     },
   },

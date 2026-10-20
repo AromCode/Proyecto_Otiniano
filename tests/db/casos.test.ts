@@ -167,6 +167,135 @@ describe("Casos de prueba §8", () => {
   });
 });
 
+describe("Despacho · selección en almacén y descuentos", () => {
+  let prov: string;
+  const porCobrar = () => como(db, DUENO_A, (tx) =>
+    uno<{ por_cobrar: string }>(tx, `select por_cobrar from v_patrimonio where empresa_id = $1`, [empA])).then((r) => num(r.por_cobrar));
+  const saldoProv = () => como(db, DUENO_A, (tx) =>
+    uno<{ saldo: string }>(tx, `select saldo from v_saldo_proveedor where proveedor_id = $1`, [prov])).then((r) => num(r.saldo));
+  async function comprarA(metal: string, bruto: string, precio: string, aplicar = false) {
+    return como(db, DUENO_A, (tx) => uno<{ r: { id: string; total: number; saldo_aplicado: number } }>(tx,
+      `select registrar_compra($1, $2::jsonb, $3, 'efectivo', $4, null, null, null, null, $5) as r`,
+      [empA, JSON.stringify([{ metal_id: metal, peso_bruto_kg: bruto, precio_kg: precio }]), caja, prov, aplicar])).then((x) => x.r);
+  }
+  async function seleccionar(compra: string, kg: string, cobrar = true, motivo: string | null = "Tierra") {
+    return como(db, DUENO_A, async (tx) => {
+      const ci = await uno<{ id: string }>(tx, `select id from compra_items where compra_id = $1`, [compra]);
+      return uno<{ r: { id: string; importe: number } }>(tx, `select registrar_seleccion($1, $2::jsonb, $3, $4) as r`,
+        [compra, JSON.stringify(kg === "0" ? [] : [{ compra_item_id: ci.id, kg }]), motivo, cobrar]).then((x) => x.r);
+    });
+  }
+
+  beforeAll(async () => {
+    prov = await como(db, DUENO_A, (tx) => uno<{ id: string }>(tx,
+      `insert into proveedores (empresa_id, tipo_doc, nro_doc, nombre) values ($1, 'DNI', '41234567', 'Prov Selección') returning id`,
+      [empA])).then((r) => r.id);
+  });
+
+  it("la compra nueva queda por seleccionar; sin descuento solo se marca conforme", async () => {
+    const r = await comprarA(cobre, "10", "30");
+    const antes = await como(db, DUENO_A, (tx) => uno<{ por_seleccionar: boolean }>(tx, `select por_seleccionar from v_compras where id = $1`, [r.id]));
+    expect(antes.por_seleccionar).toBe(true);
+    const s0 = await stock(cobre);
+    await seleccionar(r.id, "0", true, null);
+    expect(num((await stock(cobre)).kg)).toBe(num(s0.kg));
+    await expect(seleccionar(r.id, "0")).rejects.toThrow(/ya fue seleccionada/);
+  });
+
+  it("descuento cobrable: sale del stock al precio pagado y queda como saldo a favor (no es pérdida)", async () => {
+    const r = await comprarA(cobre, "20", "30");
+    const s0 = await stock(cobre);
+    const pc0 = await porCobrar();
+    const sel = await seleccionar(r.id, "1.5");
+    expect(num(sel.importe)).toBe(45);
+    const s1 = await stock(cobre);
+    expect(num(s1.kg)).toBeCloseTo(num(s0.kg) - 1.5, 3);
+    expect(num(s1.costo_total)).toBeCloseTo(num(s0.costo_total) - 45, 2);
+    expect(await porCobrar()).toBeCloseTo(pc0 + 45, 2);
+    expect(await saldoProv()).toBe(45);
+    await expect(seleccionar(r.id, "1")).rejects.toThrow(/ya fue seleccionada/);
+  });
+
+  it("descuento sin motivo o mayor a lo comprado → rechazado", async () => {
+    const r = await comprarA(cobre, "2", "30");
+    await expect(seleccionar(r.id, "1", true, null)).rejects.toThrow(/motivo/);
+    await expect(seleccionar(r.id, "3")).rejects.toThrow(/no puede ser mayor a lo comprado/);
+  });
+
+  it("la siguiente compra descuenta el saldo a favor del pago en caja", async () => {
+    const c0 = await saldoCaja();
+    const r = await comprarA(cobre, "3", "30", true);
+    expect(num(r.total)).toBe(90);
+    expect(num(r.saldo_aplicado)).toBe(45);
+    expect(await saldoCaja()).toBeCloseTo(c0 - 45, 2);
+    expect(await saldoProv()).toBe(0);
+  });
+
+  it("con el saldo ya cobrado no se puede anular la selección; devolución en efectivo cuadra la caja", async () => {
+    const sel = await como(db, DUENO_A, (tx) => uno<{ id: string }>(tx,
+      `select id from selecciones_compra where proveedor_id = $1 and importe > 0`, [prov]));
+    await expect(como(db, DUENO_A, (tx) => tx.query(`select anular_seleccion($1, 'x')`, [sel.id])))
+      .rejects.toThrow(/ya se cobró/);
+
+    const r = await comprarA(cobre, "4", "30");
+    await seleccionar(r.id, "1");
+    expect(await saldoProv()).toBe(30);
+    await expect(como(db, DUENO_A, (tx) => tx.query(`select registrar_devolucion_proveedor($1, $2, 31, $3)`, [empA, prov, caja])))
+      .rejects.toThrow(/mayor al saldo/);
+    const c0 = await saldoCaja();
+    await como(db, DUENO_A, (tx) => tx.query(`select registrar_devolucion_proveedor($1, $2, 30, $3)`, [empA, prov, caja]));
+    expect(await saldoCaja()).toBeCloseTo(c0 + 30, 2);
+    expect(await saldoProv()).toBe(0);
+  });
+
+  it("anular una selección devuelve los kilos y el costo al stock; con descuento no se anula la compra antes", async () => {
+    const r = await comprarA(cobre, "5", "30");
+    await seleccionar(r.id, "2");
+    await expect(como(db, DUENO_A, (tx) => tx.query(`select anular_compra($1, 'x')`, [r.id]))).rejects.toThrow(/Anule primero/);
+    const s0 = await stock(cobre);
+    const sel = await como(db, DUENO_A, (tx) => uno<{ id: string }>(tx, `select id from selecciones_compra where compra_id = $1`, [r.id]));
+    await como(db, DUENO_A, (tx) => tx.query(`select anular_seleccion($1, 'Error')`, [sel.id]));
+    const s1 = await stock(cobre);
+    expect(num(s1.kg)).toBeCloseTo(num(s0.kg) + 2, 3);
+    expect(num(s1.costo_total)).toBeCloseTo(num(s0.costo_total) + 60, 2);
+    await como(db, DUENO_A, (tx) => tx.query(`select anular_compra($1, 'Prueba')`, [r.id]));
+  });
+
+  it("descuento asumido (o sin proveedor) es merma y baja la utilidad", async () => {
+    const r = await comprarA(cobre, "6", "30");
+    const pc0 = await porCobrar();
+    const m0 = await como(db, DUENO_A, (tx) => uno<{ m: string }>(tx,
+      `select coalesce(sum(merma_ajustes), 0) m from v_resultado_mes where empresa_id = $1`, [empA])).then((x) => num(x.m));
+    await seleccionar(r.id, "1", false, "Material contaminado");
+    const m1 = await como(db, DUENO_A, (tx) => uno<{ m: string }>(tx,
+      `select coalesce(sum(merma_ajustes), 0) m from v_resultado_mes where empresa_id = $1`, [empA])).then((x) => num(x.m));
+    expect(m1).toBeCloseTo(m0 + 30, 2);
+    expect(await porCobrar()).toBeCloseTo(pc0, 2);
+  });
+
+  it("lotes: muestran fecha de llegada, descuento y lo que queda en stock", async () => {
+    const lotes = await como(db, DUENO_A, (tx) => tx.query<{ kg_ingresado: string; kg_en_stock: string; por_seleccionar: boolean }>(
+      `select kg_ingresado, kg_en_stock, por_seleccionar from v_lotes where metal_id = $1`, [cobre]));
+    const st = await stock(cobre);
+    const enStock = lotes.rows.reduce((s, l) => s + num(l.kg_en_stock), 0);
+    expect(enStock).toBeLessThanOrEqual(num(st.kg) + 0.001);
+    expect(lotes.rows.some((l) => l.por_seleccionar)).toBe(true);
+  });
+});
+
+describe("Ventas · peso recibido", () => {
+  it("el comprador no puede recibir más de lo que salió (+2 % de tolerancia)", async () => {
+    const v = await como(db, DUENO_A, (tx) =>
+      uno<{ r: { id: string } }>(tx, `select registrar_venta($1, $2, $3::jsonb) as r`,
+        [empA, comprador, JSON.stringify([{ metal_id: cobre, peso_salida_kg: "1.000" }])])).then((x) => x.r);
+    const item = await como(db, DUENO_A, (tx) => uno<{ id: string }>(tx, `select id from venta_items where venta_id = $1`, [v.id]));
+    await expect(como(db, DUENO_A, (tx) => tx.query(`select confirmar_venta($1, $2::jsonb, $3)`,
+      [v.id, JSON.stringify([{ item_id: item.id, peso_recibido_kg: "5", precio_kg: "34" }]), caja]))).rejects.toThrow(/mayor a lo que salió/);
+    await como(db, DUENO_A, (tx) => tx.query(`select confirmar_venta($1, $2::jsonb, $3)`,
+      [v.id, JSON.stringify([{ item_id: item.id, peso_recibido_kg: "1.010", precio_kg: "34" }]), caja]));
+  });
+});
+
 describe("Patrimonio y resultado", () => {
   it("patrimonio = caja + stock a costo + en tránsito; ganancia = patrimonio − capital", async () => {
     const r = await como(db, DUENO_A, async (tx) => ({
@@ -180,5 +309,18 @@ describe("Patrimonio y resultado", () => {
     expect(num(r.p.capital)).toBe(20000);
     // La ganancia acumulada coincide con la suma de utilidades mensuales
     expect(num(r.p.ganancia_acumulada).toFixed(2)).toBe(num(r.res.s).toFixed(2));
+  });
+
+  it("la curva S (acumulado diario) termina en la misma utilidad que el resultado del rango", async () => {
+    const r = await como(db, DUENO_A, async (tx) => ({
+      serie: await uno<{ d: { dias: { utilidad_acum: number }[]; meses: { utilidad: number }[] } }>(tx,
+        `select dashboard_serie($1, (now() at time zone 'America/Lima')::date - 40, (now() at time zone 'America/Lima')::date) d`, [empA]),
+      rango: await uno<{ d: { utilidad: number } }>(tx,
+        `select dashboard_rango($1, (now() at time zone 'America/Lima')::date - 40, (now() at time zone 'America/Lima')::date) d`, [empA]),
+    }));
+    expect(r.serie.d.dias).toHaveLength(41);
+    expect(num(r.serie.d.dias.at(-1)!.utilidad_acum).toFixed(2)).toBe(num(r.rango.d.utilidad).toFixed(2));
+    const sumaMeses = r.serie.d.meses.reduce((s, m) => s + num(m.utilidad), 0);
+    expect(sumaMeses.toFixed(2)).toBe(num(r.rango.d.utilidad).toFixed(2));
   });
 });
