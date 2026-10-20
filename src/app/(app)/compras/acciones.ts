@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
 import type { MedioPago, Resultado } from "@/lib/tipos";
@@ -39,7 +38,6 @@ export async function registrarCompra(d: DatosCompra): Promise<Resultado<CompraR
     p_aplicar_saldo: d.aplicar_saldo,
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(data as CompraRegistrada);
 }
 
@@ -57,7 +55,6 @@ export async function anularCompra(_: unknown, fd: FormData): Promise<Resultado>
     p_motivo: texto(fd, "motivo"),
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -67,6 +64,5 @@ export async function actualizarAdjuntosCompra(id: string, foto: string | null, 
     p_compra: id, p_foto_ticket_url: foto, p_notas: notas,
   });
   if (error) return fallo(error);
-  revalidatePath(`/compras/${id}`);
   return ok(null);
 }

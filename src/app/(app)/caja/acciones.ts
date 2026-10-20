@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
 import { normalizar } from "@/lib/montos";
@@ -19,7 +18,6 @@ export async function registrarGasto(_: unknown, fd: FormData): Promise<Resultad
     p_categoria: texto(fd, "categoria_id"), p_comprobante_url: texto(fd, "comprobante_url"),
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -27,7 +25,6 @@ export async function anularGasto(_: unknown, fd: FormData): Promise<Resultado> 
   const { supabase } = await obtenerContexto();
   const { error } = await supabase.rpc("anular_gasto", { p_gasto: texto(fd, "id"), p_motivo: texto(fd, "motivo") });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -40,7 +37,6 @@ export async function registrarTraspaso(_: unknown, fd: FormData): Promise<Resul
     p_monto: m, p_concepto: texto(fd, "concepto"),
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -48,7 +44,6 @@ export async function anularTraspaso(_: unknown, fd: FormData): Promise<Resultad
   const { supabase } = await obtenerContexto();
   const { error } = await supabase.rpc("anular_traspaso", { p_traspaso: texto(fd, "id"), p_motivo: texto(fd, "motivo") });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -61,6 +56,5 @@ export async function registrarArqueo(_: unknown, fd: FormData): Promise<Resulta
     p_ajustar: fd.get("ajustar") === "on",
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(data as { diferencia: number; saldo_sistema: number });
 }

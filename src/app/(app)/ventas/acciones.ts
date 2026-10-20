@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
 import type { MedioPago, Resultado } from "@/lib/tipos";
@@ -33,7 +32,6 @@ export async function registrarVenta(d: DatosVenta): Promise<Resultado<{ id: str
     p_comprobante_url: d.comprobante_url,
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(data as { id: string; numero: number; estado: string });
 }
 
@@ -53,7 +51,6 @@ export async function confirmarVenta(d: {
     p_comprobante_url: d.comprobante_url,
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -61,7 +58,6 @@ export async function anularVenta(_: unknown, fd: FormData): Promise<Resultado> 
   const { supabase } = await obtenerContexto();
   const { error } = await supabase.rpc("anular_venta", { p_venta: texto(fd, "id"), p_motivo: texto(fd, "motivo") });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -74,6 +70,5 @@ export async function actualizarGuia(d: {
     p_comprobante_url: d.comprobante_url, p_notas: d.notas,
   });
   if (error) return fallo(error);
-  revalidatePath(`/ventas/${d.venta_id}`);
   return ok(null);
 }

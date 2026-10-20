@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
 import type { Resultado } from "@/lib/tipos";
@@ -22,7 +21,6 @@ export async function guardarComprador(_: unknown, fd: FormData): Promise<Result
     : await supabase.from("compradores").insert({ ...datos, empresa_id: empresa.id }, { count: "exact" });
   if (error) return fallo(error);
   if (!count) return fallo("No tiene permiso para esta operación.");
-  revalidatePath("/compradores", "layout");
   return ok(null);
 }
 
@@ -30,6 +28,5 @@ export async function cambiarEstadoComprador(id: string, activo: boolean): Promi
   const { supabase } = await obtenerContexto();
   const { error } = await supabase.from("compradores").update({ activo }).eq("id", id);
   if (error) return fallo(error);
-  revalidatePath("/compradores", "layout");
   return ok(null);
 }

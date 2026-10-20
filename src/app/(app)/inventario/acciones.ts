@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
 import { normalizar } from "@/lib/montos";
@@ -14,7 +13,6 @@ export async function registrarConteo(_: unknown, fd: FormData): Promise<Resulta
     p_empresa: empresa.id, p_metal: texto(fd, "metal_id"), p_kg_contado: kg, p_motivo: texto(fd, "motivo"),
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(data ? "Ajuste registrado." : "El conteo coincide con el sistema: no hubo ajuste.");
 }
 
@@ -28,7 +26,6 @@ export async function registrarAjuste(_: unknown, fd: FormData): Promise<Resulta
     p_motivo: texto(fd, "motivo"), p_tipo: texto(fd, "tipo") ?? "merma",
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -41,6 +38,5 @@ export async function reclasificar(_: unknown, fd: FormData): Promise<Resultado>
     p_kg: kg, p_motivo: texto(fd, "motivo"),
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }

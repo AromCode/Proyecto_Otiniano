@@ -102,6 +102,8 @@ export function FormVenta({
         setGuardando(false);
       } else {
         router.push(`/ventas/${r.data.id}`);
+        router.refresh(); // limpia las listas en memoria (ventas, stock, caja) sin esperar
+
       }
     } catch (e) {
       setError((e as Error).message);

@@ -15,6 +15,8 @@ type Accion = (prev: Resultado | null, fd: FormData) => Promise<Resultado>;
  * Envuelve un server action que devuelve Resultado: muestra el error, deshabilita el botón
  * mientras guarda, confirma con una notificación y llama a onExito (o refresca) cuando sale bien.
  * `mensajeExito={false}` cuando la pantalla ya muestra su propia confirmación.
+ * Las acciones no llaman revalidatePath (haría esperar al botón mientras se re-arma toda la página):
+ * el refresco va aquí, en segundo plano, después de confirmar.
  */
 export function FormularioAccion({
   accion, children, textoBoton = "Guardar", variante = "primario", onExito, className, reiniciar = true,

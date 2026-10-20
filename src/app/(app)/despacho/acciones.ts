@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
 import { normalizar } from "@/lib/montos";
@@ -21,7 +20,6 @@ export async function registrarSeleccion(d: DatosSeleccion): Promise<Resultado<{
     p_compra: d.compra_id, p_items: items, p_motivo: d.motivo, p_cobrar: d.cobrar,
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(data as { numero: number; kg: number; importe: number; cobrar: boolean });
 }
 
@@ -29,7 +27,6 @@ export async function anularSeleccion(_: unknown, fd: FormData): Promise<Resulta
   const { supabase } = await obtenerContexto();
   const { error } = await supabase.rpc("anular_seleccion", { p_seleccion: texto(fd, "id")!, p_motivo: texto(fd, "motivo")! });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -42,7 +39,6 @@ export async function registrarDevolucion(_: unknown, fd: FormData): Promise<Res
     p_caja: texto(fd, "caja_id")!, p_nota: texto(fd, "nota") ?? undefined,
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -50,6 +46,5 @@ export async function anularDevolucion(_: unknown, fd: FormData): Promise<Result
   const { supabase } = await obtenerContexto();
   const { error } = await supabase.rpc("anular_devolucion_proveedor", { p_id: texto(fd, "id")!, p_motivo: texto(fd, "motivo")! });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }

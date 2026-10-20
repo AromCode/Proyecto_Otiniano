@@ -23,5 +23,7 @@ UI y textos en **español (Perú)**. Lo marcado **[CONFIRMAR]** en la propuesta 
   nunca `bg-white`; colores de módulo vía `TONOS`. Si se usa un color nuevo con tinte, agregarlo al bloque oscuro.
 - Resúmenes de módulo (`resumen_compras/ventas/inventario`) y fichas por metal salen de la BD (`src/components/resumen-modulo.tsx`).
 - Responsive real: `TablaDatos` (tabla en escritorio, tarjetas en celular); sin scroll horizontal de página.
+- Server actions sin `revalidatePath` (re-arma la página dentro de la respuesta y el botón queda colgado):
+  el cliente llama `router.refresh()` tras el éxito (`FormularioAccion` ya lo hace). Descargas de Excel con `EnlaceDescarga`.
 - Server actions devuelven `Resultado` (`ok`/`fallo` de `src/lib/acciones.ts`); permisos de UI en
   `src/lib/permisos.ts` (espejo de la RLS, no la reemplaza).

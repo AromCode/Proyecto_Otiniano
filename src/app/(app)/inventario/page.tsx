@@ -5,6 +5,7 @@ import { exigir } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
 import { fecha, fechaHora, kg, soles } from "@/lib/formato";
 import { Encabezado, Insignia, PuntoMetal, Tarjeta, TituloTarjeta } from "@/components/ui/basicos";
+import { EnlaceDescarga } from "@/components/ui/enlace-descarga";
 import { TablaDatos } from "@/components/ui/tabla";
 import { Pestanas } from "@/components/ui/pestanas";
 import { ResumenInventario } from "@/components/resumen-modulo";
@@ -53,8 +54,7 @@ export default async function InventarioPage({ searchParams }: { searchParams: P
             {verCostos && (
               <>
                 <a href="/inventario/valorizado?formato=pdf" target="_blank" className={claseBotonBorde}><FileText className="size-4" /> Valorizado PDF</a>
-                {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- descarga un archivo (route handler), no es una página */}
-                <a href="/inventario/valorizado?formato=xlsx" className={claseBotonBorde}><FileSpreadsheet className="size-4" /> Excel</a>
+                <EnlaceDescarga href="/inventario/valorizado?formato=xlsx" className={claseBotonBorde}><FileSpreadsheet className="size-4" /> Excel</EnlaceDescarga>
               </>
             )}
             {puede(rol, "ajustarInventario") && (

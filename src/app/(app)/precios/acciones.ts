@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
 import { normalizar } from "@/lib/montos";
@@ -20,7 +19,6 @@ export async function guardarPrecios(cambios: { id: string; precio_compra: strin
     if (error) return fallo(error);
     if (!count) return fallo("Solo el dueño puede cambiar los precios del día.");
   }
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -39,7 +37,6 @@ export async function guardarMetal(_: unknown, fd: FormData): Promise<Resultado>
     ? await supabase.from("metales").update(datos).eq("id", id)
     : await supabase.from("metales").insert({ ...datos, empresa_id: empresa.id });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -47,6 +44,5 @@ export async function cambiarEstadoMetal(id: string, activo: boolean): Promise<R
   const { supabase } = await obtenerContexto();
   const { error } = await supabase.from("metales").update({ activo }).eq("id", id);
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }

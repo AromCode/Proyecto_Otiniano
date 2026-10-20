@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
 import { normalizar } from "@/lib/montos";
@@ -23,7 +22,6 @@ export async function guardarSocio(_: unknown, fd: FormData): Promise<Resultado>
     : await supabase.from("socios").insert({ ...datos, empresa_id: empresa.id }, { count: "exact" });
   if (error) return fallo(error);
   if (!count) return fallo("Solo el dueño puede gestionar socios.");
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -37,7 +35,6 @@ export async function registrarAporteRetiro(_: unknown, fd: FormData): Promise<R
     p_fecha: texto(fd, "fecha") ? `${texto(fd, "fecha")}T12:00:00-05:00` : null,
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -45,7 +42,6 @@ export async function anularAporteRetiro(_: unknown, fd: FormData): Promise<Resu
   const { supabase } = await obtenerContexto();
   const { error } = await supabase.rpc("anular_aporte_retiro", { p_id: texto(fd, "id"), p_motivo: texto(fd, "motivo") });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -53,7 +49,6 @@ export async function cerrarMes(_: unknown, fd: FormData): Promise<Resultado> {
   const { supabase, empresa } = await obtenerContexto();
   const { error } = await supabase.rpc("cerrar_mes", { p_empresa: empresa.id, p_periodo: texto(fd, "periodo") });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -63,6 +58,5 @@ export async function reabrirMes(_: unknown, fd: FormData): Promise<Resultado> {
     p_empresa: empresa.id, p_periodo: texto(fd, "id"), p_motivo: texto(fd, "motivo"),
   });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }

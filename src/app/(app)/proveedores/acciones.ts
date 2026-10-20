@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
 import type { Proveedor, Resultado, TipoDoc } from "@/lib/tipos";
@@ -53,7 +52,6 @@ export async function crearProveedor(_: unknown, fd: FormData): Promise<Resultad
     .select("id, tipo_doc, nro_doc, nombre, telefono, direccion, activo")
     .single();
   if (e) return fallo(e);
-  revalidatePath("/proveedores");
   return ok(data as Proveedor);
 }
 
@@ -66,7 +64,6 @@ export async function actualizarProveedor(_: unknown, fd: FormData): Promise<Res
   const { error: e, count } = await supabase.from("proveedores").update(p, { count: "exact" }).eq("id", id!);
   if (e) return fallo(e);
   if (!count) return fallo("No tiene permiso para editar proveedores.");
-  revalidatePath("/proveedores");
   return ok(null);
 }
 
@@ -75,6 +72,5 @@ export async function cambiarEstadoProveedor(id: string, activo: boolean): Promi
   const { error, count } = await supabase.from("proveedores").update({ activo }, { count: "exact" }).eq("id", id);
   if (error) return fallo(error);
   if (!count) return fallo("No tiene permiso para esta operación.");
-  revalidatePath("/proveedores");
   return ok(null);
 }

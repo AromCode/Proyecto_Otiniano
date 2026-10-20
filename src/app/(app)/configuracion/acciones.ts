@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { exigir, olvidarMembresias } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
 import { normalizar } from "@/lib/montos";
@@ -28,7 +27,6 @@ export async function guardarEmpresa(_: unknown, fd: FormData): Promise<Resultad
   }).eq("id", empresa.id);
   if (error) return fallo(error);
   olvidarMembresias();
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -63,7 +61,6 @@ export async function invitarUsuario(_: unknown, fd: FormData): Promise<Resultad
   });
   if (e2) return fallo(e2);
   olvidarMembresias();
-  revalidatePath("/configuracion");
   return ok(null);
 }
 
@@ -73,7 +70,6 @@ export async function actualizarMiembro(userId: string, cambios: { rol?: Rol; ac
   const { error } = await supabase.from("miembros").update(cambios).eq("empresa_id", empresa.id).eq("user_id", userId);
   if (error) return fallo(error);
   olvidarMembresias();
-  revalidatePath("/configuracion");
   return ok(null);
 }
 
@@ -86,7 +82,6 @@ export async function guardarCaja(_: unknown, fd: FormData): Promise<Resultado> 
     ? await supabase.from("cajas").update(datos).eq("id", id)
     : await supabase.from("cajas").insert({ ...datos, empresa_id: empresa.id });
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -94,7 +89,6 @@ export async function cambiarEstado(tabla: "cajas" | "categorias_gasto", id: str
   const { supabase } = await exigir("configurar");
   const { error } = await supabase.from(tabla).update({ activo }).eq("id", id);
   if (error) return fallo(error);
-  revalidatePath("/", "layout");
   return ok(null);
 }
 
@@ -104,6 +98,5 @@ export async function guardarCategoria(_: unknown, fd: FormData): Promise<Result
   if (!nombre) return fallo("Ingrese el nombre.");
   const { error } = await supabase.from("categorias_gasto").insert({ nombre, empresa_id: empresa.id });
   if (error) return fallo(error);
-  revalidatePath("/configuracion");
   return ok(null);
 }

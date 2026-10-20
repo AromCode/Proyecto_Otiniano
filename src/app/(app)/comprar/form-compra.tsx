@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Camera, CheckCircle2, FileText, PackageCheck, Plus, Printer, Share2, Trash2, Wallet } from "lucide-react";
 import { SelectorProveedor } from "@/components/selector-proveedor";
 import { Campo, InputNumero, Select, Textarea } from "@/components/ui/campos";
@@ -52,6 +53,7 @@ export function FormCompra({
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
   const [hecho, setHecho] = useState<CompraRegistrada | null>(null);
+  const router = useRouter();
 
   const metalPorId = useMemo(() => new Map(metales.map((m) => [m.id, m])), [metales]);
 
@@ -105,7 +107,10 @@ export function FormCompra({
         items: lineas.map((l) => ({ metal_id: l.metal_id, peso_bruto_kg: normalizar(l.bruto), precio_kg: normalizar(l.precio) })),
       });
       if (!r.ok) setError(r.error);
-      else setHecho(r.data);
+      else {
+        setHecho(r.data);
+        router.refresh(); // en segundo plano: stock, caja y listas al día
+      }
     } catch (e) {
       setError((e as Error).message);
     } finally {

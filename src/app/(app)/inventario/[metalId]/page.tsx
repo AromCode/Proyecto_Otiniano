@@ -6,6 +6,7 @@ import { exigir } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
 import { fecha, fechaHora, hoyLima, kg, soles } from "@/lib/formato";
 import { Encabezado, Insignia, Kpi, PuntoMetal, Tarjeta, TituloTarjeta } from "@/components/ui/basicos";
+import { EnlaceDescarga } from "@/components/ui/enlace-descarga";
 import { TablaDatos } from "@/components/ui/tabla";
 import { Filtros } from "@/components/filtros";
 import { GraficoHistorialMetal, type FilaMetalMes } from "@/components/graficos-dashboard";
@@ -78,9 +79,9 @@ export default async function HistorialMetal({
         titulo={`Historial · ${s.nombre}`}
         descripcion={<span className="inline-flex items-center gap-2"><PuntoMetal color={s.color} />Cuándo se compró, a quién, cuándo se vendió y a qué precio</span>}
         acciones={puede(rol, "verReportes") && (
-          <a href={`/reportes/exportar/kardex?${qs}&formato=xlsx`} className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50">
+          <EnlaceDescarga href={`/reportes/exportar/kardex?${qs}&formato=xlsx`} className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50">
             <Download className="size-4" /> Kardex Excel
-          </a>
+          </EnlaceDescarga>
         )}
       />
 

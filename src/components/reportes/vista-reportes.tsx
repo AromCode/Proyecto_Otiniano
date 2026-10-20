@@ -6,6 +6,7 @@ import { fechaHora, kg, numero, porcentaje, soles } from "@/lib/formato";
 import { Aviso, Encabezado, Tarjeta } from "@/components/ui/basicos";
 import { claseBoton, claseInput, cx } from "@/components/ui/clases";
 import { cabeTabla } from "@/components/ui/tabla";
+import { EnlaceDescarga } from "@/components/ui/enlace-descarga";
 
 function celda(c: Col, v: unknown) {
   if (v === null || v === undefined || v === "") return "—";
@@ -127,9 +128,9 @@ export async function VistaReportes({
             )}
             <button className={cx(claseBoton("secundario"), "h-[42px]")}>Ver</button>
             <div className="col-span-2 flex gap-2 sm:ml-auto">
-              <a href={`/reportes/exportar/${def.id}?${qs}&formato=xlsx`} className={cx(claseBoton("secundario"), "h-[42px] flex-1 sm:flex-none")}>
+              <EnlaceDescarga href={`/reportes/exportar/${def.id}?${qs}&formato=xlsx`} className={cx(claseBoton("secundario"), "h-[42px] flex-1 sm:flex-none")}>
                 <Download className="size-4" /> Excel
-              </a>
+              </EnlaceDescarga>
               <a href={`/reportes/exportar/${def.id}?${qs}&formato=pdf`} target="_blank" className={cx(claseBoton("secundario"), "h-[42px] flex-1 sm:flex-none")}>
                 <FileText className="size-4" /> PDF
               </a>
