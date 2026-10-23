@@ -36,6 +36,8 @@ export interface DatosTicket {
   extras?: [string, string][];
   notas?: string | null;
   pie?: string;
+  /** Ticket corregido por Gerencia/Administración después de emitido */
+  corregido?: string | null;
 }
 
 export function TicketPdf({ d }: { d: DatosTicket }) {
@@ -53,6 +55,7 @@ export function TicketPdf({ d }: { d: DatosTicket }) {
         <View style={s.gruesa} />
         <Text style={s.titulo}>{d.titulo} N° {String(d.numero).padStart(6, "0")}</Text>
         {d.estado === "anulada" && <Text style={[s.centro, s.bold]}>*** ANULADA ***</Text>}
+        {d.corregido && <Text style={[s.centro, s.bold]}>*** {d.corregido.toUpperCase()} ***</Text>}
         <Text style={s.centro}>{fechaHora(d.fecha)}</Text>
 
         <View style={s.linea} />
@@ -66,7 +69,7 @@ export function TicketPdf({ d }: { d: DatosTicket }) {
             {it.bruto && (
               <View style={s.fila}>
                 <Text>Bruto {kg(it.bruto)}</Text>
-                <Text>Desc. {kg(it.descuento)}</Text>
+                <Text>{Number(it.descuento) > 0 ? `Merma ${kg(it.descuento)}` : ""}</Text>
               </View>
             )}
             <View style={s.fila}>

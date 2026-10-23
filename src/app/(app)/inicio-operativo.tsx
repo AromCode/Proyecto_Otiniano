@@ -102,7 +102,7 @@ export async function InicioOperativo({ ctx }: { ctx: Contexto }) {
                 <span className="cifra text-lg font-semibold">{soles(m.precio_compra)}<span className="text-xs font-normal text-stone-500"> /kg</span></span>
               </li>
             ))}
-            {(precios ?? []).length === 0 && <li className="px-4 py-6 text-center text-sm text-stone-500">Aún no hay metales.</li>}
+            {(precios ?? []).length === 0 && <li className="px-4 py-6 text-center text-sm text-stone-500">Aún no hay productos.</li>}
           </ul>
         </Tarjeta>
 

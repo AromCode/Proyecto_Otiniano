@@ -27,7 +27,7 @@ export function AccionesInventario({ metales }: { metales: M[] }) {
       <Modal abierto={abierto === "conteo"} onCerrar={cerrar} titulo="Conteo físico">
         <FormularioAccion accion={registrarConteo} textoBoton="Registrar conteo" mensajeExito={false} onExito={(m) => { notificar({ titulo: "Conteo registrado", mensaje: String(m) }); cerrar(); }}>
           <p className="text-sm text-stone-600">Pese lo que hay en el almacén. El sistema ajusta la diferencia y la registra como merma o sobrante.</p>
-          <Campo etiqueta="Metal"><Select name="metal_id" required>{opciones}</Select></Campo>
+          <Campo etiqueta="Producto"><Select name="metal_id" required>{opciones}</Select></Campo>
           <Campo etiqueta="Kilos contados"><InputNumero name="kg" required /></Campo>
           <Campo etiqueta="Observación (opcional)"><Textarea name="motivo" /></Campo>
         </FormularioAccion>
@@ -35,7 +35,7 @@ export function AccionesInventario({ metales }: { metales: M[] }) {
 
       <Modal abierto={abierto === "ajuste"} onCerrar={cerrar} titulo="Ajuste de inventario">
         <FormularioAccion accion={registrarAjuste} textoBoton="Registrar ajuste" mensajeExito="Ajuste registrado." onExito={cerrar}>
-          <Campo etiqueta="Metal"><Select name="metal_id" required>{opciones}</Select></Campo>
+          <Campo etiqueta="Producto"><Select name="metal_id" required>{opciones}</Select></Campo>
           <div className="grid grid-cols-2 gap-3">
             <Campo etiqueta="Sentido">
               <Select name="sentido" defaultValue="restar">
@@ -55,9 +55,9 @@ export function AccionesInventario({ metales }: { metales: M[] }) {
         </FormularioAccion>
       </Modal>
 
-      <Modal abierto={abierto === "reclasificar"} onCerrar={cerrar} titulo="Reclasificar metal">
+      <Modal abierto={abierto === "reclasificar"} onCerrar={cerrar} titulo="Reclasificar producto">
         <FormularioAccion accion={reclasificar} textoBoton="Reclasificar" mensajeExito="Reclasificación registrada." onExito={cerrar}>
-          <p className="text-sm text-stone-600">Mueve kilos de un metal a otro llevando su costo (ej.: cobre quemado → cobre brillante).</p>
+          <p className="text-sm text-stone-600">Mueve kilos de un producto a otro llevando su costo (ej.: cobre quemado → cobre brillante).</p>
           <Campo etiqueta="Desde"><Select name="origen" required>{opciones}</Select></Campo>
           <Campo etiqueta="Hacia"><Select name="destino" required>{opciones}</Select></Campo>
           <Campo etiqueta="Kilos"><InputNumero name="kg" required /></Campo>

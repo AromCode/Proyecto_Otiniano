@@ -5,22 +5,28 @@ import { fallo, ok, texto } from "@/lib/acciones";
 import { normalizar } from "@/lib/montos";
 import type { Resultado } from "@/lib/tipos";
 
-export interface DatosSeleccion {
-  compra_id: string;
-  /** Solo las líneas con descuento; vacío = todo conforme */
-  items: { compra_item_id: string; kg: string }[];
-  motivo: string | null;
-  cobrar: boolean;
+export interface LineaLimpieza {
+  compra_item_id: string;
+  /** Peso al volver a pesar lo que queda del producto; vacío = sin merma */
+  kg_limpio: string;
+  /** Material de otra clase que salió y pasa al stock de otro producto */
+  traslados: { metal_id: string; kg: string }[];
 }
 
-export async function registrarSeleccion(d: DatosSeleccion): Promise<Resultado<{ numero: number; kg: number; importe: number; cobrar: boolean }>> {
+export type LimpiezaRegistrada = { numero: number; kg_merma: number; importe_merma: number; kg_traslado: number; pct_merma: number | null };
+
+export async function registrarLimpieza(d: { compra_id: string; lineas: LineaLimpieza[]; motivo: string | null }): Promise<Resultado<LimpiezaRegistrada>> {
   const { supabase } = await obtenerContexto();
-  const items = d.items.map((i) => ({ compra_item_id: i.compra_item_id, kg: normalizar(i.kg) })).filter((i) => Number(i.kg) > 0);
-  const { data, error } = await supabase.rpc("registrar_seleccion", {
-    p_compra: d.compra_id, p_items: items, p_motivo: d.motivo, p_cobrar: d.cobrar,
-  });
+  const lineas = d.lineas
+    .map((l) => ({
+      compra_item_id: l.compra_item_id,
+      kg_limpio: normalizar(l.kg_limpio) || null,
+      traslados: l.traslados.map((t) => ({ metal_id: t.metal_id, kg: normalizar(t.kg) })).filter((t) => t.metal_id && Number(t.kg) > 0),
+    }))
+    .filter((l) => l.kg_limpio !== null || l.traslados.length > 0);
+  const { data, error } = await supabase.rpc("registrar_limpieza", { p_compra: d.compra_id, p_lineas: lineas, p_motivo: d.motivo });
   if (error) return fallo(error);
-  return ok(data as { numero: number; kg: number; importe: number; cobrar: boolean });
+  return ok(data as LimpiezaRegistrada);
 }
 
 export async function anularSeleccion(_: unknown, fd: FormData): Promise<Resultado> {

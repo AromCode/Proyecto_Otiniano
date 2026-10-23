@@ -6,7 +6,8 @@ import { BotonImprimir80 } from "@/components/ticket/boton-imprimir-80";
 import { exigir } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
 import { urlArchivo } from "@/lib/archivos-servidor";
-import { ETIQUETA_MEDIO, fechaHora, kg, soles } from "@/lib/formato";
+import { fechaHora, kg, soles } from "@/lib/formato";
+import { cargarMediosPago } from "@/lib/productos";
 import { Aviso, Dato, Encabezado, Insignia, PuntoMetal, Tarjeta, TituloTarjeta } from "@/components/ui/basicos";
 import { TablaDatos } from "@/components/ui/tabla";
 import { BotonAnular } from "@/components/boton-anular";
@@ -19,11 +20,13 @@ export const metadata: Metadata = { title: "Detalle de venta" };
 
 export default async function VentaDetalle({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { supabase, rol, empresa } = await exigir("verTodo", "vender");
-  const [{ data: v }, { data: items }, { data: cajas }] = await Promise.all([
+  const ctx = await exigir("verTodo", "vender");
+  const { supabase, rol, empresa } = ctx;
+  const [{ data: v }, { data: items }, { data: cajas }, medios] = await Promise.all([
     supabase.from("v_ventas").select("*").eq("id", id).maybeSingle(),
     supabase.from("v_venta_items").select("*").eq("venta_id", id),
     supabase.from("cajas").select("*").eq("empresa_id", empresa.id).eq("activo", true).order("orden"),
+    cargarMediosPago(ctx),
   ]);
   if (!v) notFound();
   const [guia, comprobante] = await Promise.all([urlArchivo(supabase, v.guia_url), urlArchivo(supabase, v.comprobante_url)]);
@@ -40,7 +43,7 @@ export default async function VentaDetalle({ params }: { params: Promise<{ id: s
         acciones={
           <>
             <a href={`/ventas/${v.id}/ticket`} target="_blank" className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50">
-              <FileText className="size-4" /> {v.estado === "pendiente" ? "Nota de salida" : "Comprobante PDF"}
+              <FileText className="size-4" /> {v.estado === "pendiente" ? "Nota de salida" : "Nota de venta PDF"}
             </a>
             <BotonImprimir80 href={`/imprimir/venta/${v.id}`} className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50" />
             {puede(rol, "anular") && v.estado !== "anulada" && (
@@ -60,18 +63,19 @@ export default async function VentaDetalle({ params }: { params: Promise<{ id: s
             empresaId={empresa.id}
             items={(items ?? []).map((i) => ({ id: i.id, metal: i.metal_nombre, color: i.metal_color, salida: i.peso_salida_kg }))}
             cajas={(cajas ?? []) as Caja[]}
+            medios={medios}
           />
         </div>
       )}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <Tarjeta className="min-w-0">
-          <TituloTarjeta>Metales</TituloTarjeta>
+          <TituloTarjeta>Productos</TituloTarjeta>
           <TablaDatos
             filas={items ?? []}
             clave={(i) => i.id}
             columnas={[
-              { titulo: "Metal", principal: true, celda: (i) => <Link href={`/inventario/${i.metal_id}`} className="flex items-center gap-2 hover:underline"><PuntoMetal color={i.metal_color} />{i.metal_nombre}</Link> },
+              { titulo: "Producto", principal: true, celda: (i) => <Link href={`/inventario/${i.metal_id}`} className="flex items-center gap-2 hover:underline"><PuntoMetal color={i.metal_color} />{i.metal_nombre}</Link> },
               { titulo: "Salida", alinear: "der", celda: (i) => <span className="cifra">{kg(i.peso_salida_kg)}</span> },
               { titulo: "Recibido", alinear: "der", celda: (i) => i.peso_recibido_kg === null ? "—" : <span className="cifra">{kg(i.peso_recibido_kg)}</span> },
               { titulo: "Merma", alinear: "der", celda: (i) => i.merma_kg === null ? "—" : <span className="cifra text-amber-700">{kg(i.merma_kg)}</span> },
@@ -92,7 +96,7 @@ export default async function VentaDetalle({ params }: { params: Promise<{ id: s
                 </Insignia>
               </Dato>
               <Dato etiqueta="Total cobrado">{soles(v.total)}</Dato>
-              {v.medio_pago && <Dato etiqueta="Medio">{ETIQUETA_MEDIO[v.medio_pago]}</Dato>}
+              {v.medio_nombre && <Dato etiqueta="Medio">{v.medio_nombre}</Dato>}
               {v.caja_nombre && <Dato etiqueta="Caja">{v.caja_nombre}</Dato>}
             </dl>
           </Tarjeta>

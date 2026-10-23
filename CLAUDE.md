@@ -1,6 +1,7 @@
 # CLAUDE.md
 
-Sistema de compra-venta de metales (chatarra). Especificación: `PROPUESTA_SISTEMA_CHATARRA.md`.
+Sistema de compra-venta de metales (chatarra). Especificación: `PROPUESTA_SISTEMA_CHATARRA.md`; cambios de la
+reunión del 23/10 en `Sistema de Reciclaje Otiniano — Requerimientos.md` (mandan sobre la propuesta).
 UI y textos en **español (Perú)**. Lo marcado **[CONFIRMAR]** en la propuesta no se inventa: se deja configurable.
 
 ## Comandos
@@ -17,6 +18,13 @@ UI y textos en **español (Perú)**. Lo marcado **[CONFIRMAR]** en la propuesta 
 - Toda tabla de negocio lleva `empresa_id`; nunca filtrar empresa solo en el frontend.
 - No borrar: anular con motivo. Migraciones ya desplegadas no se editan; se agrega una nueva.
 - Costo valorizado al céntimo en cada salida (`_stock_salida`) para que patrimonio y resultados cuadren exacto.
+- Roles: Gerencia = `dueno`, Administración = `administrador`, Almacén = `cajero` (`balancero`/`socio` heredados).
+  Productos = tabla `metales` con jerarquía libre (`padre_id`, `v_productos`, stock por nivel en `v_stock_arbol`);
+  en la UI se dice «producto», no «metal». Precio sugerido según proveedor mayorista/minorista (`_precio_sugerido`).
+- Ticket emitido: el almacén no lo edita; `corregir_compra` (Gerencia/Administración) ajusta stock y caja y deja
+  registro en `correcciones_compra`. Limpieza (`registrar_limpieza`, ruta `/limpieza`, antes Despacho) guarda la merma
+  en kg y S/ y pasa el material separado a otro producto (`limpieza_traslados`, kardex `traslado`).
+- Medios de pago editables en `medios_pago` (tipo base + caja); las RPC reciben `p_medio`.
 - Navegación por módulos (Compras, Ventas, Contactos, Inventario, Caja y finanzas) en `src/components/shell/modulos.ts`:
   menú lateral y pestañas salen de ahí. Reportes de cada módulo con `VistaReportes` (`ids` + `base`).
 - Modo oscuro = variables de color redefinidas en `globals.css` (sin clases `dark:`). Usar `bg-superficie`,

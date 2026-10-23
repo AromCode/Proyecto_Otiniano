@@ -23,12 +23,12 @@ const n = (v: unknown) => Number(v ?? 0);
 
 export async function GET(request: Request) {
   const ctx = await obtenerContexto();
-  if (!puede(ctx.rol, "verTodo")) return new Response("Sin permiso", { status: 403 });
+  if (!puede(ctx.rol, "verCostos")) return new Response("Sin permiso", { status: 403 });
   const { supabase, empresa } = ctx;
   const formato = new URL(request.url).searchParams.get("formato") === "xlsx" ? "xlsx" : "pdf";
 
   const [stock, resumen, patrimonio, lotes, logo] = await Promise.all([
-    supabase.from("v_stock_metal").select("*").eq("empresa_id", empresa.id).order("orden").order("nombre"),
+    supabase.from("v_stock_metal").select("*").eq("empresa_id", empresa.id).order("clave_orden"),
     supabase.rpc("resumen_inventario", { p_empresa: empresa.id }),
     supabase.from("v_patrimonio").select("en_transito, por_cobrar").eq("empresa_id", empresa.id).maybeSingle(),
     supabase.from("v_lotes").select("fecha, numero, proveedor_nombre, metal_nombre, metal_color, kg_en_stock, dias, por_seleccionar, retrasado")
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
       en_transito: n(patrimonio.data?.en_transito), por_cobrar: n(patrimonio.data?.por_cobrar),
     },
     metales: (stock.data ?? []).filter((m) => m.activo || n(m.kg) !== 0).map((m) => ({
-      nombre: m.nombre ?? "", color: m.color, kg: n(m.kg), costo_promedio: m.costo_promedio === null ? null : n(m.costo_promedio),
+      nombre: m.ruta ?? m.nombre ?? "", color: m.color, kg: n(m.kg), costo_promedio: m.costo_promedio === null ? null : n(m.costo_promedio),
       valor_costo: n(m.valor_costo), precio_venta: n(m.precio_venta), valor_venta: n(m.valor_venta),
     })),
     lotes: (lotes.data ?? []).map((l) => ({
@@ -166,11 +166,11 @@ async function excelValorizado(d: DatosValorizado, logo: { buffer: Buffer; ext: 
   h.getRow(7).height = 22;
 
   const t9 = h.getCell("A9");
-  t9.value = "Stock por metal";
+  t9.value = "Stock por producto";
   t9.font = { bold: true, size: 11, color: { argb: COBRE_OSCURO } };
 
   const INI = 11;
-  h.getRow(INI).values = ["Metal", "Stock (kg)", "Costo prom./kg", "Valor a costo", "Precio venta/kg", "Valor a venta", "Ganancia potencial", "% del valor"];
+  h.getRow(INI).values = ["Producto", "Stock (kg)", "Costo prom./kg", "Valor a costo", "Precio venta/kg", "Valor a venta", "Ganancia potencial", "% del valor"];
   cabecera(h.getRow(INI));
   d.metales.forEach((m, i) => {
     const f = INI + 1 + i;
@@ -208,12 +208,12 @@ async function excelValorizado(d: DatosValorizado, logo: { buffer: Buffer; ext: 
   const l = libro.addWorksheet("Lotes", { views: [{ state: "frozen", ySplit: 6, showGridLines: false }] });
   const LC = 7;
   bandaTitulo(l, LC, "Antigüedad del stock (lotes en almacén)", d, false);
-  l.getRow(6).values = ["Llegó", "Compra N°", "Proveedor", "Metal", "En stock (kg, est.)", "Días en almacén", "Estado"];
+  l.getRow(6).values = ["Llegó", "Compra N°", "Proveedor", "Producto", "En stock (kg, est.)", "Días en almacén", "Estado"];
   cabecera(l.getRow(6));
   d.lotes.forEach((x, i) => {
     const fila = l.getRow(7 + i);
     fila.values = [fechaExcel(x.fecha), x.numero, x.proveedor ?? "Sin documento", x.metal, x.kg_en_stock, x.dias,
-      x.retrasado ? "Retrasado" : x.por_seleccionar ? "Por seleccionar" : "Seleccionado"];
+      x.retrasado ? "Retrasado" : x.por_seleccionar ? "Por limpiar" : "Limpio"];
     cebra(fila, i, LC);
     const estado = fila.getCell(7);
     if (x.retrasado) estado.font = { bold: true, color: { argb: "FFB91C1C" } };

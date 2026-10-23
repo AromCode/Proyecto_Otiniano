@@ -2,7 +2,7 @@
 
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
-import type { MedioPago, Resultado } from "@/lib/tipos";
+import type { Resultado } from "@/lib/tipos";
 
 export interface DatosVenta {
   clave: string;
@@ -13,7 +13,8 @@ export interface DatosVenta {
   notas: string | null;
   /** Si viene caja y todas las líneas traen recibido+precio, se confirma en el acto */
   caja_id: string | null;
-  medio_pago: MedioPago | null;
+  /** Medio de cobro configurado (define el tipo y la caja por defecto) */
+  medio_id: string | null;
   comprobante_url: string | null;
 }
 
@@ -28,8 +29,8 @@ export async function registrarVenta(d: DatosVenta): Promise<Resultado<{ id: str
     p_notas: d.notas,
     p_clave: d.clave,
     p_caja: d.caja_id,
-    p_medio_pago: d.medio_pago,
     p_comprobante_url: d.comprobante_url,
+    p_medio: d.medio_id,
   });
   if (error) return fallo(error);
   return ok(data as { id: string; numero: number; estado: string });
@@ -39,7 +40,7 @@ export async function confirmarVenta(d: {
   venta_id: string;
   items: { item_id: string; peso_recibido_kg: string; precio_kg: string }[];
   caja_id: string;
-  medio_pago: MedioPago;
+  medio_id: string | null;
   comprobante_url: string | null;
 }): Promise<Resultado> {
   const { supabase } = await obtenerContexto();
@@ -47,8 +48,8 @@ export async function confirmarVenta(d: {
     p_venta: d.venta_id,
     p_items: d.items,
     p_caja: d.caja_id,
-    p_medio_pago: d.medio_pago,
     p_comprobante_url: d.comprobante_url,
+    p_medio: d.medio_id,
   });
   if (error) return fallo(error);
   return ok(null);

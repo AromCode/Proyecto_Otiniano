@@ -45,7 +45,7 @@ export const obtenerContexto = cache(async (): Promise<Contexto> => {
   if (!lista || lista.vence < Date.now()) {
     const { data: filas } = await supabase
       .from("miembros")
-      .select("rol, nombre, empresa:empresas(id, razon_social, ruc, direccion, telefono, logo_url, monto_doc_obligatorio, roles_editan_precio, dias_seleccion)")
+      .select("rol, nombre, empresa:empresas(id, razon_social, ruc, direccion, telefono, logo_url, monto_doc_obligatorio, roles_editan_precio, dias_seleccion, merma_alerta_pct)")
       .eq("user_id", user.id)
       .eq("activo", true);
     lista = {

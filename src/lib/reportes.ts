@@ -46,8 +46,9 @@ export const REPORTES: DefReporte[] = [
     titulo: "Compras",
     descripcion: "Kilos, soles y precio promedio comprado",
     agrupaciones: [
-      { valor: "dia", texto: "Por día" }, { valor: "mes", texto: "Por mes" },
-      { valor: "metal", texto: "Por metal" }, { valor: "proveedor", texto: "Por proveedor" },
+      { valor: "dia", texto: "Por día" }, { valor: "semana", texto: "Por semana" }, { valor: "mes", texto: "Por mes" },
+      { valor: "anio", texto: "Por año" }, { valor: "familia", texto: "Por familia" }, { valor: "metal", texto: "Por producto" },
+      { valor: "proveedor", texto: "Por proveedor" }, { valor: "clase", texto: "Mayorista / minorista" },
     ],
     async obtener({ supabase, empresa }, f) {
       const filas = chequear(await supabase.rpc("rpt_compras", { p_empresa: empresa.id, p_desde: f.desde, p_hasta: f.hasta, p_agrupar: f.agrupar ?? "dia" }));
@@ -68,8 +69,9 @@ export const REPORTES: DefReporte[] = [
     titulo: "Ventas",
     descripcion: "Ventas confirmadas: kilos, merma e ingresos",
     agrupaciones: [
-      { valor: "mes", texto: "Por mes" }, { valor: "dia", texto: "Por día" },
-      { valor: "metal", texto: "Por metal" }, { valor: "comprador", texto: "Por comprador" },
+      { valor: "mes", texto: "Por mes" }, { valor: "dia", texto: "Por día" }, { valor: "semana", texto: "Por semana" },
+      { valor: "anio", texto: "Por año" }, { valor: "familia", texto: "Por familia" }, { valor: "metal", texto: "Por producto" },
+      { valor: "comprador", texto: "Por cliente" },
     ],
     async obtener({ supabase, empresa }, f) {
       const filas = chequear(await supabase.rpc("rpt_ventas", { p_empresa: empresa.id, p_desde: f.desde, p_hasta: f.hasta, p_agrupar: f.agrupar ?? "mes" }));
@@ -89,13 +91,13 @@ export const REPORTES: DefReporte[] = [
   },
   {
     id: "margen",
-    titulo: "Margen por metal",
+    titulo: "Margen por producto",
     descripcion: "Precio promedio de venta − costo promedio, en S/ por kg y %",
     async obtener({ supabase, empresa }, f) {
       const filas = chequear(await supabase.rpc("rpt_margen_metal", { p_empresa: empresa.id, p_desde: f.desde, p_hasta: f.hasta }));
       return {
         columnas: [
-          { clave: "metal", titulo: "Metal", tipo: "texto" },
+          { clave: "metal", titulo: "Producto", tipo: "texto" },
           { clave: "kg_vendidos", titulo: "Kg vendidos", tipo: "kg", sumar: true },
           { clave: "ventas", titulo: "Ventas", tipo: "soles", sumar: true },
           { clave: "costo_vendido", titulo: "Costo", tipo: "soles", sumar: true },
@@ -111,32 +113,55 @@ export const REPORTES: DefReporte[] = [
   },
   {
     id: "merma",
-    titulo: "Merma",
-    descripcion: "Diferencia de pesos en ventas + ajustes, valorizada a costo",
+    titulo: "Merma total",
+    descripcion: "Diferencia de pesos en ventas + limpieza y ajustes, valorizada a costo",
     async obtener({ supabase, empresa }, f) {
       const filas = chequear(await supabase.rpc("rpt_merma", { p_empresa: empresa.id, p_desde: f.desde, p_hasta: f.hasta }));
       return {
         columnas: [
-          { clave: "metal", titulo: "Metal", tipo: "texto" },
+          { clave: "metal", titulo: "Producto", tipo: "texto" },
           { clave: "merma_venta_kg", titulo: "En ventas kg", tipo: "kg", sumar: true },
           { clave: "merma_venta_costo", titulo: "En ventas S/", tipo: "soles", sumar: true },
-          { clave: "merma_ajuste_kg", titulo: "Ajustes kg", tipo: "kg", sumar: true },
-          { clave: "merma_ajuste_costo", titulo: "Ajustes S/", tipo: "soles", sumar: true },
+          { clave: "merma_ajuste_kg", titulo: "Limpieza y ajustes kg", tipo: "kg", sumar: true },
+          { clave: "merma_ajuste_costo", titulo: "Limpieza y ajustes S/", tipo: "soles", sumar: true },
           { clave: "total_kg", titulo: "Total kg", tipo: "kg", sumar: true },
           { clave: "total_costo", titulo: "Total S/", tipo: "soles", sumar: true },
         ],
         filas,
-        nota: "Valores positivos = pérdida; negativos = sobrante. No incluye reclasificaciones entre metales.",
+        nota: "Valores positivos = pérdida; negativos = sobrante. «Limpieza y ajustes» incluye la diferencia de precio del material separado. No incluye reclasificaciones.",
+      };
+    },
+  },
+  {
+    id: "merma-limpieza",
+    titulo: "Merma de limpieza",
+    descripcion: "Kilos limpiados, merma en kg, % y S/, y material separado a otro producto",
+    agrupaciones: [{ valor: "metal", texto: "Por producto" }, { valor: "proveedor", texto: "Por proveedor" }, { valor: "compra", texto: "Por compra" }],
+    async obtener({ supabase, empresa }, f) {
+      const filas = chequear(await supabase.rpc("rpt_merma_limpieza", { p_empresa: empresa.id, p_desde: f.desde, p_hasta: f.hasta, p_agrupar: f.agrupar ?? "metal" }));
+      return {
+        columnas: [
+          { clave: "etiqueta", titulo: "Grupo", tipo: "texto" },
+          { clave: "n_limpiezas", titulo: "Limpiezas", tipo: "num" },
+          { clave: "kg_limpiado", titulo: "Kg limpiados", tipo: "kg", sumar: true },
+          { clave: "merma_kg", titulo: "Merma kg", tipo: "kg", sumar: true },
+          { clave: "merma_pct", titulo: "Merma %", tipo: "pct" },
+          { clave: "merma_soles", titulo: "Merma S/", tipo: "soles", sumar: true },
+          { clave: "traslado_kg", titulo: "Separado kg", tipo: "kg", sumar: true },
+          { clave: "diferencia_soles", titulo: "Dif. precio separado S/", tipo: "soles", sumar: true },
+        ],
+        filas,
+        nota: "Ordenado de mayor a menor % de merma. La merma no debería ser grande: revise los productos caros (cobre) con % alto.",
       };
     },
   },
   {
     id: "kardex",
     titulo: "Kardex",
-    descripcion: "Entradas, salidas y saldo por metal",
+    descripcion: "Entradas, salidas y saldo por producto",
     usaMetal: true,
     async obtener({ supabase }, f) {
-      if (!f.metal) return { columnas: [], filas: [], nota: "Elija un metal." };
+      if (!f.metal) return { columnas: [], filas: [], nota: "Elija un producto." };
       const filas = chequear(await supabase.from("v_kardex").select("*").eq("metal_id", f.metal)
         .gte("fecha", `${f.desde}T00:00:00-05:00`).lte("fecha", `${f.hasta}T23:59:59.999-05:00`)
         .order("fecha").order("creado_en"));
@@ -209,14 +234,14 @@ export const REPORTES: DefReporte[] = [
       const [p, cajas, stock] = await Promise.all([
         supabase.from("v_patrimonio").select("*").eq("empresa_id", empresa.id).single(),
         supabase.from("v_saldo_caja").select("nombre, saldo").eq("empresa_id", empresa.id).order("orden"),
-        supabase.from("v_stock_metal").select("nombre, kg, valor_costo").eq("empresa_id", empresa.id).neq("kg", 0).order("orden"),
+        supabase.from("v_stock_metal").select("nombre, ruta, kg, valor_costo").eq("empresa_id", empresa.id).neq("kg", 0).order("clave_orden"),
       ]);
       if (p.error) throw new Error(p.error.message);
       const v = p.data;
       const filas: Record<string, unknown>[] = [
         ...(cajas.data ?? []).map((c) => ({ concepto: `Caja: ${c.nombre}`, kg: null, monto: c.saldo })),
         { concepto: "Total caja", kg: null, monto: v.caja, _fuerte: true },
-        ...(stock.data ?? []).map((s) => ({ concepto: `Stock: ${s.nombre}`, kg: s.kg, monto: s.valor_costo })),
+        ...(stock.data ?? []).map((s) => ({ concepto: `Stock: ${s.ruta ?? s.nombre}`, kg: s.kg, monto: s.valor_costo })),
         { concepto: "Mercadería en tránsito (ventas pendientes)", kg: null, monto: v.en_transito },
         { concepto: "Total mercadería a costo", kg: null, monto: Number(v.stock_costo) + Number(v.en_transito), _fuerte: true },
         { concepto: "LO QUE TENEMOS (caja + mercadería)", kg: null, monto: v.activos, _fuerte: true },

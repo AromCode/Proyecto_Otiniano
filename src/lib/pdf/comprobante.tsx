@@ -44,7 +44,7 @@ export interface ColumnaComprobante { titulo: string; ancho: number; der?: boole
 export interface DatosComprobante {
   empresa: EmpresaPdf;
   logo?: string | Buffer | null;
-  /** "Ticket de compra", "Nota de salida", "Comprobante de venta" */
+  /** "Ticket de compra", "Nota de salida", "Nota de venta" */
   titulo: string;
   numero: number;
   fecha: string;
@@ -147,6 +147,7 @@ const medio = (m: string | null | undefined) => (m ? ETIQUETA_MEDIO[m] ?? m : "-
 export function datosCompra(base: EmpresaLogo, c: {
   numero: number; fecha: string; estado: string; total: Num; kg_total: Num; saldo_aplicado: Num; medio_pago: string | null;
   caja_nombre: string | null; proveedor_nombre: string | null; proveedor_tipo_doc: string | null; proveedor_nro_doc: string | null; notas: string | null;
+  medio_nombre?: string | null; corregido_en?: string | null;
 }, items: { metal_nombre: string; metal_color: string | null; peso_bruto_kg: Num; descuento_kg: Num; peso_neto_kg: Num; precio_kg: Num; importe: Num }[]): DatosComprobante {
   const aFavor = Number(c.saldo_aplicado ?? 0);
   return {
@@ -160,10 +161,10 @@ export function datosCompra(base: EmpresaLogo, c: {
         titulo: "Proveedor", valor: c.proveedor_nombre ?? "Sin documento",
         lineas: [c.proveedor_nro_doc ? `${c.proveedor_tipo_doc ?? "Doc."} ${c.proveedor_nro_doc}` : null],
       },
-      { titulo: "Pago", valor: medio(c.medio_pago), lineas: [c.caja_nombre && `Sale de: ${c.caja_nombre}`] },
+      { titulo: "Pago", valor: c.medio_nombre ?? medio(c.medio_pago), lineas: [c.caja_nombre && `Sale de: ${c.caja_nombre}`] },
     ],
     columnas: [
-      { titulo: "Metal", ancho: 24 }, { titulo: "Peso bruto", ancho: 14, der: true }, { titulo: "Descuento", ancho: 13, der: true },
+      { titulo: "Producto", ancho: 24 }, { titulo: "Peso bruto", ancho: 14, der: true }, { titulo: "Merma", ancho: 13, der: true },
       { titulo: "Peso neto", ancho: 14, der: true }, { titulo: "Precio", ancho: 15, der: true }, { titulo: "Importe", ancho: 16, der: true },
     ],
     filas: items.map((i) => ({
@@ -177,7 +178,7 @@ export function datosCompra(base: EmpresaLogo, c: {
     total: aFavor > 0
       ? { texto: "PAGADO", valor: soles(Math.round(Number(c.total) * 100 - aFavor * 100) / 100) }
       : { texto: "TOTAL", valor: soles(c.total) },
-    notas: [c.notas].filter((x): x is string => !!x),
+    notas: [c.notas, c.corregido_en && `Ticket corregido por Gerencia/Administración el ${fechaHoraLima(c.corregido_en)}.`].filter((x): x is string => !!x),
     firmas: ["Entregué conforme (proveedor)", "Recibí conforme"],
     pie: `${base.empresa.razon_social}  ·  Documento interno, no es comprobante de pago`,
   };
@@ -186,12 +187,13 @@ export function datosCompra(base: EmpresaLogo, c: {
 export function datosVenta(base: EmpresaLogo, v: {
   numero: number; fecha: string; fecha_confirmacion: string | null; estado: string; total: Num; kg_salida: Num; kg_recibido: Num; merma_kg: Num;
   medio_pago: string | null; caja_nombre: string | null; comprador_nombre: string | null; comprador_ruc: string | null; guia_numero: string | null; notas: string | null;
+  medio_nombre?: string | null;
 }, items: { metal_nombre: string; metal_color: string | null; peso_salida_kg: Num; peso_recibido_kg: Num; merma_kg: Num; precio_kg: Num; importe: Num }[]): DatosComprobante {
   const pendiente = v.estado === "pendiente";
   const guion = (x: Num, f: (y: Num) => string) => (x === null || x === undefined ? "-" : f(x));
   return {
     ...base,
-    titulo: pendiente ? "Nota de salida" : "Comprobante de venta",
+    titulo: pendiente ? "Nota de salida" : "Nota de venta",
     numero: v.numero,
     fecha: v.fecha,
     anulada: v.estado === "anulada",
@@ -201,12 +203,12 @@ export function datosVenta(base: EmpresaLogo, v: {
       pendiente
         ? { titulo: "Estado", valor: "Pendiente de pesaje", lineas: ["Falta el peso y precio del comprador"] }
         : {
-          titulo: "Cobro", valor: medio(v.medio_pago),
+          titulo: "Cobro", valor: v.medio_nombre ?? medio(v.medio_pago),
           lineas: [v.caja_nombre && `Entra a: ${v.caja_nombre}`, v.fecha_confirmacion && `Confirmada: ${fechaHoraLima(v.fecha_confirmacion)}`],
         },
     ],
     columnas: [
-      { titulo: "Metal", ancho: 22 }, { titulo: "Salida", ancho: 14, der: true }, { titulo: "Recibido", ancho: 14, der: true },
+      { titulo: "Producto", ancho: 22 }, { titulo: "Salida", ancho: 14, der: true }, { titulo: "Recibido", ancho: 14, der: true },
       { titulo: "Merma", ancho: 12, der: true }, { titulo: "Precio", ancho: 15, der: true }, { titulo: "Importe", ancho: 16, der: true },
     ],
     filas: items.map((i) => ({

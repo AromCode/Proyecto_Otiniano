@@ -117,6 +117,17 @@ export function FormProveedor({
       <Campo etiqueta={tipo === "RUC" ? "Razón social" : "Nombre completo"}>
         <Input ref={nombreRef} name="nombre" defaultValue={inicial?.nombre ?? ""} required />
       </Campo>
+      <fieldset>
+        <legend className="mb-1 text-sm font-medium text-stone-700">Tipo de proveedor</legend>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          {([["minorista", "Minorista", "Persona que trae poco"], ["mayorista", "Mayorista", "Otro almacén de reciclaje"]] as const).map(([v, t, d]) => (
+            <label key={v} className="flex cursor-pointer items-start gap-2 rounded-lg border border-stone-200 p-2.5 has-[:checked]:border-marca-600 has-[:checked]:bg-marca-50">
+              <input type="radio" name="clase" value={v} defaultChecked={(inicial?.clase ?? "minorista") === v} className="mt-0.5 size-4 accent-marca-600" />
+              <span><b className="block font-medium">{t}</b><span className="text-xs text-stone-500">{d}</span></span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
       <div className="grid gap-3 sm:grid-cols-2">
         <Campo etiqueta="Celular">
           <Input ref={telRef} name="telefono" type="tel" inputMode="tel" autoComplete="tel" maxLength={15} placeholder="9XX XXX XXX" defaultValue={inicial?.telefono ?? ""} />

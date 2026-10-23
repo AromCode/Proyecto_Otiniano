@@ -2,11 +2,14 @@
 
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
-import type { MedioPago, Resultado } from "@/lib/tipos";
+import { normalizar } from "@/lib/montos";
+import type { Resultado } from "@/lib/tipos";
 
 export interface LineaCompra {
   metal_id: string;
   peso_bruto_kg: string;
+  /** Merma al pesar (kg) */
+  descuento_kg: string;
   precio_kg: string;
 }
 
@@ -14,7 +17,8 @@ export interface DatosCompra {
   clave: string;
   proveedor_id: string | null;
   caja_id: string;
-  medio_pago: MedioPago;
+  /** Medio de pago configurado (define el tipo y la caja por defecto) */
+  medio_id: string | null;
   items: LineaCompra[];
   notas: string | null;
   foto_ticket_url: string | null;
@@ -30,12 +34,12 @@ export async function registrarCompra(d: DatosCompra): Promise<Resultado<CompraR
     p_empresa: empresa.id,
     p_items: d.items,
     p_caja: d.caja_id,
-    p_medio_pago: d.medio_pago,
     p_proveedor: d.proveedor_id,
     p_notas: d.notas,
     p_foto_ticket_url: d.foto_ticket_url,
     p_clave: d.clave,
     p_aplicar_saldo: d.aplicar_saldo,
+    p_medio: d.medio_id,
   });
   if (error) return fallo(error);
   return ok(data as CompraRegistrada);
@@ -65,4 +69,21 @@ export async function actualizarAdjuntosCompra(id: string, foto: string | null, 
   });
   if (error) return fallo(error);
   return ok(null);
+}
+
+/** Corrección de peso/precio de un ticket emitido: solo Gerencia o Administración (lo valida la BD) */
+export async function corregirCompra(d: {
+  compra_id: string;
+  items: { item_id: string; peso_bruto_kg: string; descuento_kg: string; precio_kg: string }[];
+  motivo: string;
+}): Promise<Resultado<{ total: number; diferencia: number }>> {
+  const { supabase } = await obtenerContexto();
+  const items = d.items.map((i) => ({
+    item_id: i.item_id, peso_bruto_kg: normalizar(i.peso_bruto_kg), descuento_kg: normalizar(i.descuento_kg) || "0", precio_kg: normalizar(i.precio_kg),
+  }));
+  if (items.some((i) => !i.peso_bruto_kg || !i.precio_kg)) return fallo("Ingrese el peso bruto y el precio de cada línea.");
+  if (!d.motivo.trim()) return fallo("Indique el motivo de la corrección.");
+  const { data, error } = await supabase.rpc("corregir_compra", { p_compra: d.compra_id, p_items: items, p_motivo: d.motivo });
+  if (error) return fallo(error);
+  return ok(data as { total: number; diferencia: number });
 }

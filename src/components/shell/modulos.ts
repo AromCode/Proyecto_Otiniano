@@ -72,8 +72,8 @@ export const MODULOS: Modulo[] = [
     id: "inventario", texto: "Inventario", icono: Boxes, tono: "violet",
     items: [
       { href: "/inventario", texto: "Stock", icono: Boxes, permiso: ["verTodo", "vender"] },
-      { href: "/despacho", texto: "Despacho", icono: PackageCheck, permiso: ["comprar", "verTodo"] },
-      { href: "/precios", texto: "Precios del día", icono: Tag },
+      { href: "/limpieza", texto: "Limpieza", icono: PackageCheck, permiso: ["limpiar", "verTodo"] },
+      { href: "/precios", texto: "Productos y precios", icono: Tag },
       { href: "/inventario/reportes", texto: "Reportes", icono: BarChart3, permiso: ["verReportes"] },
     ],
   },

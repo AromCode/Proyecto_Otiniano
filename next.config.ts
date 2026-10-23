@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   // Indicador de Next (solo en pnpm dev) a la derecha: a la izquierda tapaba el botón de contraer el menú
   devIndicators: { position: "bottom-right" },
+  // «Despacho» pasó a llamarse «Limpieza» (reunión del 23/10): los enlaces viejos siguen funcionando
+  async redirects() {
+    return [{ source: "/despacho", destination: "/limpieza", permanent: false }];
+  },
   serverExternalPackages: ["@react-pdf/renderer", "exceljs"],
   experimental: {
     // Caché del router en el navegador: volver a una sección ya visitada o precargada (enlaces del

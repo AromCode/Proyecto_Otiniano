@@ -86,8 +86,8 @@ async function Patrimonio({ ctx }: { ctx: Contexto }) {
           )}
           {db.selecciones_retrasadas > 0 && (
             <Aviso tono="rojo">
-              {db.selecciones_retrasadas} compra(s) llevan más de {ctx.empresa.dias_seleccion} día(s) sin seleccionar en almacén.{" "}
-              <Link href="/despacho" className="font-medium underline">Ir a Despacho</Link>
+              {db.selecciones_retrasadas} compra(s) llevan más de {ctx.empresa.dias_seleccion} día(s) sin pasar por limpieza.{" "}
+              <Link href="/limpieza" className="font-medium underline">Ir a Limpieza</Link>
             </Aviso>
           )}
         </div>
@@ -162,7 +162,7 @@ async function ResultadoPeriodo({ ctx, f }: { ctx: Contexto; f: FiltroInicio }) 
       {/* Lado a lado solo en pantallas muy anchas: así la tabla no queda cortada */}
       <div className="grid gap-4 2xl:grid-cols-5">
         <Tarjeta className="2xl:col-span-3">
-          <TituloTarjeta>Movimiento por metal</TituloTarjeta>
+          <TituloTarjeta>Movimiento por producto</TituloTarjeta>
           <TablaDatos
             filas={filas}
             clave={(x) => x.nombre}
@@ -181,7 +181,7 @@ async function ResultadoPeriodo({ ctx, f }: { ctx: Contexto; f: FiltroInicio }) 
           />
         </Tarjeta>
         <Tarjeta className="2xl:col-span-2">
-          <TituloTarjeta>Participación por metal</TituloTarjeta>
+          <TituloTarjeta>Participación por producto</TituloTarjeta>
           <div className="p-4">
             <TortaPorMetal datos={filas.map((x) => ({
               nombre: x.nombre, color: x.color, compras: Number(x.compras), ventas: Number(x.ventas),

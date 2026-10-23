@@ -9,14 +9,15 @@ import { Campo, Input, Select } from "@/components/ui/campos";
 import { FormularioAccion } from "@/components/ui/formulario";
 import { Modal } from "@/components/ui/modal";
 import { ETIQUETA_ROL } from "@/lib/formato";
-import type { Rol } from "@/lib/tipos";
-import { actualizarMiembro, cambiarEstado, guardarCaja, guardarCategoria, invitarUsuario } from "./acciones";
+import type { MedioPagoConf, Rol } from "@/lib/tipos";
+import { actualizarMiembro, cambiarEstado, guardarCaja, guardarCategoria, guardarMedioPago, invitarUsuario } from "./acciones";
 
 const DESCRIPCION_ROL: Record<Rol, string> = {
-  dueno: "Todo, incluido anular, reabrir meses y gestionar usuarios",
-  socio: "Ve todo y los reportes; no anula",
-  cajero: "Compras, ventas y caja; no edita precios ni anula",
-  balancero: "Solo registra compras",
+  dueno: "Ve todo: panel, stock, caja, capital, utilidad y reportes; anula y gestiona usuarios",
+  administrador: "Productos y precios, proveedores y clientes, reportes; compra, vende y corrige tickets",
+  cajero: "Almacén: registra compras y ventas, limpieza (mermas) y abre/cierra la caja del día",
+  balancero: "Solo registra compras y limpieza",
+  socio: "Solo lectura: ve todo y los reportes",
 };
 
 type Miembro = { user_id: string; rol: Rol; nombre: string | null; email: string | null; activo: boolean };
@@ -149,6 +150,60 @@ export function Categorias({ categorias }: { categorias: { id: string; nombre: s
           <Campo etiqueta="Nueva categoría" className="flex-1"><Input name="nombre" required /></Campo>
         </FormularioAccion>
       </div>
+    </Tarjeta>
+  );
+}
+
+const TIPOS_MEDIO = [["efectivo", "Efectivo"], ["yape", "Yape"], ["plin", "Plin"], ["transferencia", "Transferencia / depósito"]] as const;
+
+/** Medios de pago editables: nombre, tipo base y la caja que usa por defecto */
+export function MediosPago({ medios, cajas }: { medios: MedioPagoConf[]; cajas: CajaFila[] }) {
+  const router = useRouter();
+  const [editando, setEditando] = useState<MedioPagoConf | "nuevo" | null>(null);
+  const actual = editando === "nuevo" ? null : editando;
+  const cajaDe = (id: string | null) => cajas.find((c) => c.id === id)?.nombre ?? "Sin caja fija";
+  return (
+    <Tarjeta>
+      <TituloTarjeta accion={<Boton tamano="sm" variante="secundario" onClick={() => setEditando("nuevo")}><Plus className="size-4" /> Medio</Boton>}>
+        Medios de pago
+      </TituloTarjeta>
+      <ul className="divide-y divide-stone-100">
+        {medios.map((m) => (
+          <li key={m.id} className="flex items-center justify-between gap-2 px-4 py-2.5">
+            <button onClick={() => setEditando(m)} className={`min-w-0 text-left hover:underline ${m.activo ? "" : "text-stone-400"}`}>
+              <span className="block truncate font-medium">{m.nombre}</span>
+              <span className="block truncate text-xs text-stone-500">{cajaDe(m.caja_id)}</span>
+            </button>
+            <div className="flex items-center gap-3">
+              <Insignia>{TIPOS_MEDIO.find(([v]) => v === m.tipo)?.[1] ?? m.tipo}</Insignia>
+              <button onClick={async () => { await cambiarEstado("medios_pago", m.id, !m.activo); router.refresh(); }} className="text-xs font-medium text-stone-600 hover:text-stone-900">
+                {m.activo ? "Desactivar" : "Activar"}
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="border-t border-stone-100 px-4 py-2 text-xs text-stone-500">Al elegir el medio en una compra o venta se propone su caja.</p>
+      <Modal abierto={editando !== null} onCerrar={() => setEditando(null)} titulo={actual ? "Editar medio de pago" : "Nuevo medio de pago"}>
+        <FormularioAccion accion={guardarMedioPago} onExito={() => setEditando(null)} textoBoton="Guardar" mensajeExito="Medio de pago guardado.">
+          {actual && <input type="hidden" name="id" value={actual.id} />}
+          <Campo etiqueta="Nombre" ayuda="Ej.: Yape Jorge, BCP, Interbank"><Input name="nombre" defaultValue={actual?.nombre ?? ""} required /></Campo>
+          <div className="grid grid-cols-2 gap-3">
+            <Campo etiqueta="Tipo">
+              <Select name="tipo" defaultValue={actual?.tipo ?? "efectivo"}>
+                {TIPOS_MEDIO.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
+              </Select>
+            </Campo>
+            <Campo etiqueta="Orden"><Input name="orden" type="number" defaultValue={actual?.orden ?? 0} /></Campo>
+          </div>
+          <Campo etiqueta="Caja que usa">
+            <Select name="caja_id" defaultValue={actual?.caja_id ?? ""}>
+              <option value="">Sin caja fija (se elige al registrar)</option>
+              {cajas.filter((c) => c.activo).map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+            </Select>
+          </Campo>
+        </FormularioAccion>
+      </Modal>
     </Tarjeta>
   );
 }

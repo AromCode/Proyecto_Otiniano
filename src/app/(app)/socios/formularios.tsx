@@ -132,7 +132,7 @@ export function CerrarMes({ periodos }: { periodos: string[] }) {
       <Boton variante="secundario" onClick={() => setAbierto(true)}><Lock className="size-4" /> Cerrar mes</Boton>
       <Modal abierto={abierto} onCerrar={() => setAbierto(false)} titulo="Cerrar mes">
         <FormularioAccion accion={cerrarMes} onExito={() => setAbierto(false)} textoBoton="Cerrar periodo" mensajeExito="Periodo cerrado.">
-          <Aviso>Se guarda una foto de la caja, el stock y el resultado del mes, y se bloquea editar movimientos de ese periodo. El dueño puede reabrirlo indicando el motivo.</Aviso>
+          <Aviso>Se guarda una foto de la caja, el stock y el resultado del mes, y se bloquea editar movimientos de ese periodo. Gerencia puede reabrirlo indicando el motivo.</Aviso>
           <Campo etiqueta="Periodo">
             <Select name="periodo" required>{periodos.map((p) => <option key={p} value={p}>{nombrePeriodo(p)}</option>)}</Select>
           </Campo>

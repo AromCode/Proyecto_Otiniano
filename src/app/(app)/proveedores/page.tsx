@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { obtenerContexto } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
 import { RankingTerceros } from "@/components/ranking-terceros";
-import { fecha, kg, soles } from "@/lib/formato";
+import { ETIQUETA_CLASE, fecha, kg, soles } from "@/lib/formato";
 import { Encabezado, Insignia, Tarjeta } from "@/components/ui/basicos";
 import { TablaDatos } from "@/components/ui/tabla";
 import { Filtros } from "@/components/filtros";
@@ -18,6 +18,7 @@ export default async function ProveedoresPage({ searchParams }: { searchParams: 
     .order("importe_total", { ascending: false }).limit(300);
   if (sp.estado === "inactivo") q = q.eq("activo", false);
   else if (sp.estado !== "todos") q = q.eq("activo", true);
+  if (sp.clase === "mayorista" || sp.clase === "minorista") q = q.eq("clase", sp.clase);
   if (sp.q?.trim()) {
     const t = sp.q.trim().replace(/[%,()]/g, "");
     q = /^\d+$/.test(t) ? q.like("nro_doc", `${t}%`) : q.ilike("nombre", `%${t}%`);
@@ -26,14 +27,17 @@ export default async function ProveedoresPage({ searchParams }: { searchParams: 
 
   return (
     <>
-      <Encabezado titulo="Proveedores" descripcion="Personas y empresas que nos venden metal" acciones={<NuevoProveedor />} />
-      {puede(rol, "verTodo") && <RankingTerceros ctx={ctx} tipo="proveedores" sp={sp} ruta="/proveedores" />}
+      <Encabezado titulo="Proveedores" descripcion="Personas y almacenes que nos venden material (minoristas y mayoristas)" acciones={<NuevoProveedor />} />
+      {puede(rol, "verReportes") && <RankingTerceros ctx={ctx} tipo="proveedores" sp={sp} ruta="/proveedores" />}
       <Filtros
         valores={sp}
         desdeHasta={false}
         ocultos={Object.fromEntries(Object.entries(sp).filter((e): e is [string, string] => !!e[1] && ["rp", "rdesde", "rhasta", "rmetal"].includes(e[0])))}
         busqueda={{ nombre: "q", placeholder: "DNI, RUC o nombre" }}
-        selects={[{ nombre: "estado", etiqueta: "Estado", opciones: [{ valor: "inactivo", texto: "Inactivos" }, { valor: "todos", texto: "Activos e inactivos" }] }]}
+        selects={[
+          { nombre: "clase", etiqueta: "Tipo", opciones: [{ valor: "minorista", texto: "Minoristas" }, { valor: "mayorista", texto: "Mayoristas" }] },
+          { nombre: "estado", etiqueta: "Estado", opciones: [{ valor: "inactivo", texto: "Inactivos" }, { valor: "todos", texto: "Activos e inactivos" }] },
+        ]}
       />
       <Tarjeta>
         <TablaDatos
@@ -44,6 +48,7 @@ export default async function ProveedoresPage({ searchParams }: { searchParams: 
           columnas={[
             { titulo: "Nombre", principal: true, celda: (p) => <span className={p.activo ? "" : "text-stone-400"}>{p.nombre}</span> },
             { titulo: "Documento", celda: (p) => p.nro_doc ? `${p.tipo_doc} ${p.nro_doc}` : "Sin documento" },
+            { titulo: "Tipo", celda: (p) => <Insignia tono={p.clase === "mayorista" ? "azul" : "gris"}>{ETIQUETA_CLASE[p.clase] ?? "Minorista"}</Insignia> },
             { titulo: "Teléfono", celda: (p) => p.telefono ?? "—", ocultarMovil: true },
             { titulo: "Compras", alinear: "der", celda: (p) => <span className="cifra">{p.n_compras}</span> },
             { titulo: "Kg", alinear: "der", celda: (p) => <span className="cifra">{kg(p.kg_total)}</span> },

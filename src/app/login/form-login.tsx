@@ -93,7 +93,7 @@ export function FormLogin({ next, errorInicial }: { next: string; errorInicial?:
 
       {ayuda && (
         <Aviso tono="azul">
-          Pida al dueño o administrador que le asigne una nueva contraseña. Cuando ingrese, puede cambiarla en <b>Mi cuenta</b>.
+          Pida a Gerencia que le asigne una nueva contraseña. Cuando ingrese, puede cambiarla en <b>Mi cuenta</b>.
         </Aviso>
       )}
       {error && (

@@ -55,6 +55,7 @@ export function Ticket80({ d }: { d: DatosTicket }) {
     <HojaTicket80 empresa={d.empresa} logo={d.logo}>
         <div className="tit">{d.titulo} N° {String(d.numero).padStart(6, "0")}</div>
         {d.estado === "anulada" && <div className="c b">*** ANULADA ***</div>}
+        {d.corregido && <div className="c b">*** {d.corregido.toUpperCase()} ***</div>}
         <div className="c">{fechaHora(d.fecha)}</div>
 
         <div className="lin" />
@@ -66,7 +67,7 @@ export function Ticket80({ d }: { d: DatosTicket }) {
           <div key={i} className="item">
             <div className="b">{it.metal}</div>
             {it.bruto && (
-              <div className="fila"><span>Bruto {kg(it.bruto)}</span><span>Desc. {kg(it.descuento)}</span></div>
+              <div className="fila"><span>Bruto {kg(it.bruto)}</span><span>{Number(it.descuento) > 0 ? `Merma ${kg(it.descuento)}` : ""}</span></div>
             )}
             <div className="fila">
               <span>{kg(it.neto)} x {it.precio ? soles(it.precio) : "—"}</span>

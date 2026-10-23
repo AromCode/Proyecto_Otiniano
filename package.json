@@ -15,7 +15,8 @@
     "supabase:conectar": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/conectar-supabase.ps1",
     "sb": "node scripts/supabase.mjs",
     "supabase:clave": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/cambiar-clave-bd.ps1",
-    "guia": "tsx --tsconfig scripts/guia-cliente/tsconfig.json scripts/guia-cliente/generar.tsx"
+    "guia": "tsx --tsconfig scripts/guia-cliente/tsconfig.json scripts/guia-cliente/generar.tsx",
+    "demo:preparar": "node scripts/preparar-demo.mjs"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",

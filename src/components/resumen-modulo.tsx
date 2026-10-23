@@ -50,7 +50,7 @@ export async function ResumenVentas({ ctx }: { ctx: Ctx }) {
   const { data } = await ctx.supabase.rpc("resumen_ventas", { p_empresa: ctx.empresa.id });
   const r = (data ?? {}) as Json;
   const cliente = r.cliente_top as Top;
-  const verMargen = puede(ctx.rol, "verTodo");
+  const verMargen = puede(ctx.rol, "verCostos");
   return (
     <PanelModulo
       tono="indigo"
@@ -82,7 +82,7 @@ export async function ResumenInventario({ ctx }: { ctx: Ctx }) {
   const { data } = await ctx.supabase.rpc("resumen_inventario", { p_empresa: ctx.empresa.id });
   const r = (data ?? {}) as Json;
   const kilos = { titulo: "Kilos en stock", valor: kg(r.kg as number), detalle: `${n(r.metales_con_stock)} metales con stock` };
-  if (!puede(ctx.rol, "verTodo")) return <PanelModulo tono="violet" etiqueta="Inventario · hoy" principal={kilos} celdas={[]} />;
+  if (!puede(ctx.rol, "verCostos")) return <PanelModulo tono="violet" etiqueta="Inventario · hoy" principal={kilos} celdas={[]} />;
   return (
     <PanelModulo
       tono="violet"

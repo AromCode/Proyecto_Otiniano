@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Download, FileText } from "lucide-react";
 import { exigir } from "@/lib/contexto";
 import { REPORTES, filtrosDesde, totales, type Col } from "@/lib/reportes";
-import { fechaHora, kg, numero, porcentaje, soles } from "@/lib/formato";
+import { fechaHora, hoyLima, kg, numero, porcentaje, soles } from "@/lib/formato";
 import { Aviso, Encabezado, Tarjeta } from "@/components/ui/basicos";
 import { claseBoton, claseInput, cx } from "@/components/ui/clases";
 import { cabeTabla } from "@/components/ui/tabla";
@@ -19,6 +19,20 @@ function celda(c: Col, v: unknown) {
     case "fecha": return fechaHora(v as string);
     default: return String(v);
   }
+}
+
+/** Hoy, este mes, el mes pasado, este año y los últimos 12 meses (fechas de Lima) */
+function rangosRapidos() {
+  const hoy = hoyLima();
+  const [a, m] = hoy.split("-").map(Number);
+  const iso = (y: number, mes: number, d: number) => new Date(Date.UTC(y, mes - 1, d)).toISOString().slice(0, 10);
+  return [
+    { texto: "Hoy", desde: hoy, hasta: hoy },
+    { texto: "Este mes", desde: iso(a, m, 1), hasta: hoy },
+    { texto: "Mes pasado", desde: iso(a, m - 1, 1), hasta: iso(a, m, 0) },
+    { texto: "Este año", desde: iso(a, 1, 1), hasta: hoy },
+    { texto: "Últimos 12 meses", desde: iso(a, m - 11, 1), hasta: hoy },
+  ];
 }
 
 const esNumero = (c: Col) => c.tipo !== "texto" && c.tipo !== "fecha";
@@ -55,7 +69,7 @@ export async function VistaReportes({
 
   const [datos, metales, cajas] = await Promise.all([
     def.obtener(ctx, f).catch((e: Error) => ({ columnas: [], filas: [], nota: undefined, error: e.message })),
-    def.usaMetal ? ctx.supabase.from("metales").select("id, nombre").eq("empresa_id", ctx.empresa.id).order("orden").order("nombre") : null,
+    def.usaMetal ? ctx.supabase.from("v_productos").select("id, nombre:ruta").eq("empresa_id", ctx.empresa.id).order("clave_orden") : null,
     def.usaCaja ? ctx.supabase.from("cajas").select("id, nombre").eq("empresa_id", ctx.empresa.id).order("orden") : null,
   ]);
   const t = totales(datos);
@@ -86,6 +100,18 @@ export async function VistaReportes({
         <div className="border-b border-stone-100 p-4">
           <h2 className="font-semibold">{def.titulo}</h2>
           <p className="text-sm text-stone-500">{def.descripcion}</p>
+          {def.id !== "patrimonio" && (
+            // Temporadas rápidas: el rango queda en la URL y se puede ajustar con Desde/Hasta
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {rangosRapidos().map((p) => (
+                <Link key={p.texto} href={`${base}?${new URLSearchParams(Object.entries({ ...f, r: def.id, desde: p.desde, hasta: p.hasta }).filter(([, v]) => v) as [string, string][])}`}
+                  className={cx("rounded-md border px-2 py-1 text-xs font-medium",
+                    f.desde === p.desde && f.hasta === p.hasta ? "border-marca-600 bg-marca-50 text-marca-700" : "border-stone-200 text-stone-600 hover:bg-stone-50")}>
+                  {p.texto}
+                </Link>
+              ))}
+            </div>
+          )}
           <form method="get" className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-end">
             <input type="hidden" name="r" value={def.id} />
             {def.id !== "patrimonio" && (
@@ -110,7 +136,7 @@ export async function VistaReportes({
             )}
             {metales && (
               <label className="block sm:w-44">
-                <span className="mb-1 block text-xs font-medium text-stone-600">Metal</span>
+                <span className="mb-1 block text-xs font-medium text-stone-600">Producto</span>
                 <select name="metal" defaultValue={f.metal ?? ""} className={claseInput} required>
                   <option value="">Elija…</option>
                   {(metales.data ?? []).map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}

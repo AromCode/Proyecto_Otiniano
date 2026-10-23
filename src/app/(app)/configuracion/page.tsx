@@ -7,24 +7,27 @@ import { Campo, Input, InputNumero } from "@/components/ui/campos";
 import { FormularioAccion } from "@/components/ui/formulario";
 import { ETIQUETA_ROL } from "@/lib/formato";
 import { guardarEmpresa } from "./acciones";
-import { Cajas, Categorias, Usuarios } from "./secciones";
+import { cargarMediosPago } from "@/lib/productos";
+import { Cajas, Categorias, MediosPago, Usuarios } from "./secciones";
 
 export const metadata: Metadata = { title: "Configuración" };
 
 export default async function ConfiguracionPage() {
-  const { supabase, empresa, userId } = await exigir("configurar");
-  const [{ data: miembros }, { data: cajas }, { data: categorias }, { data: uso }] = await Promise.all([
+  const ctx = await exigir("configurar");
+  const { supabase, empresa, userId } = ctx;
+  const [{ data: miembros }, { data: cajas }, { data: categorias }, { data: uso }, medios] = await Promise.all([
     supabase.from("miembros").select("user_id, rol, nombre, email, activo").eq("empresa_id", empresa.id).order("creado_en"),
     supabase.from("cajas").select("*").eq("empresa_id", empresa.id).order("orden"),
     supabase.from("categorias_gasto").select("*").eq("empresa_id", empresa.id).order("nombre"),
     supabase.rpc("uso_consultas_doc", { p_empresa: empresa.id }),
+    cargarMediosPago(ctx, false),
   ]);
   const consultas = (uso ?? {}) as { total?: number; empresa?: number; hoy?: number; guardados?: number };
   const usadas = Number(consultas.total ?? 0);
 
   return (
     <>
-      <Encabezado titulo="Configuración" descripcion={<>Los metales y sus precios se gestionan en <Link href="/precios" className="text-marca-700 hover:underline">Precios del día</Link>.</>} />
+      <Encabezado titulo="Configuración" descripcion={<>Los productos y sus precios se gestionan en <Link href="/precios" className="text-marca-700 hover:underline">Productos y precios</Link>.</>} />
       <div className="grid gap-4 lg:grid-cols-2">
         <Tarjeta>
           <TituloTarjeta>Empresa</TituloTarjeta>
@@ -36,16 +39,19 @@ export default async function ConfiguracionPage() {
                 <Campo etiqueta="Teléfono"><Input name="telefono" defaultValue={empresa.telefono ?? ""} /></Campo>
               </div>
               <Campo etiqueta="Dirección"><Input name="direccion" defaultValue={empresa.direccion ?? ""} /></Campo>
-              <Campo etiqueta="Días para seleccionar una compra en almacén" ayuda="Pasado este plazo, la compra aparece como «retrasada» en Despacho. Por confirmar con el cliente.">
+              <Campo etiqueta="Días para limpiar una compra" ayuda="Pasado este plazo, la compra aparece como «retrasada» en Limpieza.">
                 <InputNumero name="dias_seleccion" defaultValue={String(empresa.dias_seleccion ?? 2)} inputMode="numeric" />
+              </Campo>
+              <Campo etiqueta="Merma alta desde (%)" ayuda="Una limpieza con más merma que este % se marca en rojo para que Gerencia la revise.">
+                <InputNumero name="merma_alerta_pct" defaultValue={String(Number(empresa.merma_alerta_pct ?? 5))} />
               </Campo>
               <Campo etiqueta="Exigir DNI/RUC desde (S/)" ayuda="Vacío = nunca obligatorio. Por confirmar con el cliente.">
                 <InputNumero name="monto_doc_obligatorio" defaultValue={empresa.monto_doc_obligatorio ?? ""} />
               </Campo>
               <fieldset>
-                <legend className="mb-1 text-sm font-medium text-stone-700">Pueden cambiar el precio/kg en el mostrador</legend>
+                <legend className="mb-1 text-sm font-medium text-stone-700">Pueden digitar un precio/kg distinto al del día</legend>
                 <div className="flex flex-wrap gap-4 text-sm">
-                  {(["dueno", "cajero", "balancero"] as const).map((r) => (
+                  {(["dueno", "administrador", "cajero", "balancero"] as const).map((r) => (
                     <label key={r} className="flex items-center gap-1.5">
                       <input
                         type="checkbox"
@@ -68,7 +74,7 @@ export default async function ConfiguracionPage() {
             <TituloTarjeta accion={<Link href="/socios" className="text-xs font-medium text-marca-700">Abrir</Link>}>Socios del negocio</TituloTarjeta>
             <p className="flex items-start gap-3 p-4 text-sm text-stone-600">
               <Handshake className="mt-0.5 size-5 shrink-0 text-stone-400" />
-              <span>Participación de cada socio, aportes, retiros y utilidad que le corresponde. Es información de la sociedad: solo la edita el dueño.</span>
+              <span>Participación de cada socio, aportes, retiros y utilidad que le corresponde. Es información de la sociedad: solo la edita Gerencia.</span>
             </p>
           </Tarjeta>
           <Tarjeta>
@@ -92,6 +98,7 @@ export default async function ConfiguracionPage() {
         </div>
         <Usuarios miembros={miembros ?? []} yo={userId} />
         <Cajas cajas={cajas ?? []} />
+        <MediosPago medios={medios} cajas={cajas ?? []} />
         <Categorias categorias={categorias ?? []} />
       </div>
     </>

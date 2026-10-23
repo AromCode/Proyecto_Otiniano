@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { exigir } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
+import { cargarMediosPago } from "@/lib/productos";
 import { Aviso } from "@/components/ui/basicos";
 import { BotonLink } from "@/components/ui/boton";
 import type { Caja, Comprador } from "@/lib/tipos";
@@ -9,15 +10,17 @@ import { FormVenta, type MetalConStock } from "./form-venta";
 export const metadata: Metadata = { title: "Vender" };
 
 export default async function VenderPage() {
-  const { supabase, empresa, rol } = await exigir("vender");
-  const [{ data: stock }, { data: compradores }, { data: cajas }, { data: precios }] = await Promise.all([
-    supabase.from("v_stock_metal").select("metal_id, nombre, color, kg, costo_promedio, precio_venta")
-      .eq("empresa_id", empresa.id).eq("activo", true).gt("kg", 0).order("orden").order("nombre"),
+  const ctx = await exigir("vender");
+  const { supabase, empresa, rol } = ctx;
+  const [{ data: stock }, { data: compradores }, { data: cajas }, { data: precios }, medios] = await Promise.all([
+    supabase.from("v_stock_metal").select("metal_id, nombre, ruta, nivel, clave_orden, color, kg, costo_promedio, precio_venta")
+      .eq("empresa_id", empresa.id).eq("activo", true).gt("kg", 0).order("clave_orden"),
     supabase.from("compradores").select("*").eq("empresa_id", empresa.id).eq("activo", true).order("razon_social"),
     supabase.from("cajas").select("*").eq("empresa_id", empresa.id).eq("activo", true).order("orden"),
     supabase.rpc("precios_promedio", { p_empresa: empresa.id }),
+    cargarMediosPago(ctx),
   ]);
-  const verCostos = puede(rol, "verTodo");
+  const verCostos = puede(rol, "verCostos");
   const ventaProm = new Map((precios ?? []).map((p: { metal_id: string; venta_promedio: number | null }) => [p.metal_id, p.venta_promedio]));
   // El costo solo viaja al navegador si el rol puede verlo
   const metales: MetalConStock[] = (stock ?? []).map((s) => ({
@@ -47,6 +50,7 @@ export default async function VenderPage() {
       verCostos={verCostos}
       compradores={compradores as Comprador[]}
       cajas={(cajas ?? []) as Caja[]}
+      medios={medios}
     />
   );
 }

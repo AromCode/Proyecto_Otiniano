@@ -35,8 +35,9 @@ export function nombrePeriodo(p: string): string {
 }
 
 export const ETIQUETA_ROL: Record<string, string> = {
-  dueno: "Dueño", socio: "Socio", cajero: "Cajero", balancero: "Balancero",
+  dueno: "Gerencia", administrador: "Administración", cajero: "Almacén", balancero: "Balanza", socio: "Socio",
 };
+export const ETIQUETA_CLASE: Record<string, string> = { minorista: "Minorista", mayorista: "Mayorista" };
 export const ETIQUETA_MEDIO: Record<string, string> = {
   efectivo: "Efectivo", yape: "Yape", plin: "Plin", transferencia: "Transferencia",
 };

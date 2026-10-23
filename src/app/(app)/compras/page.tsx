@@ -35,7 +35,7 @@ export default async function ComprasPage({ searchParams }: { searchParams: Prom
 
   const [{ data: compras }, { data: metales }] = await Promise.all([
     q,
-    supabase.from("metales").select("id, nombre").eq("empresa_id", empresa.id).order("orden").order("nombre"),
+    supabase.from("v_productos").select("id, nombre:ruta").eq("empresa_id", empresa.id).order("clave_orden"),
   ]);
   const filas = compras ?? [];
   const vigentes = filas.filter((c) => c.estado === "registrada");
@@ -59,7 +59,7 @@ export default async function ComprasPage({ searchParams }: { searchParams: Prom
         valores={sp}
         busqueda={{ nombre: "q", placeholder: "N°, DNI o nombre" }}
         selects={[
-          { nombre: "metal", etiqueta: "Metal", opciones: (metales ?? []).map((m) => ({ valor: m.id, texto: m.nombre })) },
+          { nombre: "metal", etiqueta: "Producto", opciones: (metales ?? []).map((m) => ({ valor: m.id, texto: m.nombre })) },
           { nombre: "estado", etiqueta: "Estado", opciones: [{ valor: "registrada", texto: "Registradas" }, { valor: "anulada", texto: "Anuladas" }] },
         ]}
       />
@@ -73,7 +73,7 @@ export default async function ComprasPage({ searchParams }: { searchParams: Prom
             { titulo: "N°", celda: (c) => <span className="cifra">#{c.numero}</span>, principal: true },
             { titulo: "Fecha", celda: (c) => fechaHora(c.fecha) },
             { titulo: "Proveedor", celda: (c) => c.proveedor_nombre ?? <span className="text-stone-400">Sin documento</span> },
-            { titulo: "Metales", celda: (c) => c.metales },
+            { titulo: "Productos", celda: (c) => c.metales },
             { titulo: "Kg", celda: (c) => <span className="cifra">{kg(c.kg_total)}</span>, alinear: "der" },
             { titulo: "S/ por kg", alinear: "der", ocultarMovil: true, celda: (c) => <span className="cifra text-stone-600">{c.precio_promedio ? soles(c.precio_promedio) : "—"}</span> },
             {
@@ -87,10 +87,10 @@ export default async function ComprasPage({ searchParams }: { searchParams: Prom
             {
               titulo: "Estado",
               celda: (c) => c.estado === "anulada" ? <Insignia tono="rojo">Anulada</Insignia>
-                : c.retrasada ? <Insignia tono="rojo">Selección retrasada</Insignia>
-                : c.por_seleccionar ? <Insignia tono="ambar">Por seleccionar</Insignia>
-                : Number(c.seleccion_kg) > 0 ? <Insignia tono="azul">Con descuento</Insignia>
-                : <Insignia tono="verde">Seleccionada</Insignia>,
+                : c.retrasada ? <Insignia tono="rojo">Limpieza retrasada</Insignia>
+                : c.por_seleccionar ? <Insignia tono="ambar">Por limpiar</Insignia>
+                : Number(c.seleccion_kg) > 0 ? <Insignia tono={c.merma_alta ? "rojo" : "azul"}>Merma {Number(c.merma_pct ?? 0).toLocaleString("es-PE")} %</Insignia>
+                : <Insignia tono="verde">Limpia</Insignia>,
             },
           ]}
         />

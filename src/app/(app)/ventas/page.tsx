@@ -36,7 +36,7 @@ export default async function VentasPage({ searchParams }: { searchParams: Promi
   const [{ data: ventas }, { data: compradores }, { data: metales }] = await Promise.all([
     q,
     supabase.from("compradores").select("id, razon_social").eq("empresa_id", empresa.id).order("razon_social"),
-    supabase.from("metales").select("id, nombre").eq("empresa_id", empresa.id).order("orden").order("nombre"),
+    supabase.from("v_productos").select("id, nombre:ruta").eq("empresa_id", empresa.id).order("clave_orden"),
   ]);
   const filas = ventas ?? [];
 
@@ -53,7 +53,7 @@ export default async function VentasPage({ searchParams }: { searchParams: Promi
         valores={sp}
         selects={[
           { nombre: "comprador", etiqueta: "Comprador", opciones: (compradores ?? []).map((c) => ({ valor: c.id, texto: c.razon_social })) },
-          { nombre: "metal", etiqueta: "Metal", opciones: (metales ?? []).map((m) => ({ valor: m.id, texto: m.nombre })) },
+          { nombre: "metal", etiqueta: "Producto", opciones: (metales ?? []).map((m) => ({ valor: m.id, texto: m.nombre })) },
           { nombre: "estado", etiqueta: "Estado", opciones: Object.entries(ESTADO).map(([v, [t]]) => ({ valor: v, texto: t })) },
         ]}
       />
@@ -67,7 +67,7 @@ export default async function VentasPage({ searchParams }: { searchParams: Promi
             { titulo: "N°", principal: true, celda: (v) => <span className="cifra">#{v.numero}</span> },
             { titulo: "Fecha", celda: (v) => fechaHora(v.fecha) },
             { titulo: "Comprador", celda: (v) => v.comprador_nombre },
-            { titulo: "Metales", celda: (v) => v.metales, ocultarMovil: true },
+            { titulo: "Productos", celda: (v) => v.metales, ocultarMovil: true },
             { titulo: "Salida", alinear: "der", celda: (v) => <span className="cifra">{kg(v.kg_salida)}</span> },
             { titulo: "Merma", alinear: "der", celda: (v) => v.merma_kg === null ? "—" : <span className="cifra">{kg(v.merma_kg)}</span> },
             { titulo: "S/ por kg", alinear: "der", ocultarMovil: true, celda: (v) => <span className="cifra text-stone-600">{v.precio_promedio ? soles(v.precio_promedio) : "—"}</span> },

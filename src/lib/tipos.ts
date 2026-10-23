@@ -1,6 +1,8 @@
 // Tipos de dominio. Cuando el proyecto de Supabase esté enlazado, `pnpm db:types`
 // genera src/lib/supabase/database.types.ts con los tipos exactos de la BD.
-export type Rol = "dueno" | "socio" | "cajero" | "balancero";
+/** dueno = Gerencia · administrador = Administración · cajero = Almacén */
+export type Rol = "dueno" | "administrador" | "socio" | "cajero" | "balancero";
+export type ClaseProveedor = "minorista" | "mayorista";
 export type MedioPago = "efectivo" | "yape" | "plin" | "transferencia";
 export type TipoDoc = "DNI" | "RUC" | "CE" | "SIN_DOC";
 
@@ -15,16 +17,41 @@ export interface Empresa {
   roles_editan_precio: Rol[];
   /** Días que una compra puede esperar su selección en almacén antes de verse «retrasada» */
   dias_seleccion: number;
+  /** % de merma de limpieza desde el cual se marca para revisión de Gerencia */
+  merma_alerta_pct: string;
 }
 
+/** Producto (la tabla se llama metales): un nodo de la jerarquía familia → producto → variante… */
 export interface Metal {
   id: string;
+  padre_id: string | null;
+  codigo: string | null;
   nombre: string;
   color: string | null;
   orden: number;
   unidad: string;
   precio_compra: string;
+  /** Precio de compra al mayorista; null = igual al minorista */
+  precio_mayorista: string | null;
   precio_venta: string;
+  activo: boolean;
+}
+
+/** Producto con su ubicación en el árbol (vista v_productos) */
+export interface Producto extends Metal {
+  nivel: number;
+  ruta: string;
+  clave_orden: string;
+  tiene_hijos: boolean;
+}
+
+/** Medio de pago configurable: tipo base y caja que usa por defecto */
+export interface MedioPagoConf {
+  id: string;
+  nombre: string;
+  tipo: MedioPago;
+  caja_id: string | null;
+  orden: number;
   activo: boolean;
 }
 
@@ -44,6 +71,7 @@ export interface Proveedor {
   telefono: string | null;
   direccion: string | null;
   activo: boolean;
+  clase: ClaseProveedor;
 }
 
 export interface Comprador {

@@ -2,7 +2,7 @@
 
 import { obtenerContexto } from "@/lib/contexto";
 import { fallo, ok, texto } from "@/lib/acciones";
-import type { Proveedor, Resultado, TipoDoc } from "@/lib/tipos";
+import type { ClaseProveedor, Proveedor, Resultado, TipoDoc } from "@/lib/tipos";
 
 export async function buscarProveedores(q: string): Promise<Proveedor[]> {
   const { supabase, empresa } = await obtenerContexto();
@@ -10,7 +10,7 @@ export async function buscarProveedores(q: string): Promise<Proveedor[]> {
   if (t.length < 2) return [];
   let consulta = supabase
     .from("proveedores")
-    .select("id, tipo_doc, nro_doc, nombre, telefono, direccion, activo")
+    .select("id, tipo_doc, nro_doc, nombre, telefono, direccion, activo, clase")
     .eq("empresa_id", empresa.id)
     .eq("activo", true)
     .limit(8);
@@ -30,6 +30,7 @@ function leerProveedor(fd: FormData) {
     telefono: texto(fd, "telefono"),
     direccion: texto(fd, "direccion"),
     notas: texto(fd, "notas"),
+    clase: (texto(fd, "clase") === "mayorista" ? "mayorista" : "minorista") as ClaseProveedor,
   };
 }
 
@@ -49,7 +50,7 @@ export async function crearProveedor(_: unknown, fd: FormData): Promise<Resultad
   const { data, error: e } = await supabase
     .from("proveedores")
     .insert({ ...p, empresa_id: empresa.id })
-    .select("id, tipo_doc, nro_doc, nombre, telefono, direccion, activo")
+    .select("id, tipo_doc, nro_doc, nombre, telefono, direccion, activo, clase")
     .single();
   if (e) return fallo(e);
   return ok(data as Proveedor);

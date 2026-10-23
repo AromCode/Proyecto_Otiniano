@@ -45,7 +45,7 @@ export default async function CompradorDetalle({
         columnas={[
           { titulo: "N°", principal: true, celda: (v) => `#${v.numero}` },
           { titulo: "Fecha", celda: (v) => fechaHora(v.fecha) },
-          { titulo: "Metales", celda: (v) => v.metales },
+          { titulo: "Productos", celda: (v) => v.metales },
           { titulo: "Salida", alinear: "der", celda: (v) => <span className="cifra">{kg(v.kg_salida)}</span> },
           { titulo: "Merma", alinear: "der", celda: (v) => v.merma_kg === null ? "—" : <span className="cifra">{kg(v.merma_kg)}</span> },
           { titulo: "Total", alinear: "der", principal: true, celda: (v) => <span className={v.estado === "anulada" ? "cifra text-stone-400 line-through" : "cifra"}>{soles(v.total)}</span> },
@@ -57,7 +57,7 @@ export default async function CompradorDetalle({
 
   const tablaMetales = (
     <Tarjeta>
-      <TituloTarjeta>Lo que le vendemos, por metal</TituloTarjeta>
+      <TituloTarjeta>Lo que le vendemos, por producto</TituloTarjeta>
       <ul className="divide-y divide-stone-100">
         {porMetal.map((m) => (
           <li key={m.metal_id} className="px-4 py-3">
@@ -105,7 +105,7 @@ export default async function CompradorDetalle({
         opciones={[
           { valor: "resumen", texto: "Resumen" },
           { valor: "ventas", texto: "Ventas", cantidad: (ventas ?? []).length },
-          { valor: "metales", texto: "Por metal", cantidad: porMetal.length },
+          { valor: "metales", texto: "Por producto", cantidad: porMetal.length },
         ]}
       />
 

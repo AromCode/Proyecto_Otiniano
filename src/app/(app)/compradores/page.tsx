@@ -27,7 +27,7 @@ export default async function CompradoresPage({ searchParams }: { searchParams: 
   return (
     <>
       <Encabezado titulo="Clientes" descripcion="Compradores mayores (fundiciones, recicladoras) a quienes vendemos" acciones={puede(rol, "editarTerceros") && <NuevoComprador />} />
-      {puede(rol, "verTodo") && <RankingTerceros ctx={ctx} tipo="clientes" sp={sp} ruta="/compradores" />}
+      {puede(rol, "verReportes") && <RankingTerceros ctx={ctx} tipo="clientes" sp={sp} ruta="/compradores" />}
       <Filtros
         valores={sp}
         desdeHasta={false}

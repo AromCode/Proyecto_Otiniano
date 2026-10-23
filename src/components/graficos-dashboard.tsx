@@ -225,7 +225,7 @@ export interface FilaMetalMes {
 }
 
 export function GraficoHistorialMetal({ datos }: { datos: FilaMetalMes[] }) {
-  if (!datos.length) return <Vacio texto="Sin compras ni ventas de este metal en el periodo." />;
+  if (!datos.length) return <Vacio texto="Sin compras ni ventas de este producto en el periodo." />;
   const filas = datos.map((d) => ({ ...d, etiqueta: mesCorto(d.periodo) }));
   return (
     <div className="h-72">

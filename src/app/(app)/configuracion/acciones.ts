@@ -6,7 +6,7 @@ import { normalizar } from "@/lib/montos";
 import { crearClienteAdmin } from "@/lib/supabase/admin";
 import type { Resultado, Rol } from "@/lib/tipos";
 
-const ROLES: Rol[] = ["dueno", "socio", "cajero", "balancero"];
+const ROLES: Rol[] = ["dueno", "administrador", "cajero", "balancero", "socio"];
 
 export async function guardarEmpresa(_: unknown, fd: FormData): Promise<Resultado> {
   const { supabase, empresa } = await exigir("configurar");
@@ -15,7 +15,9 @@ export async function guardarEmpresa(_: unknown, fd: FormData): Promise<Resultad
   const monto = texto(fd, "monto_doc_obligatorio");
   const roles = ROLES.filter((r) => r === "dueno" || fd.get(`precio_${r}`) === "on");
   const dias = Number(texto(fd, "dias_seleccion") ?? 2);
-  if (!Number.isInteger(dias) || dias < 0 || dias > 60) return fallo("Los días para seleccionar deben estar entre 0 y 60.");
+  if (!Number.isInteger(dias) || dias < 0 || dias > 60) return fallo("Los días para limpiar deben estar entre 0 y 60.");
+  const alerta = Number(normalizar(texto(fd, "merma_alerta_pct") ?? "5") || 5);
+  if (!(alerta >= 0 && alerta <= 100)) return fallo("El % de merma debe estar entre 0 y 100.");
   const { error } = await supabase.from("empresas").update({
     razon_social: texto(fd, "razon_social"),
     ruc,
@@ -24,6 +26,7 @@ export async function guardarEmpresa(_: unknown, fd: FormData): Promise<Resultad
     monto_doc_obligatorio: monto ? normalizar(monto) || null : null,
     roles_editan_precio: roles,
     dias_seleccion: dias,
+    merma_alerta_pct: alerta,
   }).eq("id", empresa.id);
   if (error) return fallo(error);
   olvidarMembresias();
@@ -85,7 +88,7 @@ export async function guardarCaja(_: unknown, fd: FormData): Promise<Resultado> 
   return ok(null);
 }
 
-export async function cambiarEstado(tabla: "cajas" | "categorias_gasto", id: string, activo: boolean): Promise<Resultado> {
+export async function cambiarEstado(tabla: "cajas" | "categorias_gasto" | "medios_pago", id: string, activo: boolean): Promise<Resultado> {
   const { supabase } = await exigir("configurar");
   const { error } = await supabase.from(tabla).update({ activo }).eq("id", id);
   if (error) return fallo(error);
@@ -97,6 +100,20 @@ export async function guardarCategoria(_: unknown, fd: FormData): Promise<Result
   const nombre = texto(fd, "nombre");
   if (!nombre) return fallo("Ingrese el nombre.");
   const { error } = await supabase.from("categorias_gasto").insert({ nombre, empresa_id: empresa.id });
+  if (error) return fallo(error);
+  return ok(null);
+}
+
+export async function guardarMedioPago(_: unknown, fd: FormData): Promise<Resultado> {
+  const { supabase, empresa } = await exigir("configurar");
+  const id = texto(fd, "id");
+  const tipo = texto(fd, "tipo");
+  if (!tipo || !["efectivo", "yape", "plin", "transferencia"].includes(tipo)) return fallo("Tipo no válido.");
+  const datos = { nombre: texto(fd, "nombre"), tipo, caja_id: texto(fd, "caja_id"), orden: Number(texto(fd, "orden") ?? 0) || 0 };
+  if (!datos.nombre) return fallo("Ingrese el nombre del medio de pago.");
+  const { error } = id
+    ? await supabase.from("medios_pago").update(datos).eq("id", id)
+    : await supabase.from("medios_pago").insert({ ...datos, empresa_id: empresa.id });
   if (error) return fallo(error);
   return ok(null);
 }

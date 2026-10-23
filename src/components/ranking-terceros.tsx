@@ -69,7 +69,7 @@ export async function RankingTerceros({
     }));
   };
   const [{ data: metales }, filas] = await Promise.all([
-    ctx.supabase.from("metales").select("id, nombre").eq("empresa_id", ctx.empresa.id).order("orden").order("nombre"),
+    ctx.supabase.from("v_productos").select("id, nombre:ruta").eq("empresa_id", ctx.empresa.id).order("clave_orden"),
     leerFilas(),
   ]);
 
@@ -129,9 +129,9 @@ export async function RankingTerceros({
             </>
           )}
           <label className={cx("block sm:w-44", p !== "rango" && "col-span-1")}>
-            <span className="mb-1 block text-xs font-medium text-stone-600">Metal</span>
+            <span className="mb-1 block text-xs font-medium text-stone-600">Producto</span>
             <select name="rmetal" defaultValue={metal ?? ""} className={claseInput}>
-              <option value="">Todos los metales</option>
+              <option value="">Todos los productos</option>
               {(metales ?? []).map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
             </select>
           </label>

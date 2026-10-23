@@ -38,12 +38,12 @@ const precio = (v: number | null) => (v === null ? "-" : `S/ ${Number(v).toLocal
 const pct = (v: number) => `${v.toLocaleString("es-PE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
 type Columna = { titulo: string; ancho: number; der?: boolean };
 const COL_METAL: Columna[] = [
-  { titulo: "Metal", ancho: 18 }, { titulo: "Stock", ancho: 12, der: true }, { titulo: "Costo prom./kg", ancho: 11, der: true },
+  { titulo: "Producto", ancho: 18 }, { titulo: "Stock", ancho: 12, der: true }, { titulo: "Costo prom./kg", ancho: 11, der: true },
   { titulo: "Valor a costo", ancho: 13, der: true }, { titulo: "Precio venta/kg", ancho: 11, der: true },
   { titulo: "Valor a venta", ancho: 13, der: true }, { titulo: "Ganancia potencial", ancho: 13, der: true }, { titulo: "% del valor", ancho: 9, der: true },
 ];
 const COL_LOTE: Columna[] = [
-  { titulo: "Llegó", ancho: 11 }, { titulo: "Compra", ancho: 9 }, { titulo: "Proveedor", ancho: 28 }, { titulo: "Metal", ancho: 16 },
+  { titulo: "Llegó", ancho: 11 }, { titulo: "Compra", ancho: 9 }, { titulo: "Proveedor", ancho: 28 }, { titulo: "Producto", ancho: 16 },
   { titulo: "En stock (est.)", ancho: 13, der: true }, { titulo: "Días", ancho: 8, der: true }, { titulo: "Estado", ancho: 15 },
 ];
 
@@ -94,7 +94,7 @@ export function ValorizadoPdf({ d }: { d: DatosValorizado }) {
             ))}
           </View>
 
-          <Text style={s.seccion}>Stock por metal</Text>
+          <Text style={s.seccion}>Stock por producto</Text>
           <Cabecera cols={COL_METAL} />
           {d.metales.map((m, i) => (
             <View key={m.nombre} style={[s.fila, i % 2 === 1 ? { backgroundColor: "#fafaf9" } : {}]} wrap={false}>
@@ -144,8 +144,8 @@ export function ValorizadoPdf({ d }: { d: DatosValorizado }) {
                     {l.retrasado
                       ? <Text style={[s.etiqueta, { backgroundColor: "#fee2e2", color: "#b91c1c" }]}>Retrasado</Text>
                       : l.por_seleccionar
-                        ? <Text style={[s.etiqueta, { backgroundColor: "#fef3c7", color: "#92400e" }]}>Por seleccionar</Text>
-                        : <Text style={[s.etiqueta, { backgroundColor: "#d1fae5", color: "#065f46" }]}>Seleccionado</Text>}
+                        ? <Text style={[s.etiqueta, { backgroundColor: "#fef3c7", color: "#92400e" }]}>Por limpiar</Text>
+                        : <Text style={[s.etiqueta, { backgroundColor: "#d1fae5", color: "#065f46" }]}>Limpio</Text>}
                   </Celda>
                 </View>
               ))}

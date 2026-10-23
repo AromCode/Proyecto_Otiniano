@@ -1,7 +1,7 @@
 import "server-only";
 import type { Contexto } from "./contexto";
 import { cargarLogo } from "./archivos-servidor";
-import { soles } from "./formato";
+import { fechaHora, soles } from "./formato";
 import type { DatosTicket } from "./pdf/ticket";
 
 // Datos del ticket de 80 mm: los usan el PDF (ticket/route.tsx) y la página de impresión directa (/imprimir).
@@ -27,9 +27,10 @@ export async function ticketCompra(ctx: Contexto, id: string): Promise<DatosTick
     fecha: c.fecha,
     contraparte: c.proveedor_nombre ?? "Sin documento",
     documento: c.proveedor_nro_doc ? `${c.proveedor_tipo_doc} ${c.proveedor_nro_doc}` : null,
-    medio_pago: c.medio_pago,
+    medio_pago: c.medio_nombre ?? c.medio_pago,
     estado: c.estado,
     total: c.total,
+    corregido: c.corregido_en ? `Corregido el ${fechaHora(c.corregido_en)}` : null,
     extras: Number(c.saldo_aplicado ?? 0) > 0
       ? [["A favor descontado", `- ${soles(c.saldo_aplicado)}`], ["Pagado", soles(Math.round(Number(c.total) * 100 - Number(c.saldo_aplicado) * 100) / 100)]]
       : [],
@@ -54,14 +55,15 @@ export async function ticketVenta(ctx: Contexto, id: string): Promise<DatosTicke
   ]);
   if (!v) return null;
   return {
-    titulo: v.estado === "pendiente" ? "Nota de salida" : "Venta",
+    // Primera etapa: sin boletas ni facturas, el comprobante es la nota de venta
+    titulo: v.estado === "pendiente" ? "Nota de salida" : "Nota de venta",
     empresa,
     logo,
     numero: v.numero,
     fecha: v.fecha,
     contraparte: v.comprador_nombre,
     documento: v.comprador_ruc ? `RUC ${v.comprador_ruc}` : null,
-    medio_pago: v.medio_pago,
+    medio_pago: v.medio_nombre ?? v.medio_pago,
     estado: v.estado,
     total: v.total,
     notas: [v.guia_numero && `Guía ${v.guia_numero}`, v.notas].filter(Boolean).join(" · ") || null,

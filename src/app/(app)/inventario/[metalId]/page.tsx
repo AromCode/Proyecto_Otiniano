@@ -11,7 +11,7 @@ import { TablaDatos } from "@/components/ui/tabla";
 import { Filtros } from "@/components/filtros";
 import { GraficoHistorialMetal, type FilaMetalMes } from "@/components/graficos-dashboard";
 
-export const metadata: Metadata = { title: "Historial del metal" };
+export const metadata: Metadata = { title: "Historial del producto" };
 
 interface Resumen {
   compras_n: number; kg_comprado: number; compras: number; precio_prom_compra: number | null;
@@ -36,7 +36,7 @@ export default async function HistorialMetal({
   const sp = await searchParams;
   const tab = sp.tab ?? "compras";
   const { supabase, rol } = await exigir("verTodo", "vender");
-  const verCostos = puede(rol, "verTodo");
+  const verCostos = puede(rol, "verCostos");
   const def = rangoPorDefecto();
   const desde = sp.desde && /^\d{4}-\d{2}-\d{2}$/.test(sp.desde) ? sp.desde : def.desde;
   const hasta = sp.hasta && /^\d{4}-\d{2}-\d{2}$/.test(sp.hasta) ? sp.hasta : def.hasta;
@@ -76,7 +76,7 @@ export default async function HistorialMetal({
         <ArrowLeft className="size-4" /> Inventario
       </Link>
       <Encabezado
-        titulo={`Historial · ${s.nombre}`}
+        titulo={`Historial · ${s.ruta ?? s.nombre}`}
         descripcion={<span className="inline-flex items-center gap-2"><PuntoMetal color={s.color} />Cuándo se compró, a quién, cuándo se vendió y a qué precio</span>}
         acciones={puede(rol, "verReportes") && (
           <EnlaceDescarga href={`/reportes/exportar/kardex?${qs}&formato=xlsx`} className="inline-flex h-10 items-center gap-2 rounded-lg border border-stone-300 bg-superficie px-4 text-sm font-medium hover:bg-stone-50">
@@ -132,7 +132,7 @@ export default async function HistorialMetal({
             filas={compras?.data ?? []}
             clave={(c) => c.id}
             enlace={(c) => `/compras/${c.compra_id}`}
-            vacio="Sin compras de este metal en el periodo."
+            vacio="Sin compras de este producto en el periodo."
             columnas={[
               { titulo: "Fecha", principal: true, celda: (c) => fechaHora(c.fecha) },
               { titulo: "Compra", celda: (c) => <span className="flex items-center gap-1">N° {c.numero}{c.estado === "anulada" && <Insignia tono="rojo">Anulada</Insignia>}</span> },
@@ -151,7 +151,7 @@ export default async function HistorialMetal({
             filas={ventas?.data ?? []}
             clave={(v) => v.id}
             enlace={(v) => `/ventas/${v.venta_id}`}
-            vacio="Sin ventas de este metal en el periodo."
+            vacio="Sin ventas de este producto en el periodo."
             columnas={[
               { titulo: "Fecha", principal: true, celda: (v) => fechaHora(v.fecha_confirmacion ?? v.fecha) },
               { titulo: "Venta", celda: (v) => <span className="flex items-center gap-1">N° {v.numero}{v.estado !== "confirmada" && <Insignia tono={v.estado === "anulada" ? "rojo" : "ambar"}>{v.estado === "anulada" ? "Anulada" : "Por pesar"}</Insignia>}</span> },

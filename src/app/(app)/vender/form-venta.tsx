@@ -7,14 +7,17 @@ import { Campo, Input, InputNumero, Select, Textarea } from "@/components/ui/cam
 import { Aviso, PuntoMetal, Tarjeta } from "@/components/ui/basicos";
 import { Boton } from "@/components/ui/boton";
 import { aCentimos, aGramos, centimosASoles, gramosAKg, importeCentimos, normalizar } from "@/lib/montos";
-import { ETIQUETA_MEDIO, kg, soles } from "@/lib/formato";
+import { kg, soles } from "@/lib/formato";
 import { subirArchivo } from "@/lib/archivos";
-import type { Caja, Comprador, MedioPago } from "@/lib/tipos";
+import type { Caja, Comprador, MedioPagoConf } from "@/lib/tipos";
 import { registrarVenta } from "../ventas/acciones";
 
 export interface MetalConStock {
   metal_id: string;
   nombre: string;
+  /** Ubicación en la jerarquía: «Cobre › Cable › Quemado» */
+  ruta: string;
+  nivel: number;
   color: string | null;
   kg: string;
   costo_promedio: string | null;
@@ -32,15 +35,16 @@ interface Linea {
 }
 
 export function FormVenta({
-  empresaId, metales, compradores, cajas, verCostos,
-}: { empresaId: string; metales: MetalConStock[]; compradores: Comprador[]; cajas: Caja[]; verCostos: boolean }) {
+  empresaId, metales, compradores, cajas, medios, verCostos,
+}: { empresaId: string; metales: MetalConStock[]; compradores: Comprador[]; cajas: Caja[]; medios: MedioPagoConf[]; verCostos: boolean }) {
   const router = useRouter();
   const [clave] = useState(() => crypto.randomUUID());
   const [compradorId, setCompradorId] = useState(compradores[0]?.id ?? "");
   const [lineas, setLineas] = useState<Linea[]>([]);
   const [confirmarYa, setConfirmarYa] = useState(false);
-  const [cajaId, setCajaId] = useState(() => cajas.find((c) => c.tipo === "banco")?.id ?? cajas[0]?.id ?? "");
-  const [medio, setMedio] = useState<MedioPago>("transferencia");
+  const medioInicial = medios.find((m) => m.tipo === "transferencia") ?? medios[0] ?? null;
+  const [medioId, setMedioId] = useState(medioInicial?.id ?? "");
+  const [cajaId, setCajaId] = useState(() => medioInicial?.caja_id ?? cajas.find((c) => c.tipo === "banco")?.id ?? cajas[0]?.id ?? "");
   const [guiaNumero, setGuiaNumero] = useState("");
   const [guia, setGuia] = useState<File | null>(null);
   const [notas, setNotas] = useState("");
@@ -55,6 +59,11 @@ export function FormVenta({
     const m = metal(id);
     setLineas((ls) => [...ls, { uid: crypto.randomUUID(), metal_id: id, salida: "", recibido: "", precio: m.precio_venta }]);
   }
+  function elegirMedio(id: string) {
+    setMedioId(id);
+    const caja = medios.find((m) => m.id === id)?.caja_id;
+    if (caja && cajas.some((c) => c.id === caja)) setCajaId(caja);
+  }
   function cambiar(uid: string, campo: keyof Linea, v: string) {
     setLineas((ls) => ls.map((l) => (l.uid === uid ? { ...l, [campo]: v } : l)));
   }
@@ -67,11 +76,11 @@ export function FormVenta({
   async function guardar() {
     setError(null);
     if (!compradorId) return setError("Elija el comprador.");
-    if (lineas.length === 0) return setError("Agregue al menos un metal.");
+    if (lineas.length === 0) return setError("Agregue al menos un producto.");
     for (const l of lineas) {
       const m = metal(l.metal_id);
       if (aGramos(l.salida) <= 0) return setError(`Ingrese el peso de salida de ${m.nombre}.`);
-      if (aGramos(l.salida) > aGramos(m.kg)) return setError(`No hay suficiente ${m.nombre}: stock ${kg(m.kg)}.`);
+      if (aGramos(l.salida) > aGramos(m.kg)) return setError(`No hay suficiente ${m.nombre}: disponible ${kg(m.kg)}.`);
       if (confirmarYa && (!normalizar(l.recibido) || !normalizar(l.precio))) {
         return setError(`Ingrese el peso recibido y el precio de ${m.nombre}.`);
       }
@@ -94,7 +103,7 @@ export function FormVenta({
         guia_url: rutaGuia,
         notas: notas.trim() || null,
         caja_id: confirmarYa ? cajaId : null,
-        medio_pago: confirmarYa ? medio : null,
+        medio_id: confirmarYa ? medioId || null : null,
         comprobante_url: null,
       });
       if (!r.ok) {
@@ -135,11 +144,11 @@ export function FormVenta({
 
       <Tarjeta className="p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-medium text-stone-700">Metales que salen (peso de nuestra balanza)</p>
+          <p className="text-sm font-medium text-stone-700">Productos que salen (peso de nuestra balanza)</p>
           {disponibles.length > 0 && (
             <Select value="" onChange={(e) => e.target.value && agregar(e.target.value)} className="w-full sm:w-60">
-              <option value="">+ Agregar metal…</option>
-              {disponibles.map((m) => <option key={m.metal_id} value={m.metal_id}>{m.nombre} · {kg(m.kg)}</option>)}
+              <option value="">+ Agregar producto…</option>
+              {disponibles.map((m) => <option key={m.metal_id} value={m.metal_id}>{m.ruta} · disponible {kg(m.kg)}</option>)}
             </Select>
           )}
         </div>
@@ -149,7 +158,7 @@ export function FormVenta({
           Ya tengo el pesaje y el precio del comprador (confirmar ahora)
         </label>
 
-        {lineas.length === 0 && <p className="py-6 text-center text-sm text-stone-500">Agregue los metales que salen.</p>}
+        {lineas.length === 0 && <p className="py-6 text-center text-sm text-stone-500">Agregue los productos que salen. Solo se puede vender lo que hay en stock.</p>}
         <div className="space-y-3">
           {lineas.map((l) => {
             const m = metal(l.metal_id);
@@ -159,9 +168,9 @@ export function FormVenta({
             return (
               <div key={l.uid} className="rounded-xl border border-stone-200 p-3">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="flex items-center gap-2 font-semibold"><PuntoMetal color={m.color} />{m.nombre}</span>
-                  <span className="flex items-center gap-2 text-xs text-stone-500">
-                    Stock {kg(m.kg)}
+                  <span className="flex min-w-0 items-center gap-2 font-semibold"><PuntoMetal color={m.color} /><span className="truncate">{m.ruta}</span></span>
+                  <span className={`flex shrink-0 items-center gap-2 text-xs ${aGramos(l.salida) > aGramos(m.kg) ? "font-semibold text-red-700" : "text-stone-500"}`}>
+                    Disponible {kg(m.kg)}
                     <button type="button" onClick={() => setLineas((ls) => ls.filter((x) => x.uid !== l.uid))} className="rounded p-1 hover:bg-red-50 hover:text-red-600" aria-label="Quitar">
                       <Trash2 className="size-4" />
                     </button>
@@ -203,8 +212,8 @@ export function FormVenta({
       {confirmarYa && (
         <Tarjeta className="grid gap-3 p-4 sm:grid-cols-2">
           <Campo etiqueta="Medio de cobro">
-            <Select value={medio} onChange={(e) => setMedio(e.target.value as MedioPago)}>
-              {(["transferencia", "efectivo", "yape", "plin"] as MedioPago[]).map((m) => <option key={m} value={m}>{ETIQUETA_MEDIO[m]}</option>)}
+            <Select value={medioId} onChange={(e) => elegirMedio(e.target.value)}>
+              {medios.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
             </Select>
           </Campo>
           <Campo etiqueta="Entra a la caja">
@@ -239,7 +248,7 @@ export function FormVenta({
         <div className="flex flex-wrap gap-2">
           {disponibles.slice(0, 6).map((m) => (
             <button key={m.metal_id} type="button" onClick={() => agregar(m.metal_id)} className="inline-flex items-center gap-1.5 rounded-full border border-stone-300 bg-superficie px-3 py-1.5 text-sm">
-              <Plus className="size-3.5" /> {m.nombre}
+              <Plus className="size-3.5" /> {m.nombre} · {kg(m.kg)}
             </button>
           ))}
         </div>

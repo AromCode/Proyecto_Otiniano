@@ -7,23 +7,30 @@ import { Campo, InputNumero, Select } from "@/components/ui/campos";
 import { Aviso, PuntoMetal, Tarjeta, TituloTarjeta } from "@/components/ui/basicos";
 import { Boton } from "@/components/ui/boton";
 import { aCentimos, aGramos, centimosASoles, gramosAKg, importeCentimos, normalizar } from "@/lib/montos";
-import { ETIQUETA_MEDIO, kg } from "@/lib/formato";
+import { kg } from "@/lib/formato";
 import { subirArchivo } from "@/lib/archivos";
-import type { Caja, MedioPago } from "@/lib/tipos";
+import type { Caja, MedioPagoConf } from "@/lib/tipos";
 import { confirmarVenta } from "../acciones";
 
 export function ConfirmarVenta({
-  ventaId, empresaId, items, cajas,
+  ventaId, empresaId, items, cajas, medios,
 }: {
   ventaId: string;
   empresaId: string;
   items: { id: string; metal: string; color: string | null; salida: string }[];
   cajas: Caja[];
+  medios: MedioPagoConf[];
 }) {
   const router = useRouter();
   const [datos, setDatos] = useState(() => Object.fromEntries(items.map((i) => [i.id, { recibido: "", precio: "" }])));
-  const [cajaId, setCajaId] = useState(() => cajas.find((c) => c.tipo === "banco")?.id ?? cajas[0]?.id ?? "");
-  const [medio, setMedio] = useState<MedioPago>("transferencia");
+  const medioInicial = medios.find((m) => m.tipo === "transferencia") ?? medios[0] ?? null;
+  const [medioId, setMedioId] = useState(medioInicial?.id ?? "");
+  const [cajaId, setCajaId] = useState(() => medioInicial?.caja_id ?? cajas.find((c) => c.tipo === "banco")?.id ?? cajas[0]?.id ?? "");
+  function elegirMedio(id: string) {
+    setMedioId(id);
+    const caja = medios.find((m) => m.id === id)?.caja_id;
+    if (caja && cajas.some((c) => c.id === caja)) setCajaId(caja);
+  }
   const [comprobante, setComprobante] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
@@ -43,7 +50,7 @@ export function ConfirmarVenta({
       const r = await confirmarVenta({
         venta_id: ventaId,
         caja_id: cajaId,
-        medio_pago: medio,
+        medio_id: medioId || null,
         comprobante_url: ruta,
         items: items.map((i) => ({
           item_id: i.id,
@@ -91,8 +98,8 @@ export function ConfirmarVenta({
         })}
         <div className="grid gap-3 sm:grid-cols-3">
           <Campo etiqueta="Medio de cobro">
-            <Select value={medio} onChange={(e) => setMedio(e.target.value as MedioPago)}>
-              {(["transferencia", "efectivo", "yape", "plin"] as MedioPago[]).map((m) => <option key={m} value={m}>{ETIQUETA_MEDIO[m]}</option>)}
+            <Select value={medioId} onChange={(e) => elegirMedio(e.target.value)}>
+              {medios.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
             </Select>
           </Campo>
           <Campo etiqueta="Entra a la caja">

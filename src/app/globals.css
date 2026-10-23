@@ -11,6 +11,7 @@
   --color-marca-50: #fdf5ef;
   --color-marca-100: #fae6d6;
   --color-marca-200: #f3c8a6;
+  --color-marca-300: #e8a271;
   --color-marca-500: #c2621f;
   --color-marca-600: #a85219;
   --color-marca-700: #8a4216;
@@ -49,6 +50,7 @@
     --color-marca-50: #3a2416;
     --color-marca-100: #4a2c19;
     --color-marca-200: #6e3e1e;
+    --color-marca-300: #8f5226;
     --color-marca-700: #f0a46b;
     --color-marca-800: #f6c39c;
 
@@ -63,6 +65,7 @@
     --color-red-200: #6b2426;
     --color-red-700: #fca5a5;
     --color-red-800: #fecaca;
+    --color-red-900: #fee2e2;
 
     --color-amber-50: #36260c;
     --color-amber-100: #45300d;
@@ -117,6 +120,7 @@
     --color-marca-50: #3a2416;
     --color-marca-100: #4a2c19;
     --color-marca-200: #6e3e1e;
+    --color-marca-300: #8f5226;
     --color-marca-700: #f0a46b;
     --color-marca-800: #f6c39c;
 
@@ -131,6 +135,7 @@
     --color-red-200: #6b2426;
     --color-red-700: #fca5a5;
     --color-red-800: #fecaca;
+    --color-red-900: #fee2e2;
 
     --color-amber-50: #36260c;
     --color-amber-100: #45300d;

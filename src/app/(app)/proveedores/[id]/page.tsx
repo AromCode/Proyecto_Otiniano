@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Phone } from "lucide-react";
 import { obtenerContexto } from "@/lib/contexto";
 import { puede } from "@/lib/permisos";
-import { fecha, fechaHora, kg, soles } from "@/lib/formato";
+import { ETIQUETA_CLASE, fecha, fechaHora, kg, soles } from "@/lib/formato";
 import { Dato, Encabezado, Insignia, Kpi, PuntoMetal, Tarjeta, TituloTarjeta } from "@/components/ui/basicos";
 import { Pestanas } from "@/components/ui/pestanas";
 import { TablaDatos } from "@/components/ui/tabla";
@@ -44,7 +44,7 @@ export default async function ProveedorDetalle({
         columnas={[
           { titulo: "N°", principal: true, celda: (c) => `#${c.numero}` },
           { titulo: "Fecha", celda: (c) => fechaHora(c.fecha) },
-          { titulo: "Metales", celda: (c) => c.metales },
+          { titulo: "Productos", celda: (c) => c.metales },
           { titulo: "Kg", alinear: "der", celda: (c) => <span className="cifra">{kg(c.kg_total)}</span> },
           { titulo: "Total", alinear: "der", principal: true, celda: (c) => <span className={c.estado === "anulada" ? "cifra text-stone-400 line-through" : "cifra"}>{soles(c.total)}</span> },
         ]}
@@ -54,7 +54,7 @@ export default async function ProveedorDetalle({
 
   const tablaMetales = (
     <Tarjeta>
-      <TituloTarjeta>Lo que nos vende, por metal</TituloTarjeta>
+      <TituloTarjeta>Lo que nos vende, por producto</TituloTarjeta>
       <ul className="divide-y divide-stone-100">
         {porMetal.map((m) => (
           <li key={m.metal_id} className="px-4 py-3">
@@ -90,6 +90,7 @@ export default async function ProveedorDetalle({
                 <Phone className="size-3.5" /> {p.telefono}
               </a>
             )}
+            <Insignia tono={p.clase === "mayorista" ? "azul" : "gris"}>{ETIQUETA_CLASE[p.clase] ?? "Minorista"}</Insignia>
             {!p.activo && <Insignia>Inactivo</Insignia>}
           </span>
         }
@@ -102,7 +103,7 @@ export default async function ProveedorDetalle({
         opciones={[
           { valor: "resumen", texto: "Resumen" },
           { valor: "compras", texto: "Compras", cantidad: p.n_compras },
-          { valor: "metales", texto: "Por metal", cantidad: porMetal.length },
+          { valor: "metales", texto: "Por producto", cantidad: porMetal.length },
         ]}
       />
 
