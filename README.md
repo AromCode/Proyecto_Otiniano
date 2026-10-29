@@ -1,8 +1,10 @@
 <div align="center">
 
-# ⚖️ Sistema Metales
+<img src="public/marca/logo-color.png" alt="Grupo Otiniano" width="220">
 
-### Compra y venta de chatarra: caja, inventario y ganancias al día, desde el celular
+# Sistema Otiniano
+
+### Control interno para un negocio de reciclaje: compras, limpieza, stock, ventas y caja — cada kilo y cada sol, bajo control
 
 ![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs)
 ![React](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)
@@ -12,7 +14,7 @@
 ![PWA](https://img.shields.io/badge/PWA-instalable-5A0FC8)
 ![pnpm](https://img.shields.io/badge/pnpm-10-F69220?logo=pnpm&logoColor=white)
 
-<img src="docs/capturas/inicio.jpg" alt="Pantalla de inicio del dueño" width="900">
+<img src="docs/capturas/inicio.png" alt="Panel de Gerencia: ¿Cuánto tenemos?" width="900">
 
 </div>
 
@@ -20,65 +22,154 @@
 
 ## 📌 ¿De qué trata?
 
-Un negocio de **compra-venta de metales** (cobre, bronce, aluminio, fierro…) le compra chatarra a
-gente de a pie en el mostrador —desde un kilo hasta una tonelada—, la acumula y luego la vende a un
-**comprador mayor** (fundiciones, recicladoras). En el camino siempre hay **merma**, y como el negocio
-es una **sociedad**, a fin de mes los socios necesitan saber:
+**Grupo Otiniano** compra chatarra (cobre, bronce, aluminio, fierro…) a personas y a otros almacenes,
+la **limpia**, la acumula y la vende a fundiciones y recicladoras. Hasta ahora todo se anotaba en
+cuadernos y nadie sabía con certeza cuánto material había.
 
-> *«Empezamos con 20 mil… ¿ahora tenemos 21, 22 o 23 mil? ¿Cuánto está en plata y cuánto en producto?»*
-
-Este sistema responde esa pregunta **en cualquier momento**:
+Este sistema responde, en cualquier momento y desde la oficina, las preguntas del dueño:
 
 | ¿Cuánto hay en **caja**? | ¿Cuánto hay en **mercadería**? | ¿Cuánto **ganamos**? |
 |:---:|:---:|:---:|
-| Saldo de cada caja (efectivo, banco, Yape…) | Kilos × costo promedio, por metal | Por mes y por metal, repartido entre socios |
+| Saldo por caja chica, banco y Yape/Plin | Kilos × costo promedio, por producto y por nivel | Utilidad del periodo y sobre el capital aportado |
 
-Es una **aplicación web instalable (PWA)**: no tiene página pública; se entra con usuario y contraseña.
-Se usa en el **celular** en el mostrador y en la **computadora** para revisar reportes. Está hecha
-**multiempresa** desde el inicio, para poder ofrecerla a otros negocios después.
+> *«Si se compraron 1 000 kg de chatarra con aluminio mezclado, al limpiar debe subir el stock de
+> chatarra y bajar lo mismo en aluminio. Si el stock no cuadra, llamo al encargado: según el sistema
+> deberías tener tanto.»*
 
----
-
-## ✨ Qué hace
-
-| Módulo | Qué se puede hacer |
-|---|---|
-| 🟢 **Compras** | Registrar una compra en segundos: proveedor (o «sin documento»), metal, peso bruto − descuento = **peso neto**, precio del día, total en vivo. Sale el **ticket de 80 mm** en PDF para imprimir o mandar por WhatsApp. Historial, anulación con motivo, reportes. |
-| 🔵 **Ventas** | Despachar a un cliente con **peso de salida**; al confirmar se anota el **peso recibido** y la **merma** se calcula sola. Guía de traslado (número + foto/PDF). |
-| 🟣 **Contactos** | Buscador único por **DNI, RUC o nombre** entre proveedores, clientes y socios. Fichas con historial, totales y compras/ventas por metal. Activar y desactivar. |
-| 🟪 **Inventario** | Stock por metal a **costo promedio ponderado**, **kardex** (libro de entradas y salidas), ajustes por conteo físico, **precios del día** con histórico. |
-| 🔷 **Caja y finanzas** | Saldos por caja, gastos, traspasos (efectivo ↔ banco), **arqueo** (lo contado vs. lo que dice el sistema), capital de socios, aportes y retiros, **cierre de mes**. |
-| ⚙️ **Gestión** | Reportes en **Excel y PDF** (compras, ventas, margen por metal, merma, kardex, libro de caja, estado de resultados, patrimonio, ranking de proveedores). Usuarios y roles, cajas, metales, categorías de gasto. |
-
-**Extras:** modo oscuro, letra grande, pantalla de inicio distinta según el rol y compras a prueba de
-reintentos (si el celular pierde señal y reenvía, la compra no se duplica).
-
-### Roles
-
-| Rol | Puede |
-|---|---|
-| **Dueño** | Todo: anular, reabrir meses, precios, usuarios |
-| **Socio** | Ver todo y los reportes; no anula |
-| **Cajero** | Compras, ventas, caja; no edita precios ni anula |
-| **Balancero** | Solo registrar compras |
+Es una **aplicación web instalable (PWA)** sin página pública: se entra con correo y contraseña y el
+sistema lleva a cada persona a **su panel según su rol**. El almacenero la usa en el **celular** en el
+local; Gerencia la revisa en la **computadora**. Está hecha **multiempresa** desde el inicio.
 
 ---
 
-## 📸 Capturas
+## 🔄 El flujo del material
 
-| En el mostrador (celular) | Inicio del cajero | Modo oscuro |
+```
+  Proveedor ──► COMPRA ──► LIMPIEZA ──► STOCK ──► VENTA ──► Comprador
+               (pesa y      (vuelve a    (por       (no se vende
+                paga,        pesar: merma producto,  más de lo
+                ticket       en kg y S/,  costo      que hay)
+                80 mm)       material de  promedio)
+                             otra clase
+                             pasa a su
+                             producto)
+                    │                                  │
+                    └────────────►  CAJA  ◄────────────┘
+                         (cada pago y cobro sale o entra de una caja;
+                          apertura y cierre del día con ticket de cuadre)
+```
+
+---
+
+## 👥 Roles
+
+Cada rol ve su propio menú y su propia pantalla de inicio. La base de datos hace cumplir los permisos
+(los botones ocultos en pantalla son solo comodidad).
+
+| Rol | Quién | Qué hace |
+|---|---|---|
+| **Gerencia** | El dueño | Ve todo: patrimonio, stock, caja, capital, utilidad y reportes. Anula, configura y crea usuarios. |
+| **Administración** | El encargado | Productos y precios, proveedores y clientes, reportes. Corrige tickets emitidos. |
+| **Almacén** | Personal del local | Registra compras y ventas, pesa, hace la limpieza, abre y cierra la caja del día. |
+
+---
+
+## ✨ Módulos
+
+### 🔐 Acceso
+
+<img src="docs/capturas/login.png" alt="Pantalla de ingreso" width="900">
+
+Correo y contraseña; el sistema decide a qué panel entrar según el rol. Recuperación de contraseña por
+correo. Los usuarios los crea Gerencia desde *Configuración* (no hay registro abierto).
+
+### 🏠 Inicio de Gerencia — «¿Cuánto tenemos?»
+
+La pantalla de arriba. **Caja + mercadería** frente al **capital aportado**, resultado del periodo
+(hoy, 7 días, mes, año o rango libre), movimiento y participación por producto, y avisos (por ejemplo,
+compras que llevan días sin pasar por limpieza). Todo se calcula en la base de datos.
+
+### ⬇️ Compras
+
+| Nueva compra | Historial |
+|:---:|:---:|
+| <img src="docs/capturas/comprar-linea.png" width="440"> | <img src="docs/capturas/compras.png" width="440"> |
+
+- **Proveedor** con buscador por nombre; uno nuevo se da de alta con DNI, RUC o carné de extranjería y se
+  **autocompleta** (RENIEC/SUNAT vía Decolecta; cada documento se consulta una sola vez). Sin elegir,
+  queda como «Sin documento».
+- Productos en **mosaicos táctiles** que se abren por niveles (Cobre → Brillante…); una compra puede
+  llevar varios.
+- **Peso bruto − merma = peso neto**, precio por kg **sugerido según el proveedor** (mayorista o
+  minorista) y total en vivo.
+- Medio de pago (efectivo, Yape, Plin, transferencia — editables) y de qué caja sale. Foto y nota opcionales.
+- **Ticket térmico de 80 mm** (impresión directa) y PDF para compartir.
+- Una vez emitido, el almacén **no puede editar** peso ni precio: la corrección la hace Gerencia o
+  Administración, ajusta stock y caja, y queda registrado quién la hizo.
+
+### 🧹 Limpieza
+
+<img src="docs/capturas/limpieza.png" alt="Limpieza" width="900">
+
+Lo comprado pasa por limpieza y se **vuelve a pesar**. La merma se guarda **en kilos y en soles**, y el
+material de otra clase que salió (el fierro dentro del aluminio) **pasa al stock de su producto**: baja
+uno y sube el otro en la misma cantidad. Se marcan las compras retrasadas (plazo configurable) y las
+limpiezas con merma alta.
+
+### 📦 Inventario y productos
+
+| Stock | Productos y precios |
+|:---:|:---:|
+| <img src="docs/capturas/inventario.png" width="440"> | <img src="docs/capturas/precios.png" width="440"> |
+
+- **Stock por cada nivel** de la jerarquía, a **costo promedio ponderado**, valor al precio del día,
+  ganancia si se vendiera hoy y **fecha de la llegada más antigua**.
+- **Kardex** por producto (cada entrada y salida), conteo físico, ajustes y reclasificación.
+- **Jerarquía libre de productos**: familia → producto → variante (y variantes de variantes), cada nivel
+  con su código y precios de **compra, mayorista y venta**. Cada cambio de precio queda en el histórico.
+
+### ⬆️ Ventas
+
+<img src="docs/capturas/vender.png" alt="Nueva venta" width="900">
+
+Comprador, productos que salen con el **peso de nuestra balanza** y el **stock disponible a la vista**
+(no se puede vender más de lo que hay), número de guía de traslado y foto o PDF de la guía. Luego se
+confirma el pesaje y precio del comprador y la diferencia de peso se registra sola. Nota de venta en PDF
+y ticket de 80 mm.
+
+### 💰 Caja y finanzas
+
+<img src="docs/capturas/caja.png" alt="Caja" width="900">
+
+- Saldo por caja (efectivo, banco, Yape/Plin) y cada movimiento con su origen.
+- **Apertura y cierre del día** con ticket de cuadre en 80 mm; gastos por categoría, traspasos entre
+  cajas y **arqueo** (lo contado vs. lo que dice el sistema).
+- **Capital de socios**, aportes y retiros, y **cierre de mes** (guarda el resultado y bloquea el periodo).
+
+### 📊 Reportes
+
+| En pantalla | En PDF |
+|:---:|:---:|
+| <img src="docs/capturas/reportes.png" width="440"> | <img src="docs/capturas/reporte-pdf.png" width="440"> |
+
+Compras, ventas, margen por producto, merma total y de limpieza, kardex, libro de caja, estado de
+resultados, patrimonio y ranking de proveedores. Todos con filtros de periodo y exportables a
+**Excel y PDF** con los mismos números que la pantalla.
+
+### 📱 En el celular
+
+| Inicio de Almacén | Nueva compra | Historial |
 |:---:|:---:|:---:|
-| <img src="docs/capturas/movil-comprar.jpg" width="230"> | <img src="docs/capturas/movil-cajero.jpg" width="230"> | <img src="docs/capturas/inicio-oscuro.jpg" width="380"> |
+| <img src="docs/capturas/movil-inicio.png" width="250"> | <img src="docs/capturas/movil-comprar.png" width="250"> | <img src="docs/capturas/movil-compras.png" width="250"> |
 
-| Nueva compra | Buscador de contactos |
-|:---:|:---:|
-| <img src="docs/capturas/comprar-linea.jpg" width="440"> | <img src="docs/capturas/contactos-busqueda.jpg" width="440"> |
+Diseño responsive real: las tablas se vuelven tarjetas, barra inferior con el botón **Comprar** al
+centro y menú por módulos. Se instala como app desde el navegador.
 
-| Kardex de un metal | Reportes |
-|:---:|:---:|
-| <img src="docs/capturas/kardex.jpg" width="440"> | <img src="docs/capturas/reportes.jpg" width="440"> |
+### 🌙 Modo oscuro y letra grande
 
-> Las capturas usan la empresa de **datos de prueba** («Metales Demo»), no datos reales.
+<img src="docs/capturas/inicio-oscuro.png" alt="Modo oscuro" width="900">
+
+> Todas las capturas usan la **empresa de datos de prueba**, no datos reales.
 
 ---
 
@@ -97,28 +188,31 @@ reintentos (si el celular pierde señal y reenvía, la compra no se duplica).
 
 **La regla de oro:** *el dinero y el inventario se calculan en la base de datos, nunca en la pantalla.*
 
-- Cada operación (comprar, vender, anular, gasto, traspaso, cierre…) es **una función de Postgres
-  que corre en una sola transacción**: o se guarda todo (compra + caja + stock + kardex) o nada.
-- **RLS (Row Level Security):** cada empresa solo ve sus datos, y eso lo garantiza la base de datos.
-  Las tablas de operación no se pueden escribir directo; solo vía funciones que validan el rol.
+- Cada operación (comprar, limpiar, vender, corregir, anular, gasto, traspaso, cierre…) es **una función
+  de Postgres en una sola transacción**: se guarda todo (compra + caja + stock + kardex) o nada.
+- **RLS:** cada empresa solo ve sus datos, y lo garantiza la base de datos. Las tablas de operación no se
+  escriben directo; solo vía funciones que validan el rol.
 - **Nada se borra:** se **anula con motivo** y queda registrado quién lo hizo.
-- **Costo promedio ponderado** por metal, valorizado al céntimo, para que
+- **Costo promedio ponderado** valorizado al céntimo en cada salida, para que
   *caja + stock − capital = utilidades* cuadre exacto.
-- **Cierre de mes:** guarda una foto del resultado y bloquea cambios en ese periodo.
+- Montos en **enteros** (gramos y céntimos) para no arrastrar errores de redondeo.
+- Compras **a prueba de reintentos**: si el celular pierde señal y reenvía, no se duplica.
 
 <details>
 <summary><b>Estructura de carpetas</b></summary>
 
 ```
 src/
-  app/(app)/          pantallas con sesión: comprar, compras, vender, ventas, contactos,
+  app/(app)/          pantallas con sesión: comprar, compras, limpieza, vender, ventas, contactos,
                       proveedores, compradores, socios, inventario, precios, caja, capital,
                       reportes, configuracion, cuenta
-  app/login           acceso
+  app/imprimir/       tickets HTML de 80 mm (compra, venta, cierre de caja)
+  app/login           acceso · app/restablecer: nueva contraseña
   app/api/            exportar reportes, consulta DNI/RUC
   components/ui       botones, campos, tablas (tarjetas en celular), modales, pestañas
-  components/shell    menú lateral, pestañas por módulo, barra inferior del celular
-  lib/                sesión y empresa, permisos, formato es-PE, PDF (ticket y reportes)
+  components/shell    menú lateral por módulos, pestañas, barra inferior del celular
+  components/ticket   tickets térmicos de 80 mm
+  lib/                sesión y empresa, permisos, formato es-PE, PDF y Excel
 supabase/
   migrations/         esquema, seguridad (RLS), funciones, vistas y reportes
   scripts/            alta de empresa y datos de prueba
@@ -131,7 +225,8 @@ docs/                 capturas y documentación
 
 ## 🚀 Puesta en marcha
 
-**Requisitos:** Node 20+, pnpm 10 y una cuenta en [Supabase](https://supabase.com).
+**Requisitos:** Node 20+, pnpm 10 y una cuenta en [Supabase](https://supabase.com) (se usa en la nube,
+no hace falta Docker).
 
 ```bash
 pnpm install
@@ -147,12 +242,17 @@ pnpm dev                         # http://localhost:3000
 1. **Crear el proyecto** en <https://supabase.com/dashboard> (región *South America – São Paulo*).
 2. En **Project Settings → API** copiar `Project URL`, la `anon key` y la `service_role key` a `.env.local`.
 3. En **Authentication → Sign In / Providers → Email**, desactivar *Allow new users to sign up*
-   (los usuarios los crea el dueño desde la app).
+   (los usuarios los crea Gerencia desde la app).
 4. `pnpm supabase:conectar` y luego `pnpm db:push`.
    *Alternativa sin CLI:* en **SQL Editor**, ejecutar en orden los archivos de `supabase/migrations/`.
 5. **Crear empresa y dueño:** *Authentication → Users → Add user* (marcar *Auto Confirm*) y luego
    ejecutar `supabase/scripts/01_crear_empresa.sql` con ese correo.
-6. *(Opcional, solo en una empresa de prueba)* `supabase/scripts/02_datos_demo.sql`.
+6. *(Opcional, solo en una empresa de prueba)* `supabase/scripts/02_datos_demo.sql` y
+   `pnpm demo:preparar` (un usuario por rol y productos de ejemplo).
+7. *(Opcional)* `CONSULTA_DOC_TOKEN` de [Decolecta](https://decolecta.com) para autocompletar DNI/RUC.
+
+En `pnpm dev`, abriendo desde `localhost`, el login muestra un **ingreso directo por rol** con los usuarios
+de prueba. No existe en producción ni desde otra IP de la red.
 
 **Despliegue:** importar el repo en Vercel, cargar las mismas variables y, en Supabase →
 *Authentication → URL Configuration*, agregar la URL de producción.
@@ -163,39 +263,44 @@ pnpm dev                         # http://localhost:3000
 | Comando | Qué hace |
 |---|---|
 | `pnpm dev` | Servidor de desarrollo |
-| `pnpm test` | Pruebas: casos de negocio, seguridad multiempresa, scripts y PDF |
+| `pnpm test` | Pruebas: casos de negocio, seguridad multiempresa, scripts, PDF y tickets |
 | `pnpm typecheck` · `pnpm lint` · `pnpm build` | Verificaciones antes de entregar |
 | `pnpm db:push` | Sube migraciones nuevas a Supabase |
 | `pnpm db:types` | Regenera los tipos TypeScript desde la base |
 | `pnpm db:validar` | Prueba las migraciones en un Postgres local embebido |
+| `pnpm demo:preparar` | Usuarios por rol y productos de ejemplo en la empresa demo |
 
 ---
 
 ## 🧪 Pruebas
 
 Las pruebas levantan un **Postgres embebido (PGlite)**, aplican todas las migraciones y verifican los
-casos de negocio de la propuesta:
+casos de negocio:
 
-- ✅ Compra de 5.250 kg de cobre a S/ 30 con 0.250 kg de descuento → S/ 150.00
+- ✅ Compra con descuento de peso → total exacto al céntimo
 - ✅ Dos compras a distinto precio → costo promedio ponderado correcto
-- ✅ Venta con merma valorizada a costo
+- ✅ Precio sugerido distinto para proveedor mayorista y minorista
+- ✅ Limpieza: merma en kg y S/, y el material separado pasa al stock de otro producto
+- ✅ Corrección de un ticket emitido → stock y caja se ajustan y queda el registro
 - ✅ Vender más que el stock → la base de datos lo rechaza
 - ✅ Anular una compra → caja y stock vuelven a como estaban
 - ✅ Mes cerrado → no se puede registrar ni anular
-- ✅ Una empresa no ve ni escribe datos de otra; el cajero no anula ni cambia precios
+- ✅ Una empresa no ve ni escribe datos de otra; Almacén no anula ni cambia precios
 - ✅ Patrimonio = caja + stock + en tránsito, y cuadra con las utilidades
 
 ---
 
 ## 🗺️ Estado y próximos pasos
 
-- [x] **MVP:** compras, ventas, inventario, caja, socios, reportes, roles, multiempresa
-- [x] Navegación por módulos, modo oscuro, letra grande, inicio por rol
-- [x] Módulo de contactos con buscador único
-- [ ] Autocompletar datos con la **API de SUNAT/RENIEC** al registrar un DNI/RUC
-- [ ] Probar en un celular real en el local
-- [ ] Puntos a confirmar con el cliente: ventas a crédito, dólares, varios locales, compras por unidad
-- [ ] Fase 4: facturación electrónica SUNAT, sorteos para proveedores, versión SaaS
+- [x] Compras, limpieza, inventario, ventas, caja, capital, reportes y multiempresa
+- [x] Roles Gerencia / Administración / Almacén con inicio propio
+- [x] Productos en jerarquía libre con precio mayorista y minorista
+- [x] Corrección de tickets con registro, apertura y cierre de caja con ticket de 80 mm
+- [x] Autocompletado de DNI/RUC, modo oscuro, letra grande, PWA
+- [ ] Cargar la lista real de productos y precios del cliente
+- [ ] Probar en el local con la balanza y la impresora térmica
+- [ ] Siguiente etapa: guías de remisión, boletas y facturas con SUNAT
 
-📄 Especificación completa: [`PROPUESTA_SISTEMA_CHATARRA.md`](PROPUESTA_SISTEMA_CHATARRA.md) ·
-📘 Documentación de estudio: [`docs/Documentacion_Sistema_Metales.pdf`](docs/Documentacion_Sistema_Metales.pdf)
+📄 Especificación: [`PROPUESTA_SISTEMA_CHATARRA.md`](PROPUESTA_SISTEMA_CHATARRA.md) ·
+📝 Cambios de la reunión del 23/10: [`Sistema de Reciclaje Otiniano — Requerimientos.md`](Sistema%20de%20Reciclaje%20Otiniano%20—%20Requerimientos.md) ·
+📘 Guía de roles y flujos: [`PDF`](Guia%20de%20roles%20y%20flujos%20-%20Sistema%20Otiniano.pdf)
