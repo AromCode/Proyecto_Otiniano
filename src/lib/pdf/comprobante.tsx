@@ -1,6 +1,6 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { ETIQUETA_MEDIO, kg, soles } from "@/lib/formato";
-import { BandaMarca, CEBRA, COBRE, COBRE_OSCURO, fechaHoraLima, PieMarca, TINTE, type EmpresaPdf } from "./marca";
+import { BandaMarca, CEBRA, MARCA, MARCA_OSCURO, fechaHoraLima, PieMarca, TINTE, type EmpresaPdf } from "./marca";
 
 // Comprobante interno A4 de una compra o una venta, con la marca de la empresa (como el valorizado).
 // Las cifras vienen tal cual de la BD (v_compras / v_ventas y sus ítems); aquí solo se dan formato.
@@ -13,12 +13,12 @@ const s = StyleSheet.create({
     paddingHorizontal: 8, paddingVertical: 3, borderRadius: 3, marginBottom: 10,
   },
   cajas: { flexDirection: "row", marginBottom: 16 },
-  caja: { flex: 1, borderWidth: 0.75, borderColor: "#e7e5e4", borderLeftWidth: 3, borderLeftColor: COBRE, borderRadius: 4, padding: 9 },
+  caja: { flex: 1, borderWidth: 0.75, borderColor: "#e7e5e4", borderLeftWidth: 3, borderLeftColor: MARCA, borderRadius: 4, padding: 9 },
   cajaTitulo: { fontSize: 6.5, color: "#78716c", textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 3 },
   cajaValor: { fontFamily: "Helvetica-Bold", fontSize: 10.5 },
   cajaDato: { fontSize: 7.5, color: "#57534e", marginTop: 2 },
-  seccion: { fontFamily: "Helvetica-Bold", fontSize: 10, color: COBRE_OSCURO, marginBottom: 5 },
-  cab: { flexDirection: "row", backgroundColor: COBRE, paddingVertical: 5 },
+  seccion: { fontFamily: "Helvetica-Bold", fontSize: 10, color: MARCA_OSCURO, marginBottom: 5 },
+  cab: { flexDirection: "row", backgroundColor: MARCA, paddingVertical: 5 },
   th: { fontFamily: "Helvetica-Bold", fontSize: 7, color: "#ffffff", paddingHorizontal: 5 },
   fila: { flexDirection: "row", paddingVertical: 5, borderBottomWidth: 0.5, borderBottomColor: "#e7e5e4" },
   td: { paddingHorizontal: 5 },
@@ -30,10 +30,10 @@ const s = StyleSheet.create({
   totalFila: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 3, paddingHorizontal: 8 },
   totalFinal: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 4, paddingVertical: 7, paddingHorizontal: 8,
-    backgroundColor: TINTE, borderTopWidth: 1.5, borderTopColor: COBRE, borderRadius: 2,
+    backgroundColor: TINTE, borderTopWidth: 1.5, borderTopColor: MARCA, borderRadius: 2,
   },
-  totalTexto: { fontFamily: "Helvetica-Bold", fontSize: 10, color: COBRE_OSCURO },
-  totalValor: { fontFamily: "Helvetica-Bold", fontSize: 15, color: COBRE_OSCURO },
+  totalTexto: { fontFamily: "Helvetica-Bold", fontSize: 10, color: MARCA_OSCURO },
+  totalValor: { fontFamily: "Helvetica-Bold", fontSize: 15, color: MARCA_OSCURO },
   firmas: { flexDirection: "row", marginTop: 56 },
   firma: { flex: 1, borderTopWidth: 0.75, borderTopColor: "#78716c", paddingTop: 4, marginHorizontal: 24, alignItems: "center" },
   firmaTexto: { fontSize: 7.5, color: "#57534e" },

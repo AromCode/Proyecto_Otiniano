@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronRight, Inbox } from "lucide-react";
 import { cx } from "./clases";
 
 export interface Columna<T> {
@@ -29,6 +30,8 @@ export const cabeTabla = (columnas: number) => CABE_TABLA.find((x) => columnas <
 
 /**
  * Tabla cuando la tarjeta es ancha; tarjetas apiladas cuando no (sin scroll horizontal).
+ * Estilo: cabecera y totales en azul de marca suave, filas en cebra, hover azul; las columnas
+ * alineadas a la derecha son cifras (números tabulares) sin que cada página lo indique.
  */
 export function TablaDatos<T>({
   filas, columnas, clave, enlace, vacio = "Sin registros", pie, pieTarjetas,
@@ -43,31 +46,40 @@ export function TablaDatos<T>({
   pieTarjetas?: React.ReactNode;
 }) {
   if (filas.length === 0) {
-    return <div className="px-4 py-10 text-center text-sm text-stone-500">{vacio}</div>;
+    return (
+      <div className="flex flex-col items-center px-4 py-12 text-center">
+        <span className="flex size-10 items-center justify-center rounded-full bg-marca-50 text-marca-600">
+          <Inbox className="size-5" />
+        </span>
+        <div className="mt-3 text-sm font-medium text-stone-700">{vacio}</div>
+      </div>
+    );
   }
   const alin = (a?: string) => (a === "der" ? "text-right" : a === "centro" ? "text-center" : "text-left");
+  const celda = (a?: string) => cx(alin(a), a === "der" && "cifra");
   const principales = columnas.filter((c) => c.principal);
   const resto = columnas.filter((c) => !c.principal && !c.ocultarMovil);
   const cabe = cabeTabla(columnas.length);
   const borde = "first:pl-4 last:pr-4";
 
   return (
-    <div className="@container">
+    // overflow-hidden + radios: la cabecera tintada no asoma por las esquinas redondeadas de la tarjeta
+    <div className="@container overflow-hidden rounded-b-xl first:rounded-t-xl">
       {/* Tarjeta ancha: tabla. overflow-x-auto solo como red de seguridad */}
       <div className={cx("overflow-x-auto", cabe.tabla)}>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-stone-200 bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
+            <tr className="border-b border-marca-100 bg-marca-50 text-[11px] uppercase tracking-wider text-marca-800">
               {columnas.map((c) => (
-                <th key={c.titulo} className={cx("px-3 py-2.5 font-medium", borde, alin(c.alinear))}>{c.titulo}</th>
+                <th key={c.titulo} className={cx("px-3 py-2.5 font-semibold", borde, alin(c.alinear))}>{c.titulo}</th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-100">
             {filas.map((f) => (
-              <tr key={clave(f)} className={cx("hover:bg-stone-50", enlace && "cursor-pointer")}>
+              <tr key={clave(f)} className={cx("transition-colors even:bg-stone-50/70 hover:bg-marca-50", enlace && "cursor-pointer")}>
                 {columnas.map((c, i) => (
-                  <td key={c.titulo} className={cx("px-3 py-2.5 align-middle", borde, alin(c.alinear), c.className)}>
+                  <td key={c.titulo} className={cx("px-3 py-2.5 align-middle", borde, celda(c.alinear), c.className)}>
                     {enlace && i === 0 ? (
                       <Link href={enlace(f)} className="font-medium text-marca-700 hover:underline">{c.celda(f)}</Link>
                     ) : c.celda(f)}
@@ -76,7 +88,7 @@ export function TablaDatos<T>({
               </tr>
             ))}
           </tbody>
-          {pie && <tfoot className="border-t-2 border-stone-200 bg-stone-50 font-semibold">{pie}</tfoot>}
+          {pie && <tfoot className="border-t-2 border-marca-200 bg-marca-50 font-semibold text-marca-800">{pie}</tfoot>}
         </table>
       </div>
 
@@ -87,14 +99,14 @@ export function TablaDatos<T>({
             <>
               <div className="flex items-start justify-between gap-2">
                 {principales.map((c) => (
-                  <div key={c.titulo} className={cx("min-w-0 font-medium", alin(c.alinear))}>{c.celda(f)}</div>
+                  <div key={c.titulo} className={cx("min-w-0 font-medium", celda(c.alinear))}>{c.celda(f)}</div>
                 ))}
               </div>
               {resto.length > 0 && (
                 <dl className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 text-sm @xl:grid-cols-3 @3xl:grid-cols-4">
                   {resto.map((c) => (
                     <div key={c.titulo} className="min-w-0">
-                      <dt className="text-xs text-stone-500">{c.titulo}</dt>
+                      <dt className="text-[11px] uppercase tracking-wide text-stone-500">{c.titulo}</dt>
                       <dd className="truncate">{c.celda(f)}</dd>
                     </div>
                   ))}
@@ -103,16 +115,19 @@ export function TablaDatos<T>({
             </>
           );
           return (
-            <li key={clave(f)}>
+            <li key={clave(f)} className="even:bg-stone-50/70">
               {enlace ? (
-                <Link href={enlace(f)} className="block px-4 py-3 active:bg-stone-50">{contenido}</Link>
+                <Link href={enlace(f)} className="flex items-center gap-2 px-4 py-3 transition-colors hover:bg-marca-50 active:bg-marca-50">
+                  <div className="min-w-0 flex-1">{contenido}</div>
+                  <ChevronRight aria-hidden className="size-4 shrink-0 text-stone-400" />
+                </Link>
               ) : (
                 <div className="px-4 py-3">{contenido}</div>
               )}
             </li>
           );
         })}
-        {pieTarjetas && <li>{pieTarjetas}</li>}
+        {pieTarjetas && <li className="border-t-2 border-marca-200 bg-marca-50 font-semibold text-marca-800">{pieTarjetas}</li>}
       </ul>
     </div>
   );

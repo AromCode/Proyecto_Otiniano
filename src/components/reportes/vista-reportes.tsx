@@ -172,19 +172,19 @@ export async function VistaReportes({
         ) : (
           // Tarjeta ancha: tabla (letra compacta hasta que sobra espacio). Angosta (celular, laptop con el menú
           // abierto): cada fila como tarjeta, así nunca hay que desplazar de costado. Clases completas para Tailwind.
-          <div className="@container">
+          <div className="@container overflow-hidden rounded-b-xl">
             <div className={cx("overflow-x-auto", cabe.tabla)}>
               <table className="w-full text-xs @5xl:text-sm">
                 <thead>
-                  <tr className="border-b border-stone-200 bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
+                  <tr className="border-b border-marca-100 bg-marca-50 text-[11px] uppercase tracking-wider text-marca-800">
                     {datos.columnas.map((c) => (
-                      <th key={c.clave} className={cx("px-2 py-2.5 font-medium first:pl-4 last:pr-4 @5xl:px-3", alinear(c))}>{c.titulo}</th>
+                      <th key={c.clave} className={cx("px-2 py-2.5 font-semibold first:pl-4 last:pr-4 @5xl:px-3", alinear(c))}>{c.titulo}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {datos.filas.map((r, i) => (
-                    <tr key={i} className={cx("hover:bg-stone-50", Boolean(r._fuerte) && "bg-stone-50 font-semibold")}>
+                    <tr key={i} className={cx("transition-colors even:bg-stone-50/70 hover:bg-marca-50", Boolean(r._fuerte) && "bg-marca-50/60 font-semibold")}>
                       {datos.columnas.map((c) => (
                         <td key={c.clave} className={cx("px-2 py-2 first:pl-4 last:pr-4 @5xl:px-3", alinear(c), esNumero(c) && "cifra")}>
                           {celda(c, r[c.clave])}
@@ -194,7 +194,7 @@ export async function VistaReportes({
                   ))}
                 </tbody>
                 {t && (
-                  <tfoot className="border-t-2 border-stone-200 bg-stone-50 font-semibold">
+                  <tfoot className="border-t-2 border-marca-200 bg-marca-50 font-semibold text-marca-800">
                     <tr>
                       {datos.columnas.map((c, i) => (
                         <td key={c.clave} className={cx("px-2 py-2.5 first:pl-4 last:pr-4 @5xl:px-3", alinear(c), esNumero(c) && "cifra")}>
@@ -209,12 +209,12 @@ export async function VistaReportes({
 
             <ul className={cx("divide-y divide-stone-100", cabe.tarjetas)}>
               {datos.filas.map((r, i) => (
-                <li key={i} className={cx("px-4 py-3", Boolean(r._fuerte) && "bg-stone-50")}>
+                <li key={i} className={cx("px-4 py-3 even:bg-stone-50/70", Boolean(r._fuerte) && "bg-marca-50/60")}>
                   <FilaTarjeta columnas={datos.columnas} fila={r} fuerte={Boolean(r._fuerte)} />
                 </li>
               ))}
               {t && (
-                <li className="border-t-2 border-stone-200 bg-stone-50 px-4 py-3">
+                <li className="border-t-2 border-marca-200 bg-marca-50 px-4 py-3 text-marca-800">
                   <FilaTarjeta columnas={datos.columnas} fila={t} titulo="Total" fuerte />
                 </li>
               )}

@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { WifiOff } from "lucide-react";
 import { useNotificar } from "@/components/ui/notificaciones";
+import { cx } from "@/components/ui/clases";
 
 /** En el patio la señal se cae: se avisa antes de que alguien intente guardar sin conexión */
-export function AvisoConexion() {
+/** `compacto`: barra lateral contraída, para centrar el aviso en el contenido */
+export function AvisoConexion({ compacto }: { compacto: boolean }) {
   const [sinConexion, setSinConexion] = useState(false);
   const notificar = useNotificar();
 
@@ -28,7 +30,10 @@ export function AvisoConexion() {
   return (
     <div
       role="alert"
-      className="no-imprimir animar-entrada fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-50 flex justify-center px-4 md:bottom-4 md:pl-64"
+      className={cx(
+        "no-imprimir animar-entrada fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-50 flex justify-center px-4 md:bottom-4",
+        compacto ? "md:pl-16" : "md:pl-64",
+      )}
     >
       <p className="flex items-center gap-2 rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 shadow-lg">
         <WifiOff className="size-4 shrink-0" />

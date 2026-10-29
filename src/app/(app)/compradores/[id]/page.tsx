@@ -48,7 +48,7 @@ export default async function CompradorDetalle({
           { titulo: "Productos", celda: (v) => v.metales },
           { titulo: "Salida", alinear: "der", celda: (v) => <span className="cifra">{kg(v.kg_salida)}</span> },
           { titulo: "Merma", alinear: "der", celda: (v) => v.merma_kg === null ? "—" : <span className="cifra">{kg(v.merma_kg)}</span> },
-          { titulo: "Total", alinear: "der", principal: true, celda: (v) => <span className={v.estado === "anulada" ? "cifra text-stone-400 line-through" : "cifra"}>{soles(v.total)}</span> },
+          { titulo: "Total", alinear: "der", principal: true, celda: (v) => <span className={v.estado === "anulada" ? "cifra text-stone-500 line-through" : "cifra"}>{soles(v.total)}</span> },
           { titulo: "Estado", celda: (v) => <Insignia tono={v.estado === "confirmada" ? "verde" : v.estado === "anulada" ? "rojo" : "ambar"}>{v.estado}</Insignia> },
         ]}
       />

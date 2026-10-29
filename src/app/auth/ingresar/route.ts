@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { crearClienteServidor } from "@/lib/supabase/server";
+import { destinoSeguro } from "@/lib/destino";
 
 // Respaldo del login cuando el formulario se envía sin JavaScript (página aún cargando o señal lenta):
 // la contraseña viaja por POST, nunca en la URL. Con JavaScript lo resuelve form-login.tsx en el navegador.
@@ -8,7 +9,7 @@ export async function POST(request: Request) {
   const email = String(fd?.get("email") ?? "").trim().toLowerCase();
   const password = String(fd?.get("password") ?? "");
   const pedido = String(fd?.get("next") ?? "/");
-  const next = pedido.startsWith("/") && !pedido.startsWith("//") ? pedido : "/";
+  const next = destinoSeguro(pedido);
 
   const supabase = await crearClienteServidor();
   const { error } = email && password

@@ -29,7 +29,7 @@ interface DashboardRango {
 export default async function Inicio({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const ctx = await obtenerContexto();
   const { rol, nombre } = ctx;
-  // Cajero y balancero: inicio de trabajo diario (botones grandes); dueño y socios: el resumen de gestión
+  // Almacén, balancero y Administración: inicio de trabajo diario (botones grandes); Gerencia y socios: el resumen de gestión
   if (!puede(rol, "verTodo")) return <InicioOperativo ctx={ctx} />;
 
   const f = leerFiltroInicio(await searchParams);
@@ -38,8 +38,8 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<R
     <>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm text-stone-500">Hola, {nombre}</p>
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">¿Cuánto tenemos?</h1>
+          <p className="text-sm text-stone-600">Hola, {nombre}</p>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">¿Cuánto tenemos?</h1>
         </div>
         <div className="hidden gap-2 sm:flex">
           {puede(rol, "comprar") && <BotonLink href="/comprar"><Scale className="size-4" /> Comprar</BotonLink>}
@@ -95,7 +95,7 @@ async function Patrimonio({ ctx }: { ctx: Contexto }) {
       {/* Panel principal: la foto de HOY. Fondo de marca para que no se confunda con el resultado del periodo
           (tarjetas blancas de abajo). Colores fijos: se ve igual en modo claro y oscuro. */}
       <section aria-labelledby="titulo-patrimonio"
-        className="relative mb-8 overflow-hidden rounded-2xl bg-gradient-to-br from-[#b5602a] via-[#a85219] to-[#6e3514] text-white shadow-lg">
+        className="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a5ca8] via-[#164b8a] to-[#0f2c50] text-white shadow-lg">
         <div aria-hidden className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-white/10" />
         <div className="relative flex flex-wrap items-center justify-between gap-2 px-5 pt-4">
           <h2 id="titulo-patrimonio" className="text-xs font-semibold uppercase tracking-wider text-white/80">Patrimonio · hoy</h2>
@@ -114,9 +114,9 @@ async function Patrimonio({ ctx }: { ctx: Contexto }) {
             { t: "Capital aportado", v: soles(capital), d: capital > 0 ? "Aportes de los socios (sin retiros)" : "Registre los aportes en Socios" },
           ].map((k) => (
             <div key={k.t} className={`min-w-0 rounded-xl px-3 py-3 sm:px-4 ${k.fuerte ? "bg-white/15 ring-1 ring-white/25" : ""}`}>
-              <p className="truncate text-[11px] font-medium uppercase tracking-wide text-white/75">{k.t}</p>
+              <p className="truncate text-xs font-medium uppercase tracking-wide text-white/80">{k.t}</p>
               <p className={`cifra mt-1 truncate font-bold tracking-tight ${k.fuerte ? "text-[clamp(1.2rem,5.6vw,1.9rem)]" : "text-[clamp(1.1rem,5.2vw,1.65rem)]"}`}>{k.v}</p>
-              <p className="mt-0.5 truncate text-xs text-white/75">{k.d}</p>
+              <p className="mt-0.5 truncate text-xs text-white/80">{k.d}</p>
             </div>
           ))}
         </div>

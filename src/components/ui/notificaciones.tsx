@@ -27,7 +27,7 @@ export function notificarDespues(n: Notificacion) {
 const ESTILO: Record<TonoNotificacion, { icono: typeof Info; clase: string; iconoClase: string }> = {
   exito: { icono: CheckCircle2, clase: "border-emerald-200", iconoClase: "text-emerald-600" },
   error: { icono: XCircle, clase: "border-red-200", iconoClase: "text-red-600" },
-  info: { icono: Info, clase: "border-sky-200", iconoClase: "text-sky-600" },
+  info: { icono: Info, clase: "border-marca-200", iconoClase: "text-marca-600" },
   aviso: { icono: TriangleAlert, clase: "border-amber-200", iconoClase: "text-amber-600" },
 };
 

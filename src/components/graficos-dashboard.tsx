@@ -13,8 +13,8 @@ import { kg, nombrePeriodo, soles } from "@/lib/formato";
 // Colores por variables CSS para que funcionen en modo claro y oscuro.
 
 const C = {
-  compras: "var(--color-teal-600)",
-  ventas: "var(--color-indigo-600)",
+  compras: "var(--color-sky-600)",
+  ventas: "var(--color-anil-600)",
   utilidad: "var(--color-marca-600)",
   perdida: "var(--color-red-500)",
   texto: "var(--color-stone-500)",
@@ -43,7 +43,13 @@ const estiloTooltip = {
     fontSize: 12, color: "var(--color-stone-900)", boxShadow: "0 4px 14px rgb(0 0 0 / 0.12)",
   },
   labelStyle: { fontWeight: 600, marginBottom: 4, color: "var(--color-stone-900)" },
+  // Recharts pinta cada línea con el color de la serie (p. ej. Fierro gris oscuro): en modo oscuro no se leía.
+  // El texto va siempre en el color del tema; el color de la serie ya se ve en el gráfico y en la leyenda.
+  itemStyle: { color: "var(--color-stone-800)", padding: "1px 0" },
   cursor: { fill: "var(--color-stone-100)", opacity: 0.6 },
+  // Separado del puntero para no tapar la barra o el punto que se está mirando
+  offset: 16,
+  wrapperStyle: { outline: "none", zIndex: 10 },
 } as const;
 
 function Vacio({ texto }: { texto: string }) {
@@ -73,7 +79,7 @@ export function GraficoMensual({ datos }: { datos: FilaMes[] }) {
           <button key={b.k} type="button" aria-pressed={series[b.k]}
             onClick={() => setSeries((s) => ({ ...s, [b.k]: !s[b.k] }))}
             className={cx("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium",
-              series[b.k] ? "border-stone-300 bg-superficie text-stone-800" : "border-transparent bg-stone-100 text-stone-400 line-through")}>
+              series[b.k] ? "border-stone-300 bg-superficie text-stone-800" : "border-transparent bg-stone-100 text-stone-500 line-through")}>
             <span className="size-2.5 rounded-sm" style={{ background: b.color }} /> {b.texto}
           </button>
         ))}
@@ -113,21 +119,24 @@ const MEDIDAS: { k: Medida; texto: string; kg: boolean }[] = [
   { k: "kg_vendido", texto: "Kg vendidos", kg: true },
   { k: "kg_comprado", texto: "Kg comprados", kg: true },
 ];
-const RESPALDO = ["#a85219", "#0d9488", "#4f46e5", "#b8862e", "#9ca3af", "#57534e", "#c026d3", "#0284c7"];
+const RESPALDO = ["#1a5ca8", "#0d9488", "#4f46e5", "#b8862e", "#9ca3af", "#57534e", "#c026d3", "#0284c7"];
 
 export function TortaPorMetal({ datos }: { datos: FilaMetal[] }) {
   const [medida, setMedida] = useState<Medida>(() => (datos.some((d) => d.ventas > 0) ? "ventas" : "compras"));
+  // Producto señalado (dona o leyenda): se muestra en el centro en lugar de un recuadro flotante que tape el total
+  const [activo, setActivo] = useState<number | null>(null);
   const def = MEDIDAS.find((m) => m.k === medida)!;
   const filas = datos.map((d, i) => ({ nombre: d.nombre, color: d.color ?? RESPALDO[i % RESPALDO.length], valor: Number(d[medida]) || 0 }))
     .filter((d) => d.valor > 0).sort((a, b) => b.valor - a.valor);
   const total = filas.reduce((s, f) => s + f.valor, 0);
   const fmt = (v: number) => (def.kg ? kg(v) : soles(v));
+  const sel = activo !== null ? filas[activo] : null;
 
   return (
     <div>
       <div className="mb-2 flex flex-wrap gap-1" role="group" aria-label="Medida">
         {MEDIDAS.map((m) => (
-          <button key={m.k} type="button" onClick={() => setMedida(m.k)} aria-pressed={medida === m.k}
+          <button key={m.k} type="button" onClick={() => { setMedida(m.k); setActivo(null); }} aria-pressed={medida === m.k}
             className={cx("rounded-md px-2 py-1 text-xs font-medium",
               medida === m.k ? "bg-stone-800 text-stone-50" : "text-stone-600 hover:bg-stone-100")}>
             {m.texto}
@@ -139,21 +148,35 @@ export function TortaPorMetal({ datos }: { datos: FilaMetal[] }) {
           <div className="relative h-52">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={filas} dataKey="valor" nameKey="nombre" innerRadius="58%" outerRadius="92%" paddingAngle={filas.length > 1 ? 2 : 0} stroke="none">
-                  {filas.map((f) => <Cell key={f.nombre} fill={f.color} />)}
+                <Pie data={filas} dataKey="valor" nameKey="nombre" innerRadius="58%" outerRadius="92%" paddingAngle={filas.length > 1 ? 2 : 0} stroke="none"
+                  onMouseEnter={(_, i) => setActivo(i)} onMouseLeave={() => setActivo(null)}>
+                  {filas.map((f, i) => (
+                    <Cell key={f.nombre} fill={f.color} fillOpacity={activo === null || activo === i ? 1 : 0.35}
+                      className="cursor-pointer transition-[fill-opacity] duration-150 outline-none" />
+                  ))}
                 </Pie>
-                <Tooltip {...estiloTooltip} formatter={(v: number, n: string) => [`${fmt(v)} · ${((v / total) * 100).toFixed(1)} %`, n]} />
               </PieChart>
             </ResponsiveContainer>
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="text-[11px] uppercase tracking-wide text-stone-500">Total</span>
-              <span className="cifra text-sm font-semibold">{fmt(total)}</span>
+            <div aria-live="polite" className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-[22%] text-center">
+              {sel ? (
+                <>
+                  <span className="max-w-full truncate text-[11px] font-medium uppercase tracking-wide text-stone-600">{sel.nombre}</span>
+                  <span className="cifra text-sm font-semibold">{fmt(sel.valor)}</span>
+                  <span className="cifra text-xs text-stone-500">{((sel.valor / total) * 100).toFixed(1)} %</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-[11px] uppercase tracking-wide text-stone-500">Total</span>
+                  <span className="cifra text-sm font-semibold">{fmt(total)}</span>
+                </>
+              )}
             </div>
           </div>
           <ul className="space-y-1.5 text-sm">
-            {filas.map((f) => (
-              <li key={f.nombre} className="flex items-center gap-2">
-                <span className="size-2.5 shrink-0 rounded-full" style={{ background: f.color }} />
+            {filas.map((f, i) => (
+              <li key={f.nombre} onMouseEnter={() => setActivo(i)} onMouseLeave={() => setActivo(null)}
+                className={cx("-mx-1.5 flex items-center gap-2 rounded-md px-1.5 py-0.5 transition-colors", activo === i && "bg-stone-100")}>
+                <span className="size-2.5 shrink-0 rounded-full ring-1 ring-stone-400/40" style={{ background: f.color }} />
                 <span className="min-w-0 flex-1 truncate">{f.nombre}</span>
                 <span className="cifra text-xs text-stone-500">{((f.valor / total) * 100).toFixed(1)} %</span>
                 <span className="cifra w-28 text-right text-xs font-medium">{fmt(f.valor)}</span>
@@ -241,8 +264,8 @@ export function GraficoHistorialMetal({ datos }: { datos: FilaMetalMes[] }) {
           <Legend wrapperStyle={{ fontSize: 12, color: C.texto }} iconType="circle" iconSize={8} />
           <Bar yAxisId="kg" dataKey="kg_comprado" name="Kg comprados" fill={C.compras} radius={[3, 3, 0, 0]} maxBarSize={26} />
           <Bar yAxisId="kg" dataKey="kg_vendido" name="Kg vendidos" fill={C.ventas} radius={[3, 3, 0, 0]} maxBarSize={26} />
-          <Line yAxisId="precio" type="monotone" dataKey="precio_compra" name="Precio compra" stroke="var(--color-teal-700)" strokeWidth={2} dot={{ r: 3 }} connectNulls />
-          <Line yAxisId="precio" type="monotone" dataKey="precio_venta" name="Precio venta" stroke="var(--color-indigo-700)" strokeWidth={2} dot={{ r: 3 }} connectNulls />
+          <Line yAxisId="precio" type="monotone" dataKey="precio_compra" name="Precio compra" stroke="var(--color-sky-700)" strokeWidth={2} dot={{ r: 3 }} connectNulls />
+          <Line yAxisId="precio" type="monotone" dataKey="precio_venta" name="Precio venta" stroke="var(--color-anil-700)" strokeWidth={2} dot={{ r: 3 }} connectNulls />
         </ComposedChart>
       </ResponsiveContainer>
     </div>

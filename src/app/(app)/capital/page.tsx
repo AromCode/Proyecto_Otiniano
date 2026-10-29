@@ -52,7 +52,7 @@ export default async function CapitalPage({ searchParams }: { searchParams: Prom
       />
 
       <PanelModulo
-        tono="sky"
+        tono="caja"
         etiqueta="Capital · hoy"
         insignia={capital > 0 ? `${ganancia >= 0 ? "▲" : "▼"} ${porcentaje(Math.abs((ganancia / capital) * 100))} sobre el capital` : undefined}
         principal={{
@@ -133,7 +133,7 @@ export default async function CapitalPage({ searchParams }: { searchParams: Prom
             { titulo: "Socio", principal: true, celda: (m) => m.socio_nombre },
             { titulo: "Tipo", celda: (m) => <Insignia tono={m.tipo === "aporte" ? "verde" : "ambar"}>{m.tipo === "aporte" ? "Aporte" : "Retiro"}</Insignia> },
             { titulo: "Caja", celda: (m) => m.caja_nombre },
-            { titulo: "Monto", alinear: "der", principal: true, celda: (m) => <span className={m.estado === "anulada" ? "cifra text-stone-400 line-through" : "cifra font-medium"}>{soles(m.monto)}</span> },
+            { titulo: "Monto", alinear: "der", principal: true, celda: (m) => <span className={m.estado === "anulada" ? "cifra text-stone-500 line-through" : "cifra font-medium"}>{soles(m.monto)}</span> },
             { titulo: "Nota", celda: (m) => m.nota ?? "—" },
             {
               titulo: "", celda: (m) => m.estado === "anulada"

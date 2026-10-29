@@ -13,11 +13,11 @@ export const metadata: Metadata = {
   description: "Compra y venta de metales: caja, inventario y resultados.",
   applicationName: "Otiniano",
   appleWebApp: { capable: true, title: "Otiniano", statusBarStyle: "default" },
-  icons: { icon: "/icon.svg", apple: "/iconos/apple-180.png" },
+  icons: { icon: "/icon.png", apple: "/iconos/apple-180.png" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#a85219",
+  themeColor: "#1a5ca8",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",

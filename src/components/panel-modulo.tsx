@@ -5,11 +5,13 @@ import { cx } from "@/components/ui/clases";
 // del módulo, la cifra principal grande a la izquierda y las secundarias al lado. Así el resumen no se confunde
 // con el historial (tarjetas blancas de abajo). Colores fijos: se ve igual en modo claro y oscuro.
 
+// Degradados de la familia de azules de los módulos (ver TONOS), oscuros para que el blanco pase AA.
 const FONDOS = {
-  teal: "from-[#0f766e] via-[#0d6560] to-[#134e4a]",
-  indigo: "from-[#4f46e5] via-[#4338ca] to-[#312e81]",
-  violet: "from-[#7c3aed] via-[#6d28d9] to-[#4c1d95]",
-  sky: "from-[#0284c7] via-[#0369a1] to-[#0c4a6e]",
+  compras: "from-[#075985] via-[#0b4f7a] to-[#0c3d5e]",
+  ventas: "from-[#343d96] via-[#2c3380] to-[#1f2560]",
+  contactos: "from-[#164e63] via-[#134e63] to-[#0f3a4d]",
+  inventario: "from-[#2f4f70] via-[#283f5a] to-[#1e3045]",
+  caja: "from-[#1e40af] via-[#1e3a8a] to-[#172e6e]",
 } as const;
 
 export interface CeldaPanel {
@@ -25,13 +27,13 @@ export interface CeldaPanel {
 function Celda({ c, principal }: { c: CeldaPanel; principal?: boolean }) {
   const contenido = (
     <>
-      <p className="truncate text-[11px] font-medium uppercase tracking-wide text-white/75">{c.titulo}</p>
+      <p className="truncate text-xs font-medium uppercase tracking-wide text-white/90">{c.titulo}</p>
       <p className={cx(
         "cifra mt-1 truncate font-bold tracking-tight",
         principal ? "text-[clamp(1.5rem,7vw,2.25rem)] leading-tight" : "text-[clamp(1.05rem,4.8vw,1.4rem)]",
-        c.negativo && "text-red-200",
+        c.negativo && "text-red-100",
       )}>{c.valor}</p>
-      {c.detalle && <p className="mt-0.5 truncate text-xs text-white/75">{c.detalle}</p>}
+      {c.detalle && <p className="mt-0.5 truncate text-xs text-white/90">{c.detalle}</p>}
     </>
   );
   const clase = cx(
@@ -53,10 +55,12 @@ export function PanelModulo({ tono, etiqueta, insignia, principal, celdas }: {
   celdas: CeldaPanel[];
 }) {
   return (
-    <section className={cx("relative mb-8 overflow-hidden rounded-2xl bg-gradient-to-br text-white shadow-lg", FONDOS[tono])}>
+    <section className={cx("relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-br text-white shadow-lg", FONDOS[tono])}>
+      {/* Brillo cian como la barra lateral, más el círculo decorativo */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(420px_140px_at_0_0,rgb(34_192_248/0.15),transparent)]" />
       <div aria-hidden className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-white/10" />
       <div className="relative flex flex-wrap items-center justify-between gap-2 px-5 pt-4">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-white/80">{etiqueta}</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-white/90">{etiqueta}</h2>
         {insignia && <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-semibold">{insignia}</span>}
       </div>
       <div className={cx("relative grid gap-2 p-2", celdas.length > 0 && "lg:grid-cols-[minmax(0,1.3fr)_minmax(0,2fr)] lg:items-center")}>

@@ -139,7 +139,7 @@ export default async function HistorialMetal({
               { titulo: "Proveedor", celda: (c) => c.proveedor_nombre ?? "Sin documento" },
               { titulo: "Kg", alinear: "der", principal: true, className: "cifra", celda: (c) => kg(c.peso_neto_kg) },
               { titulo: "Precio/kg", alinear: "der", className: "cifra", celda: (c) => soles(c.precio_kg) },
-              { titulo: "Importe", alinear: "der", className: "cifra", celda: (c) => <span className={c.estado === "anulada" ? "text-stone-400 line-through" : "font-medium"}>{soles(c.importe)}</span> },
+              { titulo: "Importe", alinear: "der", className: "cifra", celda: (c) => <span className={c.estado === "anulada" ? "text-stone-500 line-through" : "font-medium"}>{soles(c.importe)}</span> },
             ]}
           />
         </Tarjeta>
@@ -181,7 +181,7 @@ export default async function HistorialMetal({
                   : m.origen_tabla === "ventas" ? <Link className="text-marca-700 hover:underline" href={`/ventas/${m.origen_id}`}>{m.detalle}</Link>
                   : m.detalle,
               },
-              { titulo: "Kg", alinear: "der", principal: true, celda: (m) => <span className={`cifra ${m.anulado ? "text-stone-400 line-through" : Number(m.kg) < 0 ? "text-red-700" : "text-emerald-700"}`}>{Number(m.kg) > 0 ? "+" : ""}{kg(m.kg)}</span> },
+              { titulo: "Kg", alinear: "der", principal: true, celda: (m) => <span className={`cifra ${m.anulado ? "text-stone-500 line-through" : Number(m.kg) < 0 ? "text-red-700" : "text-emerald-700"}`}>{Number(m.kg) > 0 ? "+" : ""}{kg(m.kg)}</span> },
               ...(verCostos ? [
                 { titulo: "Costo/kg", alinear: "der" as const, celda: (m: NonNullable<NonNullable<typeof movs>["data"]>[number]) => <span className="cifra">{m.costo_kg ? soles(m.costo_kg) : "—"}</span> },
                 { titulo: "Costo", alinear: "der" as const, celda: (m: NonNullable<NonNullable<typeof movs>["data"]>[number]) => <span className="cifra">{soles(m.costo_total)}</span> },

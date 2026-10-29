@@ -139,7 +139,7 @@ export function Categorias({ categorias }: { categorias: { id: string; nombre: s
             key={c.id}
             onClick={async () => { await cambiarEstado("categorias_gasto", c.id, !c.activo); router.refresh(); }}
             title={c.activo ? "Clic para desactivar" : "Clic para activar"}
-            className={`rounded-full border px-3 py-1 text-sm ${c.activo ? "border-stone-300 bg-superficie" : "border-dashed border-stone-300 text-stone-400 line-through"}`}
+            className={`rounded-full border px-3 py-1 text-sm ${c.activo ? "border-stone-300 bg-superficie" : "border-dashed border-stone-300 text-stone-500 line-through"}`}
           >
             {c.nombre}
           </button>

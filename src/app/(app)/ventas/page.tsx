@@ -71,7 +71,7 @@ export default async function VentasPage({ searchParams }: { searchParams: Promi
             { titulo: "Salida", alinear: "der", celda: (v) => <span className="cifra">{kg(v.kg_salida)}</span> },
             { titulo: "Merma", alinear: "der", celda: (v) => v.merma_kg === null ? "—" : <span className="cifra">{kg(v.merma_kg)}</span> },
             { titulo: "S/ por kg", alinear: "der", ocultarMovil: true, celda: (v) => <span className="cifra text-stone-600">{v.precio_promedio ? soles(v.precio_promedio) : "—"}</span> },
-            { titulo: "Total", alinear: "der", principal: true, celda: (v) => <span className={v.estado === "anulada" ? "cifra text-stone-400 line-through" : "cifra font-semibold"}>{soles(v.total)}</span> },
+            { titulo: "Total", alinear: "der", principal: true, celda: (v) => <span className={v.estado === "anulada" ? "cifra text-stone-500 line-through" : "cifra font-semibold"}>{soles(v.total)}</span> },
             { titulo: "Estado", celda: (v) => <Insignia tono={ESTADO[v.estado][1]}>{ESTADO[v.estado][0]}</Insignia> },
           ]}
         />

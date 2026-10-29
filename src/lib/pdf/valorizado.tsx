@@ -1,6 +1,6 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { fecha, kg, soles } from "@/lib/formato";
-import { BandaMarca, COBRE, COBRE_OSCURO, fechaHoraLima, PieMarca, TINTE, type EmpresaPdf } from "./marca";
+import { BandaMarca, MARCA, MARCA_OSCURO, fechaHoraLima, PieMarca, TINTE, type EmpresaPdf } from "./marca";
 
 // Inventario valorizado con la marca de la empresa (banda y pie en marca.tsx).
 
@@ -8,17 +8,17 @@ const s = StyleSheet.create({
   pagina: { paddingTop: 0, paddingBottom: 40, paddingHorizontal: 0, fontSize: 8, fontFamily: "Helvetica", color: "#1c1917" },
   cuerpo: { paddingHorizontal: 28, paddingTop: 14 },
   kpis: { flexDirection: "row", marginBottom: 14 },
-  kpi: { flex: 1, borderWidth: 0.75, borderColor: "#e7e5e4", borderLeftWidth: 3, borderLeftColor: COBRE, borderRadius: 4, padding: 8, marginRight: 6 },
+  kpi: { flex: 1, borderWidth: 0.75, borderColor: "#e7e5e4", borderLeftWidth: 3, borderLeftColor: MARCA, borderRadius: 4, padding: 8, marginRight: 6 },
   kpiTitulo: { fontSize: 6.5, color: "#78716c", textTransform: "uppercase", letterSpacing: 0.4 },
   kpiValor: { fontFamily: "Helvetica-Bold", fontSize: 12, marginTop: 3 },
   kpiDetalle: { fontSize: 6.5, color: "#78716c", marginTop: 2 },
-  seccion: { fontFamily: "Helvetica-Bold", fontSize: 10, color: COBRE_OSCURO, marginBottom: 5, marginTop: 4 },
+  seccion: { fontFamily: "Helvetica-Bold", fontSize: 10, color: MARCA_OSCURO, marginBottom: 5, marginTop: 4 },
   nota: { fontSize: 7, color: "#78716c", marginTop: 5 },
-  cab: { flexDirection: "row", backgroundColor: COBRE, paddingVertical: 5 },
+  cab: { flexDirection: "row", backgroundColor: MARCA, paddingVertical: 5 },
   th: { fontFamily: "Helvetica-Bold", fontSize: 7, color: "#ffffff", paddingHorizontal: 4 },
   fila: { flexDirection: "row", paddingVertical: 4, borderBottomWidth: 0.5, borderBottomColor: "#e7e5e4" },
   td: { paddingHorizontal: 4 },
-  total: { flexDirection: "row", paddingVertical: 5, backgroundColor: TINTE, borderTopWidth: 1, borderTopColor: COBRE, fontFamily: "Helvetica-Bold" },
+  total: { flexDirection: "row", paddingVertical: 5, backgroundColor: TINTE, borderTopWidth: 1, borderTopColor: MARCA, fontFamily: "Helvetica-Bold" },
   punto: { width: 6, height: 6, borderRadius: 3, marginRight: 4, marginTop: 1 },
   etiqueta: { fontSize: 6.5, fontFamily: "Helvetica-Bold", paddingHorizontal: 4, paddingVertical: 1.5, borderRadius: 3 },
 });

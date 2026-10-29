@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { obtenerContexto } from "@/lib/contexto";
 import { ETIQUETA_ROL } from "@/lib/formato";
 import { PantallaBienvenida } from "./pantalla-bienvenida";
+import { destinoSeguro } from "@/lib/destino";
 
 export const metadata: Metadata = { title: "Bienvenido" };
 
@@ -13,7 +14,8 @@ function saludo() {
 /** Paso entre el login y el sistema: confirma el ingreso y precarga la pantalla de destino */
 export default async function Bienvenida({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const [{ nombre, empresa, rol }, { next }] = await Promise.all([obtenerContexto(), searchParams]);
-  const destino = next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/bienvenida") ? next : "/";
+  const pedido = destinoSeguro(next);
+  const destino = pedido.startsWith("/bienvenida") ? "/" : pedido;
   return (
     <PantallaBienvenida
       saludo={saludo()}

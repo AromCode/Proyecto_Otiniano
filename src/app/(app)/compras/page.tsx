@@ -72,14 +72,14 @@ export default async function ComprasPage({ searchParams }: { searchParams: Prom
           columnas={[
             { titulo: "N°", celda: (c) => <span className="cifra">#{c.numero}</span>, principal: true },
             { titulo: "Fecha", celda: (c) => fechaHora(c.fecha) },
-            { titulo: "Proveedor", celda: (c) => c.proveedor_nombre ?? <span className="text-stone-400">Sin documento</span> },
+            { titulo: "Proveedor", celda: (c) => c.proveedor_nombre ?? <span className="text-stone-500">Sin documento</span> },
             { titulo: "Productos", celda: (c) => c.metales },
             { titulo: "Kg", celda: (c) => <span className="cifra">{kg(c.kg_total)}</span>, alinear: "der" },
             { titulo: "S/ por kg", alinear: "der", ocultarMovil: true, celda: (c) => <span className="cifra text-stone-600">{c.precio_promedio ? soles(c.precio_promedio) : "—"}</span> },
             {
               titulo: "Total", alinear: "der", principal: true,
               celda: (c) => (
-                <span className={c.estado === "anulada" ? "cifra text-stone-400 line-through" : "cifra font-semibold"}>
+                <span className={c.estado === "anulada" ? "cifra text-stone-500 line-through" : "cifra font-semibold"}>
                   {soles(c.total)}
                 </span>
               ),

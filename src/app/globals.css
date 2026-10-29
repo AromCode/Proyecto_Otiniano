@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-/* Paleta: neutros cálidos (stone) + color de marca cobre. Pensado para luz de día en el mostrador. */
+/* Paleta: neutros fríos (escala stone con valores slate) + azul de marca del logo Grupo Otiniano.
+   Pensado para luz de día en el mostrador. */
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -8,14 +9,44 @@
 
 /* Colores propios como variables (no "inline") para que el modo oscuro pueda redefinirlos */
 @theme {
-  --color-marca-50: #fdf5ef;
-  --color-marca-100: #fae6d6;
-  --color-marca-200: #f3c8a6;
-  --color-marca-300: #e8a271;
-  --color-marca-500: #c2621f;
-  --color-marca-600: #a85219;
-  --color-marca-700: #8a4216;
-  --color-marca-800: #6e3514;
+  --color-marca-50: #eff7fe;
+  --color-marca-100: #dbeefc;
+  --color-marca-200: #b6dbf8;
+  --color-marca-300: #7fbdf0;
+  --color-marca-400: #2fa3ec;
+  --color-marca-500: #1f86d9;
+  --color-marca-600: #1a5ca8;
+  --color-marca-700: #164b8a;
+  --color-marca-800: #133d6e;
+  --color-marca-900: #0f2c50;
+  /* Cian del isotipo (brillos y degradados) */
+  --color-cian-400: #22c0f8;
+  /* Familia de azules de los módulos (además de sky, cyan y blue de Tailwind): Ventas = añil, Inventario = acero */
+  --color-anil-50: #f1f2fb;
+  --color-anil-100: #e2e5f7;
+  --color-anil-200: #c5cbef;
+  --color-anil-600: #4f5bc4;
+  --color-anil-700: #3b44a8;
+  --color-acero-50: #f2f6fa;
+  --color-acero-100: #e3eaf2;
+  --color-acero-600: #4a6f9c;
+  --color-acero-700: #355a7f;
+  /* Barra lateral azul: FIJA, igual en claro y oscuro (no se redefine en el bloque oscuro) */
+  --color-lateral: #0f2c50;
+  --color-lateral-alto: #133d6e;
+  --color-lateral-texto: #cfe0f5;
+  --color-lateral-titulo: #8fb3dc;
+  --color-stone-50: #f8fafc;
+  --color-stone-100: #f1f5f9;
+  --color-stone-200: #e2e8f0;
+  --color-stone-300: #cbd5e1;
+  --color-stone-400: #94a3b8;
+  --color-stone-500: #64748b;
+  --color-stone-600: #475569;
+  --color-stone-700: #334155;
+  --color-stone-800: #1e293b;
+  --color-stone-900: #0f172a;
+  --color-stone-950: #020617;
   /* Superficie de tarjetas, menús e inputs (bg-superficie) */
   --color-superficie: #ffffff;
   --color-fondo: var(--color-stone-100);
@@ -33,26 +64,26 @@
 @media screen {
   :root.oscuro {
     color-scheme: dark;
-    --color-superficie: #1f1c1a;
-    --color-fondo: #121010;
-    --color-stone-50: #292523;
-    --color-stone-100: #302b28;
-    --color-stone-200: #3d3734;
-    --color-stone-300: #57504b;
-    --color-stone-400: #857d77;
-    --color-stone-500: #a8a29e;
-    --color-stone-600: #c4beb9;
-    --color-stone-700: #d6d3d1;
-    --color-stone-800: #e7e5e4;
-    --color-stone-900: #f5f5f4;
-    --color-stone-950: #fafaf9;
+    --color-superficie: #151c28;
+    --color-fondo: #0a0f18;
+    --color-stone-50: #1a2230;
+    --color-stone-100: #202a3a;
+    --color-stone-200: #2b3648;
+    --color-stone-300: #435066;
+    --color-stone-400: #7a8699;
+    --color-stone-500: #9aa5b5;
+    --color-stone-600: #bcc5d1;
+    --color-stone-700: #d3d9e2;
+    --color-stone-800: #e5e9ef;
+    --color-stone-900: #f3f5f8;
+    --color-stone-950: #f9fafb;
 
-    --color-marca-50: #3a2416;
-    --color-marca-100: #4a2c19;
-    --color-marca-200: #6e3e1e;
-    --color-marca-300: #8f5226;
-    --color-marca-700: #f0a46b;
-    --color-marca-800: #f6c39c;
+    --color-marca-50: #0e2033;
+    --color-marca-100: #112a44;
+    --color-marca-200: #193c61;
+    --color-marca-300: #225285;
+    --color-marca-700: #7dc2f6;
+    --color-marca-800: #b8dcfa;
 
     --color-emerald-50: #10291f;
     --color-emerald-100: #133626;
@@ -81,21 +112,22 @@
     --color-sky-100: #10303f;
     --color-sky-700: #7dd3fc;
 
-    --color-teal-50: #0c2724;
-    --color-teal-100: #0f3430;
-    --color-teal-700: #5eead4;
+    --color-cyan-50: #0b2530;
+    --color-cyan-100: #0e3140;
+    --color-cyan-700: #67e8f9;
 
-    --color-indigo-50: #1c1d3d;
-    --color-indigo-100: #23254d;
-    --color-indigo-700: #a5b4fc;
+    --color-blue-50: #0f1d3d;
+    --color-blue-100: #142650;
+    --color-blue-700: #93c5fd;
 
-    --color-fuchsia-50: #2e1530;
-    --color-fuchsia-100: #3b1a3e;
-    --color-fuchsia-700: #f0abfc;
+    --color-anil-50: #171b3a;
+    --color-anil-100: #1d2350;
+    --color-anil-200: #2a3270;
+    --color-anil-700: #b3bcf5;
 
-    --color-violet-50: #251a3d;
-    --color-violet-100: #2e204d;
-    --color-violet-700: #c4b5fd;
+    --color-acero-50: #141f2c;
+    --color-acero-100: #1a2939;
+    --color-acero-700: #a9c1db;
   }
 }
 
@@ -103,26 +135,26 @@
 @media screen and (prefers-color-scheme: dark) {
   :root:not(.claro):not(.oscuro) {
     color-scheme: dark;
-    --color-superficie: #1f1c1a;
-    --color-fondo: #121010;
-    --color-stone-50: #292523;
-    --color-stone-100: #302b28;
-    --color-stone-200: #3d3734;
-    --color-stone-300: #57504b;
-    --color-stone-400: #857d77;
-    --color-stone-500: #a8a29e;
-    --color-stone-600: #c4beb9;
-    --color-stone-700: #d6d3d1;
-    --color-stone-800: #e7e5e4;
-    --color-stone-900: #f5f5f4;
-    --color-stone-950: #fafaf9;
+    --color-superficie: #151c28;
+    --color-fondo: #0a0f18;
+    --color-stone-50: #1a2230;
+    --color-stone-100: #202a3a;
+    --color-stone-200: #2b3648;
+    --color-stone-300: #435066;
+    --color-stone-400: #7a8699;
+    --color-stone-500: #9aa5b5;
+    --color-stone-600: #bcc5d1;
+    --color-stone-700: #d3d9e2;
+    --color-stone-800: #e5e9ef;
+    --color-stone-900: #f3f5f8;
+    --color-stone-950: #f9fafb;
 
-    --color-marca-50: #3a2416;
-    --color-marca-100: #4a2c19;
-    --color-marca-200: #6e3e1e;
-    --color-marca-300: #8f5226;
-    --color-marca-700: #f0a46b;
-    --color-marca-800: #f6c39c;
+    --color-marca-50: #0e2033;
+    --color-marca-100: #112a44;
+    --color-marca-200: #193c61;
+    --color-marca-300: #225285;
+    --color-marca-700: #7dc2f6;
+    --color-marca-800: #b8dcfa;
 
     --color-emerald-50: #10291f;
     --color-emerald-100: #133626;
@@ -151,21 +183,22 @@
     --color-sky-100: #10303f;
     --color-sky-700: #7dd3fc;
 
-    --color-teal-50: #0c2724;
-    --color-teal-100: #0f3430;
-    --color-teal-700: #5eead4;
+    --color-cyan-50: #0b2530;
+    --color-cyan-100: #0e3140;
+    --color-cyan-700: #67e8f9;
 
-    --color-indigo-50: #1c1d3d;
-    --color-indigo-100: #23254d;
-    --color-indigo-700: #a5b4fc;
+    --color-blue-50: #0f1d3d;
+    --color-blue-100: #142650;
+    --color-blue-700: #93c5fd;
 
-    --color-fuchsia-50: #2e1530;
-    --color-fuchsia-100: #3b1a3e;
-    --color-fuchsia-700: #f0abfc;
+    --color-anil-50: #171b3a;
+    --color-anil-100: #1d2350;
+    --color-anil-200: #2a3270;
+    --color-anil-700: #b3bcf5;
 
-    --color-violet-50: #251a3d;
-    --color-violet-100: #2e204d;
-    --color-violet-700: #c4b5fd;
+    --color-acero-50: #141f2c;
+    --color-acero-100: #1a2939;
+    --color-acero-700: #a9c1db;
   }
 }
 
@@ -273,12 +306,157 @@ dialog::backdrop {
   pointer-events: none;
 }
 
+/* -----------------------------------------------------------------------------
+   Barra lateral azul (components/shell/app-shell.tsx): brillo cian arriba, degradado marino y
+   rejilla hexagonal tenue al pie (estática). La rejilla va con z-index -1 dentro del contexto del aside.
+   -------------------------------------------------------------------------- */
+.fondo-lateral {
+  background:
+    radial-gradient(240px 56px at 0 0, rgb(34 192 248 / 0.18), transparent),
+    linear-gradient(180deg, #133d6e 0%, #0f2c50 45%, #0b2140 100%);
+}
+/* Desplazamiento con rueda, touchpad o dedo, sin la barra gris (no va con el azul) */
+.sin-barra {
+  scrollbar-width: none;
+}
+.sin-barra::-webkit-scrollbar {
+  display: none;
+}
+.fondo-lateral::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 14rem;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34L28 66v34' fill='none' stroke='%2322c0f8' stroke-opacity='.12' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 56px 100px;
+  mask-image: linear-gradient(to top, #000, transparent);
+}
+
+/* -----------------------------------------------------------------------------
+   Escena de marca (login y cambio de contraseña, components/marca/escena-marca.tsx)
+   -------------------------------------------------------------------------- */
+/* La rejilla se desplaza con transform (compositor) en un pseudo-elemento más grande que la pantalla:
+   sin repintar ni re-enmascarar cada fotograma */
+.escena-rejilla {
+  overflow: hidden;
+  mask-image: radial-gradient(ellipse at 30% 40%, #000 20%, transparent 75%);
+}
+.escena-rejilla::before {
+  content: "";
+  position: absolute;
+  inset: -100px -56px 0 0;
+  will-change: transform;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34L28 66v34M28 0v0' fill='none' stroke='%232fa3ec' stroke-opacity='.13' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 56px 100px;
+  animation: deriva 20s linear infinite;
+}
+@keyframes deriva {
+  to { transform: translate(56px, 100px); }
+}
+/* Orbes de luz: degradado radial en vez de filter: blur (mucho más liviano en celulares) */
+.escena-orbe {
+  background: radial-gradient(circle, var(--orbe) 0%, transparent 68%);
+  will-change: transform;
+  animation: flotar 16s ease-in-out infinite alternate;
+}
+.escena-orbe-2 { animation-duration: 21s; animation-direction: alternate-reverse; }
+@keyframes flotar {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(6rem, 4rem) scale(1.15); }
+}
+.chispa {
+  opacity: 0;
+  box-shadow: 0 0 8px 2px rgb(34 192 248 / 0.6);
+  animation: chispa var(--dura, 10s) var(--retraso, 0s) linear infinite;
+}
+@keyframes chispa {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  10% { opacity: 0.9; }
+  70% { opacity: 0.5; }
+  100% { transform: translateY(-85vh) scale(1.1); opacity: 0; }
+}
+
+/* Isotipo que se arma: cada mitad entra desde su lado y se juntan al centro */
+.iso-izq { clip-path: inset(0 50% 0 0); animation: ensamblar-izq 0.9s 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.iso-der { clip-path: inset(0 0 0 50%); animation: ensamblar-der 0.9s 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes ensamblar-izq {
+  from { transform: translate(-45%, 8%) rotate(-8deg); opacity: 0; filter: blur(6px); }
+  to { transform: none; opacity: 1; filter: none; }
+}
+@keyframes ensamblar-der {
+  from { transform: translate(45%, -8%) rotate(8deg); opacity: 0; filter: blur(6px); }
+  to { transform: none; opacity: 1; filter: none; }
+}
+.iso { animation: levitar 6s 1.2s ease-in-out infinite; }
+@keyframes levitar {
+  50% { transform: translateY(-8px); }
+}
+.iso-resplandor {
+  background: radial-gradient(circle, rgb(34 192 248 / 0.55), transparent 70%);
+  filter: blur(18px);
+  animation: aparecer 0.6s 0.8s both, latir 3.5s 1.4s ease-in-out infinite;
+}
+@keyframes latir {
+  50% { opacity: 0.45; transform: scale(0.9); }
+}
+/* Destello que recorre el isotipo (la máscara recorta el brillo a la forma del logo) */
+.iso-brillo {
+  mask: url("/marca/isotipo.png") center / contain no-repeat;
+  background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.75) 50%, transparent 65%) no-repeat;
+  background-size: 250% 100%;
+  animation: barrido 5s 1.1s ease-in-out infinite;
+}
+@keyframes barrido {
+  0% { background-position: 150% 0; }
+  35%, 100% { background-position: -50% 0; }
+}
+.iso-halo { animation: aparecer 1s 0.6s both, girar 40s linear infinite; }
+@keyframes girar {
+  to { rotate: 360deg; }
+}
+.escalonado { animation: subir 0.6s var(--retraso, 0s) cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.texto-metal {
+  background: linear-gradient(100deg, #ffffff 20%, #7fd8fb 40%, #ffffff 60%) 0 0 / 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: subir 0.6s var(--retraso, 0s) cubic-bezier(0.2, 0.8, 0.2, 1) both, reflejo 7s 1.6s ease-in-out infinite;
+}
+@keyframes reflejo {
+  0% { background-position: 100% 0; }
+  50%, 100% { background-position: -150% 0; }
+}
+/* Cambio de paso dentro de la tarjeta (rol → credenciales → recuperar) */
+.paso-adelante { animation: paso-adelante 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.paso-atras { animation: paso-atras 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes paso-adelante {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes paso-atras {
+  from { opacity: 0; transform: translateX(-24px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Celulares y tablets: sin los bucles más pesados (orbes con blur, halo, resplandor) y la mitad de chispas */
+@media (max-width: 1023px) {
+  .escena-orbe, .iso-halo, .iso-resplandor { animation: none; }
+  .chispa:nth-child(odd) { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animar-entrada, .animar-salida, .animar-aparecer, .animar-subir, .animar-sacudir,
-  .check-trazo, .circulo-trazo {
+  .check-trazo, .circulo-trazo, .escalonado, .texto-metal, .paso-adelante, .paso-atras,
+  .iso-izq, .iso-der {
     animation-duration: 0.01s;
     animation-delay: 0s;
   }
+  .escena-rejilla::before, .escena-orbe, .chispa, .iso, .iso-resplandor, .iso-brillo, .iso-halo {
+    animation: none;
+  }
+  .chispa { display: none; }
 }
 
 @media print {

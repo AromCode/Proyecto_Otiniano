@@ -26,7 +26,7 @@ export async function ResumenCompras({ ctx }: { ctx: Ctx }) {
   const metal = r.metal_top as Top;
   return (
     <PanelModulo
-      tono="teal"
+      tono="compras"
       etiqueta={`Compras · ${nombrePeriodo(String(r.periodo ?? "2000-01"))}`}
       insignia={variacion(n(r.mes_importe), n(r.anterior_importe))}
       principal={{
@@ -53,7 +53,7 @@ export async function ResumenVentas({ ctx }: { ctx: Ctx }) {
   const verMargen = puede(ctx.rol, "verCostos");
   return (
     <PanelModulo
-      tono="indigo"
+      tono="ventas"
       etiqueta={`Ventas · ${nombrePeriodo(String(r.periodo ?? "2000-01"))}`}
       insignia={verMargen && r.mes_margen_pct != null ? `Margen ${porcentaje(r.mes_margen_pct as number)}` : undefined}
       principal={{
@@ -82,10 +82,10 @@ export async function ResumenInventario({ ctx }: { ctx: Ctx }) {
   const { data } = await ctx.supabase.rpc("resumen_inventario", { p_empresa: ctx.empresa.id });
   const r = (data ?? {}) as Json;
   const kilos = { titulo: "Kilos en stock", valor: kg(r.kg as number), detalle: `${n(r.metales_con_stock)} metales con stock` };
-  if (!puede(ctx.rol, "verCostos")) return <PanelModulo tono="violet" etiqueta="Inventario · hoy" principal={kilos} celdas={[]} />;
+  if (!puede(ctx.rol, "verCostos")) return <PanelModulo tono="inventario" etiqueta="Inventario · hoy" principal={kilos} celdas={[]} />;
   return (
     <PanelModulo
-      tono="violet"
+      tono="inventario"
       etiqueta="Inventario · hoy"
       principal={{ titulo: "Valor a costo", valor: soles(r.valor_costo as number), detalle: "Lo que nos costó el stock (costo promedio ponderado)" }}
       celdas={[

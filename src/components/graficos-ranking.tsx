@@ -19,9 +19,9 @@ export interface FilaRanking {
 
 type Medida = "kg" | "importe";
 
-// Colores de módulo: proveedores = Compras (teal), clientes = Ventas (indigo).
+// Colores de módulo: proveedores = Compras (celeste), clientes = Ventas (añil).
 // Tonos medios (600) que se leen bien en claro y oscuro.
-const COLOR = { teal: "var(--color-teal-600)", indigo: "var(--color-indigo-600)" } as const;
+const COLOR = { compras: "var(--color-sky-600)", ventas: "var(--color-anil-600)" } as const;
 
 const compacto = new Intl.NumberFormat("es-PE", { notation: "compact", maximumFractionDigits: 1 });
 const corto = (t: string, n: number) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);

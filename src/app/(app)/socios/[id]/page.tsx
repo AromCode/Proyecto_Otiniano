@@ -43,7 +43,7 @@ export default async function SocioDetalle({
               : <Insignia tono={m.tipo === "aporte" ? "verde" : "ambar"}>{m.tipo === "aporte" ? "Aporte" : "Retiro"}</Insignia>,
           },
           { titulo: "Caja", celda: (m) => m.caja_nombre },
-          { titulo: "Monto", alinear: "der", principal: true, celda: (m) => <span className={m.estado === "anulada" ? "cifra text-stone-400 line-through" : "cifra font-medium"}>{soles(m.monto)}</span> },
+          { titulo: "Monto", alinear: "der", principal: true, celda: (m) => <span className={m.estado === "anulada" ? "cifra text-stone-500 line-through" : "cifra font-medium"}>{soles(m.monto)}</span> },
           { titulo: "Nota", celda: (m) => m.nota ?? "—" },
         ]}
       />

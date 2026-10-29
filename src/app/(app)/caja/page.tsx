@@ -93,7 +93,7 @@ export default async function CajaPage({ searchParams }: { searchParams: Promise
 
       {/* Cada caja filtra los movimientos; el total quita el filtro */}
       <PanelModulo
-        tono="sky"
+        tono="caja"
         etiqueta="Caja · hoy"
         principal={{
           titulo: "Saldo total", valor: soles(total), negativo: total < 0,
@@ -160,7 +160,7 @@ export default async function CajaPage({ searchParams }: { searchParams: Promise
               {
                 titulo: "Monto", alinear: "der", principal: true,
                 celda: (m) => (
-                  <span className={cx("cifra font-medium", m.anulado ? "text-stone-400 line-through" : m.tipo === "ingreso" ? "text-emerald-700" : "text-red-700")}>
+                  <span className={cx("cifra font-medium", m.anulado ? "text-stone-500 line-through" : m.tipo === "ingreso" ? "text-emerald-700" : "text-red-700")}>
                     {m.tipo === "ingreso" ? "+" : "−"}{soles(m.monto)}
                   </span>
                 ),
@@ -176,7 +176,7 @@ export default async function CajaPage({ searchParams }: { searchParams: Promise
             vacio="Sin gastos."
             columnas={[
               { titulo: "Fecha", celda: (g) => fechaHora(g.fecha) },
-              { titulo: "Concepto", principal: true, celda: (g) => <span className={g.estado === "anulada" ? "text-stone-400 line-through" : ""}>{g.concepto}</span> },
+              { titulo: "Concepto", principal: true, celda: (g) => <span className={g.estado === "anulada" ? "text-stone-500 line-through" : ""}>{g.concepto}</span> },
               { titulo: "Categoría", celda: (g) => g.categoria_nombre ?? "—" },
               { titulo: "Caja", celda: (g) => g.caja_nombre },
               { titulo: "Monto", alinear: "der", principal: true, celda: (g) => <span className="cifra">{soles(g.monto)}</span> },
@@ -197,7 +197,7 @@ export default async function CajaPage({ searchParams }: { searchParams: Promise
               { titulo: "Fecha", celda: (t) => fechaHora(t.fecha) },
               { titulo: "Desde → Hacia", principal: true, celda: (t) => `${(t.origen as { nombre: string }).nombre} → ${(t.destino as { nombre: string }).nombre}` },
               { titulo: "Concepto", celda: (t) => t.concepto ?? "—" },
-              { titulo: "Monto", alinear: "der", principal: true, celda: (t) => <span className={cx("cifra", t.estado === "anulada" && "text-stone-400 line-through")}>{soles(t.monto)}</span> },
+              { titulo: "Monto", alinear: "der", principal: true, celda: (t) => <span className={cx("cifra", t.estado === "anulada" && "text-stone-500 line-through")}>{soles(t.monto)}</span> },
               {
                 titulo: "", celda: (t) => t.estado === "anulada"
                   ? <Insignia tono="rojo">Anulado</Insignia>

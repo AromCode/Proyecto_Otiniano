@@ -2,16 +2,26 @@ import { NextResponse } from "next/server";
 import { crearClienteServidor } from "@/lib/supabase/server";
 import { crearClienteAdmin } from "@/lib/supabase/admin";
 import { COOKIE_EMPRESA } from "@/lib/contexto";
-import { correosDev } from "@/lib/dev-login";
+import { correosDev, esHostLocal, usuariosDev } from "@/lib/dev-login";
 
 // Acceso directo SOLO EN DESARROLLO (pnpm dev). En producción responde 404.
 // Genera un enlace mágico con service_role para DEV_LOGIN_EMAIL y lo canjea en el servidor:
 // no necesita contraseña, así que sigue funcionando aunque el usuario la cambie.
 export async function POST(request: Request) {
+  // Solo desde esta misma máquina y desde el propio sitio (un formulario de otra página no puede iniciar sesión)
+  // (encabezado Host real: en dev, request.url siempre dice localhost aunque se entre por la IP de la red)
+  const host = request.headers.get("host");
+  const origen = request.headers.get("origin");
+  const otroOrigen = !!origen && URL.canParse(origen) ? new URL(origen).host !== host : !!origen; // "null" = ajeno
+  if (process.env.NODE_ENV !== "development" || !esHostLocal(host) || otroOrigen) {
+    return new NextResponse("No encontrado", { status: 404 });
+  }
   const permitidos = correosDev();
   const pedido = String((await request.formData().catch(() => null))?.get("email") ?? "").toLowerCase();
-  const email = pedido ? permitidos.find((e) => e === pedido) : permitidos[0];
-  if (process.env.NODE_ENV !== "development" || !email) {
+  // Solo correos de DEV_LOGIN_EMAIL(S) o los usuarios de prueba del «Ingreso directo por rol»
+  const porRol = Object.values(await usuariosDev());
+  const email = pedido ? [...permitidos, ...porRol].find((e) => e === pedido) : permitidos[0];
+  if (!email) {
     return new NextResponse("No encontrado", { status: 404 });
   }
 

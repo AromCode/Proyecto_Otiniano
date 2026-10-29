@@ -17,18 +17,25 @@ export interface SubItem {
   permiso?: Accion[];
 }
 
-// Color de cada módulo para ubicarse rápido. Clases escritas completas para que Tailwind las genere.
-// (Verde/rojo/ámbar quedan reservados para estados: registrada, anulada, pendiente.)
+// Color de cada módulo para ubicarse rápido: una sola familia de azules (matiz y saturación distintos) que
+// combina con la marca. Claves por MÓDULO, no por color. Clases escritas completas para que Tailwind las genere.
+// Verde/rojo/ámbar quedan reservados para estados (registrada, anulada, pendiente).
 export const TONOS = {
-  marca: { texto: "text-marca-700", fondo: "bg-marca-50", borde: "border-marca-600", chip: "bg-marca-100 text-marca-700", barra: "border-l-marca-600" },
-  teal: { texto: "text-teal-700", fondo: "bg-teal-50", borde: "border-teal-600", chip: "bg-teal-100 text-teal-700", barra: "border-l-teal-600" },
-  indigo: { texto: "text-indigo-700", fondo: "bg-indigo-50", borde: "border-indigo-600", chip: "bg-indigo-100 text-indigo-700", barra: "border-l-indigo-600" },
-  violet: { texto: "text-violet-700", fondo: "bg-violet-50", borde: "border-violet-600", chip: "bg-violet-100 text-violet-700", barra: "border-l-violet-600" },
-  fuchsia: { texto: "text-fuchsia-700", fondo: "bg-fuchsia-50", borde: "border-fuchsia-600", chip: "bg-fuchsia-100 text-fuchsia-700", barra: "border-l-fuchsia-600" },
-  sky: { texto: "text-sky-700", fondo: "bg-sky-50", borde: "border-sky-600", chip: "bg-sky-100 text-sky-700", barra: "border-l-sky-600" },
-  stone: { texto: "text-stone-800", fondo: "bg-stone-100", borde: "border-stone-600", chip: "bg-stone-200 text-stone-700", barra: "border-l-stone-500" },
+  inicio: { texto: "text-marca-700", fondo: "bg-marca-50", borde: "border-marca-600", chip: "bg-marca-100 text-marca-700", barra: "border-l-marca-600" },
+  compras: { texto: "text-sky-700", fondo: "bg-sky-50", borde: "border-sky-600", chip: "bg-sky-100 text-sky-700", barra: "border-l-sky-600" },
+  ventas: { texto: "text-anil-700", fondo: "bg-anil-50", borde: "border-anil-600", chip: "bg-anil-100 text-anil-700", barra: "border-l-anil-600" },
+  contactos: { texto: "text-cyan-700", fondo: "bg-cyan-50", borde: "border-cyan-600", chip: "bg-cyan-100 text-cyan-700", barra: "border-l-cyan-600" },
+  inventario: { texto: "text-acero-700", fondo: "bg-acero-50", borde: "border-acero-600", chip: "bg-acero-100 text-acero-700", barra: "border-l-acero-600" },
+  caja: { texto: "text-blue-700", fondo: "bg-blue-50", borde: "border-blue-600", chip: "bg-blue-100 text-blue-700", barra: "border-l-blue-600" },
+  gestion: { texto: "text-stone-800", fondo: "bg-stone-100", borde: "border-stone-600", chip: "bg-stone-200 text-stone-700", barra: "border-l-stone-500" },
 } as const;
 export type Tono = keyof typeof TONOS;
+
+// Acento de cada módulo dentro de la barra lateral azul: hex fijos (TONOS se invierte en modo oscuro
+// y sobre el azul quedaría apagado). Ícono del módulo y franja de la barra contraída.
+export const ACENTO_LATERAL: Record<Tono, string> = {
+  inicio: "#ffffff", compras: "#38bdf8", ventas: "#a5b0f5", contactos: "#67e8f9", inventario: "#9fbad6", caja: "#60a5fa", gestion: "#94a3b8",
+};
 
 export interface Modulo {
   id: string;
@@ -41,11 +48,11 @@ export interface Modulo {
 
 export const MODULOS: Modulo[] = [
   {
-    id: "inicio", texto: "Inicio", icono: Home, tono: "marca",
+    id: "inicio", texto: "Inicio", icono: Home, tono: "inicio",
     items: [{ href: "/", texto: "Inicio", icono: Home }],
   },
   {
-    id: "compras", texto: "Compras", icono: ArrowDownToLine, tono: "teal",
+    id: "compras", texto: "Compras", icono: ArrowDownToLine, tono: "compras",
     items: [
       { href: "/comprar", texto: "Nueva compra", icono: PlusCircle, permiso: ["comprar"] },
       { href: "/compras", texto: "Historial", icono: ClipboardList },
@@ -53,7 +60,7 @@ export const MODULOS: Modulo[] = [
     ],
   },
   {
-    id: "ventas", texto: "Ventas", icono: ArrowUpFromLine, tono: "indigo",
+    id: "ventas", texto: "Ventas", icono: ArrowUpFromLine, tono: "ventas",
     items: [
       { href: "/vender", texto: "Nueva venta", icono: PlusCircle, permiso: ["vender"] },
       { href: "/ventas", texto: "Historial", icono: ClipboardList, permiso: ["vender", "verTodo"] },
@@ -61,7 +68,7 @@ export const MODULOS: Modulo[] = [
     ],
   },
   {
-    id: "contactos", texto: "Contactos", icono: Contact, tono: "fuchsia",
+    id: "contactos", texto: "Contactos", icono: Contact, tono: "contactos",
     items: [
       { href: "/contactos", texto: "Buscar", icono: Search },
       { href: "/proveedores", texto: "Proveedores", icono: Users },
@@ -69,7 +76,7 @@ export const MODULOS: Modulo[] = [
     ],
   },
   {
-    id: "inventario", texto: "Inventario", icono: Boxes, tono: "violet",
+    id: "inventario", texto: "Inventario", icono: Boxes, tono: "inventario",
     items: [
       { href: "/inventario", texto: "Stock", icono: Boxes, permiso: ["verTodo", "vender"] },
       { href: "/limpieza", texto: "Limpieza", icono: PackageCheck, permiso: ["limpiar", "verTodo"] },
@@ -78,7 +85,7 @@ export const MODULOS: Modulo[] = [
     ],
   },
   {
-    id: "finanzas", texto: "Caja y finanzas", icono: Landmark, tono: "sky",
+    id: "finanzas", texto: "Caja y finanzas", icono: Landmark, tono: "caja",
     items: [
       { href: "/caja", texto: "Caja", icono: Wallet, permiso: ["caja", "verTodo"] },
       { href: "/capital", texto: "Capital y cierres", icono: PiggyBank, permiso: ["verTodo"] },
@@ -86,7 +93,7 @@ export const MODULOS: Modulo[] = [
     ],
   },
   {
-    id: "gestion", texto: "Gestión", icono: Settings, tono: "stone",
+    id: "gestion", texto: "Gestión", icono: Settings, tono: "gestion",
     items: [
       { href: "/reportes", texto: "Todos los reportes", icono: BarChart3, permiso: ["verReportes"] },
       // Socios: información de la sociedad (participación y capital), no un contacto del día a día

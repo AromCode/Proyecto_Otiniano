@@ -27,6 +27,15 @@ UI y textos en **español (Perú)**. Lo marcado **[CONFIRMAR]** en la propuesta 
 - Medios de pago editables en `medios_pago` (tipo base + caja); las RPC reciben `p_medio`.
 - Navegación por módulos (Compras, Ventas, Contactos, Inventario, Caja y finanzas) en `src/components/shell/modulos.ts`:
   menú lateral y pestañas salen de ahí. Reportes de cada módulo con `VistaReportes` (`ids` + `base`).
+- Marca Grupo Otiniano: azul del logo (`marca-*`, neutros fríos en la escala `stone`). Originales en `Logotipos/`,
+  recortes en `public/marca/`. Login y `/restablecer` usan `EscenaMarca` (fondo oscuro fijo, animaciones en `globals.css`).
+  Login = correo y contraseña (el sistema lleva al panel según el rol). «Ingreso directo por rol» solo en `pnpm dev`
+  (`usuariosDev` en `src/lib/dev-login.ts`: usuario de prueba de cada rol en la empresa DEV_LOGIN_EMPRESA), y solo
+  abriendo en localhost (`esHostLocal`; desde la IP de la red no aparece). Todo `next` de redirección pasa por `destinoSeguro`.
+- Barra lateral azul FIJA (claro y oscuro): `fondo-lateral` + tokens `lateral-*` (fuera del bloque oscuro) y
+  `ACENTO_LATERAL` por módulo en `modulos.ts`. Dentro de ella no usar `stone-*`/`TONOS`/`bg-superficie` (se invierten).
+- Módulos = familia de azules, claves por módulo (`TONOS.compras` sky, `ventas` anil, `contactos` cyan, `inventario`
+  acero, `caja` blue); hero en `FONDOS` de `panel-modulo.tsx`. Verde/rojo/ámbar solo para estados (`Insignia` con punto).
 - Modo oscuro = variables de color redefinidas en `globals.css` (sin clases `dark:`). Usar `bg-superficie`,
   nunca `bg-white`; colores de módulo vía `TONOS`. Si se usa un color nuevo con tinte, agregarlo al bloque oscuro.
 - Resúmenes de módulo (`resumen_compras/ventas/inventario`) y fichas por metal salen de la BD (`src/components/resumen-modulo.tsx`).

@@ -71,7 +71,7 @@ export default async function ContactosPage({ searchParams }: { searchParams: Pr
     { tipo: "proveedor" as const, n: nProv.count ?? 0, texto: "Proveedores activos", ayuda: "Nos venden material" },
     ...(nCli ? [{ tipo: "cliente" as const, n: nCli.count ?? 0, texto: "Clientes activos", ayuda: "Les vendemos" }] : []),
   ];
-  const t2 = TONOS.fuchsia;
+  const t2 = TONOS.contactos;
 
   return (
     <>

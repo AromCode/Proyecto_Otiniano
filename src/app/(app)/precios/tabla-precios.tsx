@@ -17,12 +17,13 @@ type Valores = { c: string; m: string; v: string };
 export function TablaPrecios({ productos, editable }: { productos: Producto[]; editable: boolean }) {
   const router = useRouter();
   const [valores, setValores] = useState<Record<string, Valores>>(() =>
-    Object.fromEntries(productos.map((p) => [p.id, { c: p.precio_compra, m: p.precio_mayorista ?? "", v: p.precio_venta }])));
+    // Los numeric de Postgres pueden llegar como número: los inputs trabajan con texto
+    Object.fromEntries(productos.map((p) => [p.id, { c: String(p.precio_compra), m: p.precio_mayorista == null ? "" : String(p.precio_mayorista), v: String(p.precio_venta) }])));
   const [estado, setEstado] = useState<{ tipo: "ok" | "error"; msg: string } | null>(null);
   const [guardando, setGuardando] = useState(false);
   const [modal, setModal] = useState<{ producto: Producto | null; padre: string | null } | null>(null);
 
-  const distinto = (a: string | null, b: string) => (a ?? "").trim() === "" ? b.trim() !== "" : b.trim() === "" || Number(a) !== Number(b);
+  const distinto = (a: string | number | null, b: string) => String(a ?? "").trim() === "" ? b.trim() !== "" : b.trim() === "" || Number(a) !== Number(b);
   const cambios = productos.filter((p) => valores[p.id] && (
     Number(valores[p.id].c) !== Number(p.precio_compra) || Number(valores[p.id].v) !== Number(p.precio_venta)
     || distinto(p.precio_mayorista, valores[p.id].m)));

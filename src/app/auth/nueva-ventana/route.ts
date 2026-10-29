@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { crearClienteServidor } from "@/lib/supabase/server";
+import { destinoSeguro } from "@/lib/destino";
 
 // Pestaña o ventana nueva (o la app instalada recién abierta) con una sesión que viene de antes:
 // se cierra la sesión SOLO en este navegador (scope "local": otros equipos siguen conectados) y se
@@ -7,8 +8,8 @@ import { crearClienteServidor } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const supabase = await crearClienteServidor();
   await supabase.auth.signOut({ scope: "local" });
-  const pedido = new URL(request.url).searchParams.get("next") ?? "/";
+  const pedido = destinoSeguro(new URL(request.url).searchParams.get("next"));
   const url = new URL("/login", request.url);
-  if (pedido.startsWith("/") && !pedido.startsWith("//") && pedido !== "/") url.searchParams.set("next", pedido);
+  if (pedido !== "/") url.searchParams.set("next", pedido);
   return NextResponse.redirect(url, { status: 303 });
 }

@@ -9,7 +9,7 @@ export const claseInput =
 
 const base =
   "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors " +
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-marca-200 disabled:pointer-events-none disabled:opacity-50";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-marca-500 focus-visible:ring-offset-2 focus-visible:ring-offset-superficie disabled:pointer-events-none disabled:opacity-50";
 
 const variantes = {
   primario: "bg-marca-600 text-white hover:brightness-110 active:brightness-95",

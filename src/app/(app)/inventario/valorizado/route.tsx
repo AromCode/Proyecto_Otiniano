@@ -11,9 +11,9 @@ export const runtime = "nodejs";
 // Inventario valorizado («valorizado total») en PDF o Excel con la marca de la empresa.
 // Todas las cifras vienen de la BD (v_stock_metal, resumen_inventario, v_patrimonio, v_lotes).
 
-const COBRE = "FFA85219";
-const COBRE_OSCURO = "FF6E3514";
-const TINTE = "FFFDF5EF";
+const MARCA = "FF1A5CA8";
+const MARCA_OSCURO = "FF0F2C50";
+const TINTE = "FFEFF7FE";
 const CEBRA = "FFFAFAF9";
 const SOLES = '"S/" #,##0.00;[Red]-"S/" #,##0.00';
 const PRECIO = '"S/" #,##0.00##';
@@ -98,9 +98,9 @@ function bandaTitulo(hoja: ExcelJS.Worksheet, columnas: number, titulo: string, 
     celda.font = fuente;
     celda.alignment = { vertical: "middle", indent: 1 };
     hoja.getRow(f).height = i === 0 ? 26 : 18;
-    for (let c = 1; c <= columnas; c++) hoja.getCell(f, c).fill = { type: "pattern", pattern: "solid", fgColor: { argb: COBRE } };
+    for (let c = 1; c <= columnas; c++) hoja.getCell(f, c).fill = { type: "pattern", pattern: "solid", fgColor: { argb: MARCA } };
   });
-  for (let c = 1; c <= columnas; c++) hoja.getCell(4, c).fill = { type: "pattern", pattern: "solid", fgColor: { argb: COBRE_OSCURO } };
+  for (let c = 1; c <= columnas; c++) hoja.getCell(4, c).fill = { type: "pattern", pattern: "solid", fgColor: { argb: MARCA_OSCURO } };
   hoja.getRow(4).height = 4;
 }
 
@@ -108,9 +108,9 @@ function cabecera(fila: ExcelJS.Row) {
   fila.height = 22;
   fila.eachCell((c) => {
     c.font = { bold: true, color: { argb: "FFFFFFFF" } };
-    c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: COBRE } };
+    c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: MARCA } };
     c.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
-    c.border = { bottom: { style: "medium", color: { argb: COBRE_OSCURO } } };
+    c.border = { bottom: { style: "medium", color: { argb: MARCA_OSCURO } } };
   });
 }
 
@@ -155,19 +155,19 @@ async function excelValorizado(d: DatosValorizado, logo: { buffer: Buffer; ext: 
     tc.value = titulo.toUpperCase();
     tc.font = { size: 8, bold: true, color: { argb: "FF78716C" } };
     tc.fill = { type: "pattern", pattern: "solid", fgColor: { argb: TINTE } };
-    tc.border = { left: { style: "thick", color: { argb: COBRE } } };
+    tc.border = { left: { style: "thick", color: { argb: MARCA } } };
     const vc = h.getCell(7, i + 1);
     vc.value = valor;
     vc.numFmt = fmt;
     vc.font = { size: 13, bold: true };
     vc.fill = { type: "pattern", pattern: "solid", fgColor: { argb: TINTE } };
-    vc.border = { left: { style: "thick", color: { argb: COBRE } } };
+    vc.border = { left: { style: "thick", color: { argb: MARCA } } };
   });
   h.getRow(7).height = 22;
 
   const t9 = h.getCell("A9");
   t9.value = "Stock por producto";
-  t9.font = { bold: true, size: 11, color: { argb: COBRE_OSCURO } };
+  t9.font = { bold: true, size: 11, color: { argb: MARCA_OSCURO } };
 
   const INI = 11;
   h.getRow(INI).values = ["Producto", "Stock (kg)", "Costo prom./kg", "Valor a costo", "Precio venta/kg", "Valor a venta", "Ganancia potencial", "% del valor"];
@@ -192,7 +192,7 @@ async function excelValorizado(d: DatosValorizado, logo: { buffer: Buffer; ext: 
     if (col > COLS) return;
     c.font = { bold: true };
     c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: TINTE } };
-    c.border = { top: { style: "medium", color: { argb: COBRE } } };
+    c.border = { top: { style: "medium", color: { argb: MARCA } } };
   });
   [["B", KG], ["C", PRECIO], ["D", SOLES], ["E", PRECIO], ["F", SOLES], ["G", SOLES], ["H", "0.0%"]].forEach(([col, fmt]) => {
     for (let f = INI + 1; f <= ft; f++) h.getCell(`${col}${f}`).numFmt = fmt;
@@ -226,7 +226,7 @@ async function excelValorizado(d: DatosValorizado, logo: { buffer: Buffer; ext: 
     if (col > LC) return;
     c.font = { bold: true };
     c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: TINTE } };
-    c.border = { top: { style: "medium", color: { argb: COBRE } } };
+    c.border = { top: { style: "medium", color: { argb: MARCA } } };
   });
   for (let f = 7; f <= lf + 1; f++) {
     l.getCell(`A${f}`).numFmt = "dd/mm/yyyy";

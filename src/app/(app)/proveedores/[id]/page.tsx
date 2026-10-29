@@ -46,7 +46,7 @@ export default async function ProveedorDetalle({
           { titulo: "Fecha", celda: (c) => fechaHora(c.fecha) },
           { titulo: "Productos", celda: (c) => c.metales },
           { titulo: "Kg", alinear: "der", celda: (c) => <span className="cifra">{kg(c.kg_total)}</span> },
-          { titulo: "Total", alinear: "der", principal: true, celda: (c) => <span className={c.estado === "anulada" ? "cifra text-stone-400 line-through" : "cifra"}>{soles(c.total)}</span> },
+          { titulo: "Total", alinear: "der", principal: true, celda: (c) => <span className={c.estado === "anulada" ? "cifra text-stone-500 line-through" : "cifra"}>{soles(c.total)}</span> },
         ]}
       />
     </Tarjeta>

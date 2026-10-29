@@ -143,7 +143,7 @@ export async function RankingTerceros({
 
       <GraficoRanking
         filas={filas}
-        tono={esProv ? "teal" : "indigo"}
+        tono={esProv ? "compras" : "ventas"}
         operacion={esProv ? "compras" : "ventas"}
         base={esProv ? "/proveedores" : "/compradores"}
       />

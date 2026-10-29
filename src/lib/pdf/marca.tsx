@@ -2,24 +2,24 @@ import { Image, StyleSheet, Text, View } from "@react-pdf/renderer";
 
 // Marca común de los PDF con la identidad de la empresa (valorizado, comprobantes de compra y venta).
 // Solo Helvetica: sin "−" ni flechas unicode.
-export const COBRE = "#a85219";
-export const COBRE_OSCURO = "#6e3514";
-export const TINTE = "#fdf5ef";
+export const MARCA = "#1a5ca8";
+export const MARCA_OSCURO = "#0f2c50";
+export const TINTE = "#eff7fe";
 export const CEBRA = "#fafaf9";
 
 export interface EmpresaPdf { razon_social: string; ruc: string | null; direccion: string | null; telefono: string | null }
 
 const s = StyleSheet.create({
-  banda: { backgroundColor: COBRE, paddingVertical: 14, paddingHorizontal: 28, flexDirection: "row", alignItems: "center" },
+  banda: { backgroundColor: MARCA, paddingVertical: 14, paddingHorizontal: 28, flexDirection: "row", alignItems: "center" },
   logoCaja: { width: 44, height: 44, borderRadius: 8, backgroundColor: "#ffffff", alignItems: "center", justifyContent: "center", marginRight: 12 },
   logo: { width: 38, height: 38, objectFit: "contain" },
-  iniciales: { fontFamily: "Helvetica-Bold", fontSize: 16, color: COBRE },
+  iniciales: { fontFamily: "Helvetica-Bold", fontSize: 16, color: MARCA },
   empresa: { fontFamily: "Helvetica-Bold", fontSize: 13, color: "#ffffff" },
-  empresaDato: { fontSize: 8, color: "#fae6d6", marginTop: 2 },
+  empresaDato: { fontSize: 8, color: "#dbeefc", marginTop: 2 },
   bandaDer: { marginLeft: "auto", alignItems: "flex-end" },
   titulo: { fontFamily: "Helvetica-Bold", fontSize: 16, color: "#ffffff" },
-  subtitulo: { fontSize: 8, color: "#fae6d6", marginTop: 2 },
-  franja: { height: 4, backgroundColor: COBRE_OSCURO },
+  subtitulo: { fontSize: 8, color: "#dbeefc", marginTop: 2 },
+  franja: { height: 4, backgroundColor: MARCA_OSCURO },
   pie: {
     position: "absolute", bottom: 16, left: 28, right: 28, fontSize: 6.5, color: "#a8a29e",
     flexDirection: "row", justifyContent: "space-between", borderTopWidth: 0.5, borderTopColor: "#e7e5e4", paddingTop: 5,

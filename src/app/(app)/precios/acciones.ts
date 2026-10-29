@@ -9,9 +9,11 @@ import type { Resultado } from "@/lib/tipos";
 export async function guardarPrecios(cambios: { id: string; precio_compra: string; precio_mayorista: string; precio_venta: string }[]): Promise<Resultado> {
   const { supabase } = await obtenerContexto();
   for (const c of cambios) {
-    const pc = normalizar(c.precio_compra);
-    const pv = normalizar(c.precio_venta);
-    const pm = c.precio_mayorista.trim() ? normalizar(c.precio_mayorista) : null;
+    // String(): desde el cliente pueden llegar números (numeric de Postgres) en vez de texto
+    const pc = normalizar(String(c.precio_compra));
+    const pv = normalizar(String(c.precio_venta));
+    const mayorista = String(c.precio_mayorista ?? "").trim();
+    const pm = mayorista ? normalizar(mayorista) : null;
     if (!pc || !pv || pm === "") return fallo("Los precios deben ser números válidos.");
     const { error, count } = await supabase
       .from("metales")
